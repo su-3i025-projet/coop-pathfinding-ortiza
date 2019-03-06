@@ -33,7 +33,7 @@ def init(_boardname=None):
     game = Game('Cartes/' + name + '.json', SpriteBuilder)
     game.O = Ontology(True, 'SpriteSheet-32x32/tiny_spritesheet_ontology.csv')
     game.populate_sprite_names(game.O)
-    game.fps = 1  # frames per second
+    game.fps = 3  # frames per second
     game.mainiteration()
     game.mask.allow_overlaping_players = True
     # player = game.player
@@ -42,7 +42,7 @@ def init(_boardname=None):
 def main():
 
     # for arg in sys.argv:
-    iterations = 50  # default
+    iterations = 500  # default
     if len(sys.argv) == 2:
         iterations = int(sys.argv[1])
     print("Iterations: ")
@@ -72,11 +72,11 @@ def main():
 
     for o in game.layers['ramassable']:  # les rouges puis jaunes puis bleues
         # et on met la fiole qqpart au hasard
-        x = random.randint(1, 19)
-        y = random.randint(1, 19)
+        x = random.randint(6, 12)
+        y = random.randint(6, 12)
         while (x, y) in wallStates:
-            x = random.randint(1, 19)
-            y = random.randint(1, 19)
+            x = random.randint(6, 12)
+            y = random.randint(6, 12)
         o.set_rowcol(x, y)
         game.layers['ramassable'].add(o)
         game.mainiteration()
@@ -101,8 +101,10 @@ def main():
         coop_players.append(ut.Coop_Player(
             initStates[i], goalPos[i], wallStates))
 
-    ut.set_world_dimensions(game.spriteBuilder.rowsize,
-                            game.spriteBuilder.colsize)
+    ut.Node.set_world_dimensions(game.spriteBuilder.rowsize,
+                                 game.spriteBuilder.colsize)
+
+    ut.Coop_Player.set_M(5)
 
     # bon ici on fait juste plusieurs random walker pour exemple...
 
@@ -117,29 +119,37 @@ def main():
             if ((next_row, next_col) not in wallStates) and next_row >= 0 and next_row <= 19 and next_col >= 0 and next_col <= 19:
                 players[j].set_rowcol(next_row, next_col)
                 print("pos :", j, next_row, next_col)
-                game.mainiteration()
+                # game.mainiteration()
 
             # si on a  trouvé un objet on le ramasse
-            if (next_row, next_col) in goalStates:
+            print(next_row, next_col, goalPos[j])
+            if (next_row, next_col) in goalPos[j]:
                 o = players[j].ramasse(game.layers)
                 game.mainiteration()
                 print("Objet trouvé par le joueur ", j)
                 # on enlève ce goalState de la liste
-                goalStates.remove((next_row, next_col))
+                goalPos[j].remove((next_row, next_col))
                 score[j] += 1
 
                 # et on remet un même objet à un autre endroit
-                x = random.randint(1, 19)
-                y = random.randint(1, 19)
+                x = random.randint(6, 12)
+                y = random.randint(6, 12)
                 while (x, y) in wallStates:
-                    x = random.randint(1, 19)
-                    y = random.randint(1, 19)
+                    x = random.randint(6, 12)
+                    y = random.randint(6, 12)
                 o.set_rowcol(x, y)
-                goalStates.append((x, y))  # on ajoute ce nouveau goalState
+                goalPos[j].append((x, y))  # on ajoute ce nouveau goalState
                 game.layers['ramassable'].add(o)
-                game.mainiteration()
+                coop_players[j].add_goal((x, y))
+                # print("==================>", coop_players[j].goal_positions)
 
-                break
+        pos = [p.current_position for p in coop_players]
+        if pos[0] == pos[1] or pos[0] == pos[2] or pos[1] == pos[2]:
+            while True:
+                pass
+        game.mainiteration()
+
+        # break
 
     print("scores:", score)
     pygame.quit()

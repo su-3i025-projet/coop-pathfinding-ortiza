@@ -10,11 +10,6 @@ import heapq
 from functools import reduce
 
 
-def set_world_dimensions(nb_rows, nb_columns):
-    Node.NB_ROWS = nb_rows
-    Node.NB_COLUMNS = nb_columns
-
-
 class Node:
     """
     Class representing a node in A* algorithm's state graph
@@ -91,8 +86,8 @@ class Node:
         shifts = [(1, 0), (-1, 0), (0, 1), (0, -1)]
         neighbours = [(self.x + dx, self.y + dy) for dx, dy in shifts]
         return [Node(self.a_star, x, y, parent=self) for x, y in neighbours
-                if (x, y) not in self.a_star.walls and x >= 0 and x < Node.NB_ROWS and
-                y >= 0 and y < Node.NB_COLUMNS]
+                if (x, y) not in self.a_star.walls and x >= 0 and x < Node.NB_ROWS
+                and y >= 0 and y < Node.NB_COLUMNS]
 
     def get_step(self):
         """
@@ -105,6 +100,11 @@ class Node:
         -------------------
         """
         return self.x - self.parent.x, self.y - self.parent.y
+
+    @classmethod
+    def set_world_dimensions(cls, nb_rows, nb_columns):
+        cls.NB_ROWS = nb_rows
+        cls.NB_COLUMNS = nb_columns
 
     def __repr__(self):
         return f'({self.x}, {self.y})'
@@ -192,6 +192,12 @@ class A_star:
     def run(self):
         """
         Runs A* algorithm
+
+        -------------------
+        return:
+            (list[tuple[int]]): the reversed list of steps to take to get
+            to the goal state from the initial state
+        -------------------
         """
         while not self.open_set_is_empty():
             current_state = self.select_best()
@@ -225,17 +231,19 @@ class A_star:
 class Coop_Player:
 
     PLAYERS = []
-    DEFAULT = (0, 0)
     M = None
 
     def __init__(self, initial_pos, goal_pos, walls):
         self.initial_position = initial_pos
         self.current_position = initial_pos
-        self.goal_positions = goal_pos
+        self.goal_positions = goal_pos[:]
         self.walls = walls
         self.a_star = None
         self.steps = []
         Coop_Player.PLAYERS.append(self)
+
+    def add_goal(self, goal_pos):
+        self.goal_positions.append(goal_pos)
 
     @property
     def others(self):
@@ -247,37 +255,52 @@ class Coop_Player:
     def has_next_goal(self):
         return self.goal_positions != []
 
+    def go_through_one_another(self, other):
+        return self.current_position == other.next_position and self.next_position == other.current_position
+
     def collision(self):
-        oths = self.others
-        # TODO: find collisions
+        for oth in self.others:
+            if oth.next_position == self.next_position or self.go_through_one_another(oth):
+                return self.next_position
         return None
 
     def handle_collision(self, obstacle):
-        nearby_path = A_star(self.current_position, self.get_next_position(self.steps[Coop_Player.M - 1]),
+        nearby_path = A_star(self.current_position, self.get_position_after(self.steps[-Coop_Player.M:]),
                              self.walls + [obstacle]).run()
-        self.steps = nearby_path + self.steps[Coop_Player.M:]
+        self.steps = self.steps[:-Coop_Player.M] + nearby_path
 
-    def get_next_position(self, steps):
+    def get_position_after(self, reversed_steps):
         def take(p, s):
             return p[0] + s[0], p[1] + s[1]
 
-        return reduce(take, steps, self.current_position)
+        return reduce(take, reversed_steps[::-1], self.current_position)
 
-    def next_position(self, step):
-        self.current_position = self.get_next_position([step])
+    @property
+    def next_position(self):
+        return self.get_position_after(self.steps[-1:])
+
+    def get_next_position(self):
+        self.current_position = self.next_position
+        self.steps.pop()
         return self.current_position
 
-    @property  # TODO: sprites pass through walls wtf ?!?!?!
+        # TODO: quid de l'obstacle qui bloque la fiole
+
+    @property
     def next(self):
         if self.has_next_step():
             obstacle = self.collision()
             if obstacle is not None:
                 self.handle_collision(obstacle)
-            return self.next_position(self.steps.pop(0))
+            return self.get_next_position()
         elif self.has_next_goal():
             self.a_star = A_star(self.current_position,
                                  self.goal_positions.pop(0), self.walls)
             self.steps = self.a_star.run()
             return self.next
         else:
-            return Coop_Player.DEFAULT
+            return self.current_position
+
+    @classmethod
+    def set_M(cls, M):
+        cls.M = M
