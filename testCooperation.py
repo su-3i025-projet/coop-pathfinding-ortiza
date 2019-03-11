@@ -11,13 +11,13 @@ from itertools import chain
 import numpy as np
 import pygame
 
-import glo
-import utils as ut
-from gameclass import Game, check_init_game_done
-from ontology import Ontology
-from players import Player
-from sprite import MovingSprite
-from spritebuilder import SpriteBuilder
+import cooperative_behaviour as coop
+import utils.glo as glo
+from utils.gameclass import Game, check_init_game_done
+from utils.ontology import Ontology
+from utils.players import Player
+from utils.sprite import MovingSprite
+from utils.spritebuilder import SpriteBuilder
 
 # ---- ---- ---- ---- ---- ----
 # ---- Main                ----
@@ -30,8 +30,9 @@ def init(_boardname=None):
     global player, game
     # pathfindingWorld_MultiPlayer4
     name = _boardname if _boardname is not None else 'pathfindingWorld_MultiPlayer1'
-    game = Game('Cartes/' + name + '.json', SpriteBuilder)
-    game.O = Ontology(True, 'SpriteSheet-32x32/tiny_spritesheet_ontology.csv')
+    game = Game('../Cartes/' + name + '.json', SpriteBuilder)
+    game.O = Ontology(
+        True, '../SpriteSheet-32x32/tiny_spritesheet_ontology.csv')
     game.populate_sprite_names(game.O)
     game.fps = 5  # frames per second
     game.mainiteration()
@@ -98,13 +99,13 @@ def main():
 
     coop_players = []
     for i in range(nbPlayers):
-        coop_players.append(ut.Coop_Player(
+        coop_players.append(coop.Coop_Player(
             initStates[i], goalPos[i], wallStates))
 
-    ut.Node.set_world_dimensions(game.spriteBuilder.rowsize,
-                                 game.spriteBuilder.colsize)
+    coop.Node.set_world_dimensions(game.spriteBuilder.rowsize,
+                                   game.spriteBuilder.colsize)
 
-    ut.Coop_Player.set_M(5)
+    coop.Coop_Player.set_M(5)
 
     # bon ici on fait juste plusieurs random walker pour exemple...
 
