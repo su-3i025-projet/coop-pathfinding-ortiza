@@ -20,10 +20,13 @@ class Node:
 
     def __init__(self, a_star, x, y, parent=None):
         self.a_star = a_star
-        self.x = x  # row index
-        self.y = y  # column index
         self.parent = parent
-        self.dist_to_root = parent.dist_to_root + 1 if parent is not None else 0
+        # row index
+        self.x = x
+        # column index
+        self.y = y
+        # cost of the path from the root to this node
+        self.g = parent.g + 1 if parent is not None else 0
 
     def set_parent(self, parent):
         """
@@ -62,9 +65,10 @@ class Node:
         return abs(self.x - other.x) + abs(self.y - other.y)
 
     @property
-    def heuristic(self):
+    def h(self):
         """
-        Calculates the Manhattan heuristic value for this node
+        Calculates the Manhattan heuristic value for this node, i.e.
+        an estimate of the cheapest path from this node to the goal
 
         -------------------
         return:
@@ -72,6 +76,18 @@ class Node:
         -------------------
         """
         return self.distance(self.a_star.goal_state)
+
+    @property
+    def f(self):
+        """
+        Calculates f(n) = g(n) + h(n) for this node
+
+        -------------------
+        return:
+            (int): the f value for this node
+        -------------------
+        """
+        return self.g + self.h
 
     def get_valid_neighbours(self):
         """
@@ -86,8 +102,8 @@ class Node:
         shifts = [(1, 0), (-1, 0), (0, 1), (0, -1)]
         neighbours = [(self.x + dx, self.y + dy) for dx, dy in shifts]
         return [Node(self.a_star, x, y, parent=self) for x, y in neighbours
-                if (x, y) not in self.a_star.walls and x >= 0 and x < Node.NB_ROWS and
-                y >= 0 and y < Node.NB_COLUMNS]
+                if (x, y) not in self.a_star.walls and x >= 0 and x < Node.NB_ROWS
+                and y >= 0 and y < Node.NB_COLUMNS]
 
     def get_step(self):
         """
@@ -103,6 +119,9 @@ class Node:
 
     @classmethod
     def set_world_dimensions(cls, nb_rows, nb_columns):
+        """
+        Sets the dimensions of the "world", i.e. the grid
+        """
         cls.NB_ROWS = nb_rows
         cls.NB_COLUMNS = nb_columns
 
@@ -120,10 +139,10 @@ class Node:
     def __lt__(self, other):
         """
         Tests whether this node is less than the given node, based on A*'s
-        function f(n) = heur(n) + dist(root, n), for the purpose of taking
+        function f(n) = g(n) + f(n), for the purpose of taking
         the optimal node from the current fringe
         """
-        return (self.dist_to_root + self.heuristic) < (other.dist_to_root + other.heuristic)
+        return self.f < other.f
 
 
 class A_star:
@@ -135,8 +154,10 @@ class A_star:
         self.initial_state = Node(self, *initial_pos)
         self.goal_state = Node(self, *goal_pos)
         self.walls = walls
-        self.open_set = [self.initial_state]  # the fringe
-        self.closed_set = []  # the set of extended nodes
+        # the fringe
+        self.open_set = [self.initial_state]
+        # the set of extended nodes
+        self.closed_set = []
         self.ending_condition = None  # TODO:
 
     def open_set_is_empty(self):
@@ -176,7 +197,7 @@ class A_star:
 
     def get_not_extended(self, states):
         """
-        Filters out already extended nodes
+        Filters out already extended nodes from a list of nodes
 
         -------------------
         args:
