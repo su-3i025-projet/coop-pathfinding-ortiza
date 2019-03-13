@@ -10,6 +10,11 @@ import heapq
 from functools import reduce
 
 
+def distance(point, other):
+    dists = [abs(c1 - c2) for c1, c2 in zip(point, other)]
+    return sum(dists)
+
+
 class Node:
     """
     Class representing a node in A* algorithm's state graph
@@ -45,7 +50,7 @@ class Node:
 
         -------------------
         return:
-            (bool): True iif this node has a parent node assigned to it
+            (bool): True iff this node has a parent node assigned to it
         -------------------
         """
         return self.parent is not None
@@ -62,7 +67,7 @@ class Node:
             (int): the Manhattan distance between the two nodes
         -------------------
         """
-        return abs(self.x - other.x) + abs(self.y - other.y)
+        return distance((self.x, self.y), (other.x, other.y))
 
     @property
     def h(self):
@@ -102,8 +107,8 @@ class Node:
         shifts = [(1, 0), (-1, 0), (0, 1), (0, -1)]
         neighbours = [(self.x + dx, self.y + dy) for dx, dy in shifts]
         return [Node(self.a_star, x, y, parent=self) for x, y in neighbours
-                if (x, y) not in self.a_star.walls and x >= 0 and x < Node.NB_ROWS
-                and y >= 0 and y < Node.NB_COLUMNS]
+                if (x, y) not in self.a_star.walls and x >= 0 and x < Node.NB_ROWS and
+                y >= 0 and y < Node.NB_COLUMNS]
 
     def get_step(self):
         """
@@ -150,9 +155,9 @@ class A_star:
     Class implementing the A* algorithm
     """
 
-    def __init__(self, initial_pos, goal_pos, walls):
-        self.initial_state = Node(self, *initial_pos)
-        self.goal_state = Node(self, *goal_pos)
+    def __init__(self, initial_state, goal_state, walls):
+        self.initial_state = Node(self, *initial_state)
+        self.goal_state = Node(self, *goal_state)
         self.walls = walls
         # the fringe
         self.open_set = [self.initial_state]
@@ -166,7 +171,7 @@ class A_star:
 
         -------------------
         return:
-            (bool): True iif the fringe is empty
+            (bool): True iff the fringe is empty
         -------------------
         """
         return self.open_set == []  # or self.goal_state.has_parent()
@@ -249,6 +254,36 @@ class A_star:
         return steps
 
 
+class Goal_Choice_Strategy:
+
+    def __init__(self, goal_positions):
+        self.goal_positions = goal_positions
+
+    def get_next_goal(self, current_position):
+        raise NotImplementedError
+
+
+class Naive_Strategy(Goal_Choice_Strategy):
+
+    def __init__(self, goal_positions):
+        Goal_Choice_Strategy.__init__(self, goal_positions)
+
+    def get_next_goal(self, current_position):
+        return self.goal_positions.pop()
+
+
+class Closest_Strategy(Goal_Choice_Strategy):
+
+    def __init__(self, goal_positions):
+        Goal_Choice_Strategy.__init__(self, goal_positions)
+
+    def get_next_goal(self, current_position):
+        dists = [distance(current_position, goal_pos)
+                 for goal_pos in self.goal_positions]
+        index_of_best = dists.index(min(dists))
+        return self.goal_positions.pop(index_of_best)
+
+
 class Coop_Player:
     """
     Class representing a cooperative player that handles
@@ -258,25 +293,26 @@ class Coop_Player:
     PLAYERS = []
     M = None
 
-    def __init__(self, initial_pos, goal_pos, walls):
-        self.initial_position = initial_pos
-        self.current_position = initial_pos
-        self.goal_positions = goal_pos[:]
+    def __init__(self, initial_position, goal_positions, walls, goal_choice=Naive_Strategy):
+        self.initial_position = initial_position
+        self.current_position = initial_position
+        self.goal_positions = goal_positions[:]
         self.walls = walls
         self.a_star = None
         self.steps = []
+        self.goal_choice = goal_choice(self.goal_positions)
         Coop_Player.PLAYERS.append(self)
 
-    def add_goal(self, goal_pos):
+    def add_goal(self, goal_position):
         """
         Adds a new goal for this agent
 
         -------------------
         args:
-            goal_pos (tuple[int]): the coordinates of a new goal for the agent
+            goal_position (tuple[int]): the coordinates of a new goal for the agent
         -------------------
         """
-        self.goal_positions.append(goal_pos)
+        self.goal_positions.append(goal_position)
 
     @property
     def others(self):
@@ -296,7 +332,7 @@ class Coop_Player:
 
         -------------------
         return:
-            (bool): True iif the list of planified steps is not empty
+            (bool): True iff the list of planified steps is not empty
         -------------------
         """
         return self.steps != []
@@ -307,10 +343,15 @@ class Coop_Player:
 
         -------------------
         return:
-            (bool): True iif the list of goals is not empty
+            (bool): True iff the list of goals is not empty
         -------------------
         """
         return self.goal_positions != []
+
+    def find_path_to_goal(self):
+        self.a_star = A_star(self.current_position,
+                             self.goal_choice.get_next_goal(self.current_position), self.walls)
+        self.steps = self.a_star.run()
 
     def go_through_one_another(self, other):
         """
@@ -322,7 +363,7 @@ class Coop_Player:
             other (Node): the node to check
         -------------------
         return:
-            (bool): True iif the next position of this agent is the current
+            (bool): True iff the next position of this agent is the current
             position of the other, and vice versa
         -------------------
         """
@@ -344,6 +385,23 @@ class Coop_Player:
                 return self.next_position
         return None
 
+    def get_valid_neighbours(self):
+        """
+        Finds all the valid neighbours of this node, i.e. those nodes
+        wrapping non-wall and inside-the-grid cells
+
+        -------------------
+        return:
+            (list[Node]): the list of all this node's valid neighbours
+        -------------------
+        """
+        # TODO: adapt to Coop_Player
+        shifts = [(1, 0), (-1, 0), (0, 1), (0, -1)]
+        neighbours = [(self.x + dx, self.y + dy) for dx, dy in shifts]
+        return [Node(self.a_star, x, y, parent=self) for x, y in neighbours
+                if (x, y) not in self.a_star.walls and x >= 0 and x < Node.NB_ROWS and
+                y >= 0 and y < Node.NB_COLUMNS]
+
     def handle_collision(self, obstacle):
         """
         Recalculates a part of its immediate path considering the given obstacle
@@ -354,7 +412,11 @@ class Coop_Player:
             when recalculating its path
         -------------------
         """
-        nearby_path = A_star(self.current_position, self.get_position_after(self.steps[-Coop_Player.M:]),
+        cutoff_steps = self.steps[-Coop_Player.M:]
+        if len(cutoff_steps) < Coop_Player.M:
+            # TODO: reset steps & take a random step towards a valid neighbour
+            pass
+        nearby_path = A_star(self.current_position, self.get_position_after(cutoff_steps),
                              self.walls + [obstacle]).run()
         self.steps = self.steps[:-Coop_Player.M] + nearby_path
 
@@ -425,9 +487,7 @@ class Coop_Player:
                 self.handle_collision(obstacle)
             return self.get_next_position()
         elif self.has_next_goal():
-            self.a_star = A_star(self.current_position,
-                                 self.goal_positions.pop(0), self.walls)
-            self.steps = self.a_star.run()
+            self.find_path_to_goal()
             if self.has_next_step():
                 return self.get_next_position()
             # return self.next
@@ -441,3 +501,78 @@ class Coop_Player:
         handling a collision
         """
         cls.M = M
+
+
+class Coop_Planner:
+    """
+    Class representing a cooperative entity that calculates the path
+    of all of its players and defines a sequence of groups of players
+    whose paths do not cross
+    """
+
+    def __init__(self, initial_position, goal_positions, walls):
+        self.players = [Coop_Player(init_pos, goal_pos, walls)
+                        for init_pos, goal_pos in zip(initial_position, goal_positions)]
+        self.walls = walls
+        self.sequence = []
+        self.current_group = []
+        self.current_player = -1
+
+    def add_goal(self, player, goal_pos):
+        """
+        Adds a new goal for the given player
+
+        -------------------
+        args:
+            player (int): the index of the agent
+
+            goal_pos (tuple[int]): the coordinates of a new goal for the agent
+        -------------------
+        """
+        self.players[player].add_goal(goal_pos)
+
+    def find_initial_paths(self):
+        for player in self.players:
+            player.find_path_to_goal()
+
+    def exists_collision(self, player1, player2):
+        # save current state
+        current_pos1, steps1 = player1.current_position, player1.steps
+        current_pos2, steps2 = player2.current_position, player2.steps
+        player1.steps, player2.steps = player1.steps[:], player2.steps[:]
+
+        collision = False
+        while player1.has_next_step() and player2.has_next_step():
+            if player1.get_next_position() == player2.get_next_position():
+                collision = True
+                break
+
+        # restore initial state
+        player1.current_position, player1.steps = current_pos1, steps1
+        player2.current_position, player2.steps = current_pos2, steps2
+
+        return collision
+
+    def add_to_sequence(self, player):
+        was_dealt_with = False
+        for other_indices in self.sequence:
+            must_add = True
+            for other in other_indices:
+                if exists_collision(self.players[player], self.players[other]):
+                    must_add = False
+                    break
+            if must_add:
+                other_indices.append(player)
+                was_dealt_with = True
+                break
+        if not was_dealt_with:
+            self.sequence.append([player])
+
+    def update_sequence(self, players):
+        for player in players:
+            self.add_to_sequence(player)
+
+    @property
+    def next(self):
+        # TODO: sort initial sequence: by playout length or by number of agents
+        pass
