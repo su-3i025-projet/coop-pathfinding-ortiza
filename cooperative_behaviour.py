@@ -45,7 +45,7 @@ class Node:
 
         -------------------
         return:
-            (bool): whether this node has a parent node assigned to it
+            (bool): True iif this node has a parent node assigned to it
         -------------------
         """
         return self.parent is not None
@@ -166,7 +166,7 @@ class A_star:
 
         -------------------
         return:
-            (bool): whether the fringe is empty
+            (bool): True iif the fringe is empty
         -------------------
         """
         return self.open_set == []  # or self.goal_state.has_parent()
@@ -250,6 +250,10 @@ class A_star:
 
 
 class Coop_Player:
+    """
+    Class representing a cooperative player that handles
+    collisions on a rolling basis
+    """
 
     PLAYERS = []
     M = None
@@ -264,43 +268,140 @@ class Coop_Player:
         Coop_Player.PLAYERS.append(self)
 
     def add_goal(self, goal_pos):
+        """
+        Adds a new goal for this agent
+
+        -------------------
+        args:
+            goal_pos (tuple[int]): the coordinates of a new goal for the agent
+        -------------------
+        """
         self.goal_positions.append(goal_pos)
 
     @property
     def others(self):
+        """
+        The list of all the cooperative peers of this agent
+
+        -------------------
+        return:
+            (list[Coop_Player]): the list of the cooperative peers of the agent
+        -------------------
+        """
         return [p for p in Coop_Player.PLAYERS if p is not self]
 
     def has_next_step(self):
+        """
+        Tests whether this agent has a planified step to take
+
+        -------------------
+        return:
+            (bool): True iif the list of planified steps is not empty
+        -------------------
+        """
         return self.steps != []
 
     def has_next_goal(self):
+        """
+        Tests whether this agent has a goal to look for
+
+        -------------------
+        return:
+            (bool): True iif the list of goals is not empty
+        -------------------
+        """
         return self.goal_positions != []
 
     def go_through_one_another(self, other):
+        """
+        Tests whether this agent and the given one go would go through
+        one another had no collision check been made
+
+        -------------------
+        args:
+            other (Node): the node to check
+        -------------------
+        return:
+            (bool): True iif the next position of this agent is the current
+            position of the other, and vice versa
+        -------------------
+        """
         return self.current_position == other.next_position and self.next_position == other.current_position
 
     def collision(self):
+        """
+        Checks that there would be no collision had the agents continue
+        as usual, and returns a potential collision
+
+        -------------------
+        return:
+            (tuple[int]): the position of a potential collision,
+            otherwise (NoneType)
+        -------------------
+        """
         for oth in self.others:
             if oth.next_position == self.next_position or self.go_through_one_another(oth):
                 return self.next_position
         return None
 
     def handle_collision(self, obstacle):
+        """
+        Recalculates a part of its immediate path considering the given obstacle
+
+        -------------------
+        args:
+            obstacle (tuple[int]): the coordinates of an obstacle to be considered
+            when recalculating its path
+        -------------------
+        """
         nearby_path = A_star(self.current_position, self.get_position_after(self.steps[-Coop_Player.M:]),
                              self.walls + [obstacle]).run()
         self.steps = self.steps[:-Coop_Player.M] + nearby_path
 
     def get_position_after(self, reversed_steps):
+        """
+        Calculates this agent's position if the given steps list were to be
+        followed in the reversed manner
+
+        -------------------
+        args:
+            reversed_steps (list[tuple[int]]): the reversed list of steps to take
+        -------------------
+        return:
+            (tuple[int]): this agent's position after taking the given steps
+        -------------------
+        """
         def take(p, s):
+            """
+            Takes the step <s> from position <p>
+            """
             return p[0] + s[0], p[1] + s[1]
 
         return reduce(take, reversed_steps[::-1], self.current_position)
 
     @property
     def next_position(self):
+        """
+        Calculates this agent's position following its next step without
+        popping it out
+
+        -------------------
+        return:
+            (tuple[int]): the next position of the agent
+        -------------------
+        """
         return self.get_position_after(self.steps[-1:])
 
     def get_next_position(self):
+        """
+        Pops the next step out of the list and takes it to calculate its
+        next position
+
+        -------------------
+        return:
+            (tuple[int]): the next position of the agent
+        -------------------
+        """
         self.current_position = self.next_position
         self.steps.pop()
         return self.current_position
@@ -309,6 +410,15 @@ class Coop_Player:
 
     @property
     def next(self):
+        """
+        Calculates this agent's next position considering its current
+        and remaining goals, and any potential collisions
+
+        -------------------
+        return:
+            (tuple[int]): the next position of the agent
+        -------------------
+        """
         if self.has_next_step():
             obstacle = self.collision()
             if obstacle is not None:
@@ -326,4 +436,8 @@ class Coop_Player:
 
     @classmethod
     def set_M(cls, M):
+        """
+        Sets the number of immediate steps to be recalculated when
+        handling a collision
+        """
         cls.M = M
