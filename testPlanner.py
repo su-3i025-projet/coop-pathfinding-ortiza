@@ -95,17 +95,15 @@ def main():
     # Boucle principale de déplacements
     # -------------------------------
 
-    goalPos = {i: goalStates[i:i + 1] for i in range(nbPlayers)}
-
-    coop_players = []
-    for i in range(nbPlayers):
-        coop_players.append(coop.Coop_Player(
-            initStates[i], goalPos[i], wallStates))
+    goalPos = [goalStates[i:i + 1] for i in range(nbPlayers)]
 
     coop.Node.set_world_dimensions(game.spriteBuilder.rowsize,
+
                                    game.spriteBuilder.colsize)
 
     coop.Coop_Player.set_M(5)
+
+    coop_planner = coop.Coop_Planner(initStates, goalPos, wallStates)
 
     # bon ici on fait juste plusieurs random walker pour exemple...
 
@@ -114,7 +112,7 @@ def main():
     for i in range(iterations):
 
         for j in range(nbPlayers):  # on fait bouger chaque joueur séquentiellement
-            next_row, next_col = coop_players[j].next
+            next_row, next_col = coop_planner.next
 
             # and ((next_row,next_col) not in posPlayers)
             if ((next_row, next_col) not in wallStates) and next_row >= 0 and next_row <= 19 and next_col >= 0 and next_col <= 19:
@@ -141,14 +139,14 @@ def main():
                 o.set_rowcol(x, y)
                 goalPos[j].append((x, y))  # on ajoute ce nouveau goalState
                 game.layers['ramassable'].add(o)
-                coop_players[j].add_goal((x, y))
+                coop_planner.add_goal(j, (x, y))
                 # print("==================>", coop_players[j].goal_positions)
 
-        pos = [p.current_position for p in coop_players]
-        if pos[0] == pos[1] or pos[0] == pos[2] or pos[1] == pos[2]:
-            print("===== collision =====")
-            while True:
-                pass
+        # pos = [p.current_position for p in coop_players]
+        # if pos[0] == pos[1] or pos[0] == pos[2] or pos[1] == pos[2]:
+        #     while True:
+        #         print("===== collision =====")
+        #         pass
         game.mainiteration()
 
         # break
