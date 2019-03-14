@@ -43,7 +43,7 @@ def init(_boardname=None):
 def main():
 
     # for arg in sys.argv:
-    iterations = 500  # default
+    iterations = 50  # default
     if len(sys.argv) == 2:
         iterations = int(sys.argv[1])
     print("Iterations: ")
@@ -73,11 +73,11 @@ def main():
 
     for o in game.layers['ramassable']:  # les rouges puis jaunes puis bleues
         # et on met la fiole qqpart au hasard
-        x = random.randint(6, 12)
-        y = random.randint(6, 12)
+        x = random.randint(7, 12)
+        y = random.randint(7, 12)
         while (x, y) in wallStates:
-            x = random.randint(6, 12)
-            y = random.randint(6, 12)
+            x = random.randint(7, 12)
+            y = random.randint(7, 12)
         o.set_rowcol(x, y)
         game.layers['ramassable'].add(o)
         game.mainiteration()
@@ -105,11 +105,11 @@ def main():
     coop.Node.set_world_dimensions(game.spriteBuilder.rowsize,
                                    game.spriteBuilder.colsize)
 
-    coop.Coop_Player.set_M(5)
-
-    # bon ici on fait juste plusieurs random walker pour exemple...
+    coop.Coop_Player.set_cut_off_limit(5)
 
     # posPlayers=initStates
+
+    previous = [(-1, -1), (-1, -1), (-1, -1)]
 
     for i in range(iterations):
 
@@ -126,7 +126,7 @@ def main():
             print(next_row, next_col, goalPos[j])
             if (next_row, next_col) in goalPos[j]:
                 o = players[j].ramasse(game.layers)
-                game.mainiteration()
+                # game.mainiteration()
                 print("Objet trouvé par le joueur ", j)
                 # on enlève ce goalState de la liste
                 goalPos[j].remove((next_row, next_col))
@@ -144,11 +144,19 @@ def main():
                 coop_players[j].add_goal((x, y))
                 # print("==================>", coop_players[j].goal_positions)
 
-        pos = [p.current_position for p in coop_players]
-        if pos[0] == pos[1] or pos[0] == pos[2] or pos[1] == pos[2]:
+        current = [p.current_position for p in coop_players]
+        collision = False
+        if current[0] == current[1] or current[0] == current[2] or current[1] == current[2]:
+            collision = True
+        if (previous[0] == current[1] and current[0] == previous[1]) or \
+                (previous[0] == current[2] and current[0] == previous[2]) or \
+                (previous[1] == current[2] and current[1] == previous[2]):
+            collision = True
+        if collision:
             print("===== collision =====")
             while True:
                 pass
+        previous = current
         game.mainiteration()
 
         # break

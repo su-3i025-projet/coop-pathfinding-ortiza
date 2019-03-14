@@ -12,6 +12,19 @@ from functools import reduce
 
 
 def distance(point, other):
+    """
+    Calculates the Manhattan distance between the given points
+
+    -------------------
+    args:
+        point (tuple[int]): the first point
+
+        other (tuple[int]): the second point
+    -------------------
+    return:
+        (int): the Manhattan distance between the two points
+    -------------------
+    """
     dists = [abs(c1 - c2) for c1, c2 in zip(point, other)]
     return sum(dists)
 
@@ -164,7 +177,7 @@ class A_star:
         self.open_set = [self.initial_state]
         # the set of extended nodes
         self.closed_set = []
-        self.ending_condition = None  # TODO:
+        self.ending_condition = None  # TODO: backwards search
 
     def open_set_is_empty(self):
         """
@@ -256,29 +269,63 @@ class A_star:
 
 
 class Goal_Choice_Strategy:
+    """
+    Strategy for the choice of the next goal to pursue
+    """
 
     def __init__(self, goal_positions):
         self.goal_positions = goal_positions
 
     def get_next_goal(self, current_position):
+        """
+        Returns the preferred next goal
+
+        -------------------
+        args:
+            current_position (tuple[int]): the coordinates of the current
+                position of the agent
+        -------------------
+        """
         raise NotImplementedError
 
 
 class Naive_Strategy(Goal_Choice_Strategy):
+    """
+    Firsts-as-a-rule goal choice strategy
+    """
 
     def __init__(self, goal_positions):
         Goal_Choice_Strategy.__init__(self, goal_positions)
 
     def get_next_goal(self, current_position):
-        return self.goal_positions.pop()
+        """
+        Returns the first goal in the list
+
+        -------------------
+        return:
+            (tuple[int]): the coordinates of the agent's next goal
+        -------------------
+        """
+        return self.goal_positions.pop(0)
 
 
 class Closest_Strategy(Goal_Choice_Strategy):
+    """
+    Closest-first goal choice strategy
+    """
 
     def __init__(self, goal_positions):
         Goal_Choice_Strategy.__init__(self, goal_positions)
 
     def get_next_goal(self, current_position):
+        """
+        Returns the closest goal to the given current position
+
+        -------------------
+        return:
+            (tuple[int]): the coordinates of the agent's next goal
+        -------------------
+        """
         dists = [distance(current_position, goal_pos)
                  for goal_pos in self.goal_positions]
         index_of_best = dists.index(min(dists))
@@ -292,7 +339,7 @@ class Coop_Player:
     """
 
     PLAYERS = []
-    M = None
+    CUT_OFF_LIMIT = None
 
     def __init__(self, initial_position, goal_positions, walls, goal_choice=Naive_Strategy):
         self.initial_position = initial_position
@@ -323,8 +370,9 @@ class Coop_Player:
 
         -------------------
         return:
-            (tuple[list[Coop_Player]]): the list of the cooperative peers already
-                placed during this iteration, and the list of those yet to be placed
+            (list[Coop_Player], list[Coop_Player]): the list of the cooperative
+                peers already placed during this iteration, and the list of
+                those yet to be placed
         -------------------
         """
         my_index = Coop_Player.PLAYERS.index(self)
@@ -343,7 +391,7 @@ class Coop_Player:
 
     def has_next_goal(self):
         """
-        Tests whether this agent has a goal to look for
+        Tests whether this agent has a goal to pursue
 
         -------------------
         return:
@@ -353,14 +401,34 @@ class Coop_Player:
         return self.goal_positions != []
 
     def is_at_goal(self):
+        """
+        Tests whether this agent has arrived at its goal
+
+        -------------------
+        return:
+            (bool): True iff the agent is currently at its goal position
+        -------------------
+        """
         return self.current_position == self.current_goal
 
-    def find_path_to_goal(self, current=False):
-        if current is False:  # for a brand-new path
+    def find_path_to_goal(self, placed=[], resume=False):
+        """
+        Finds a path to a path considering players already fixed on the grid
+
+        -------------------
+        args:
+            [optional] placed (list[Coop_Player]): the list of players already
+                placed that need to be avoided
+
+            [optional] resume (bool): True iff the agent must resume its pursuit
+                of the current goal
+        -------------------
+        """
+        if resume is False:  # for a new path
             self.current_goal = self.goal_choice.get_next_goal(
                 self.current_position)
         self.a_star = A_star(self.current_position,
-                             self.current_goal, self.walls)
+                             self.current_goal, self.walls + placed)
         self.steps = self.a_star.run()
 
     def go_through_one_another(self, other):
@@ -377,17 +445,18 @@ class Coop_Player:
                 position of the other, and vice versa
         -------------------
         """
-        return self.current_position == other.next_position and self.next_position == other.current_position
+        return self.current_position == other.next_position and \
+            self.next_position == other.current_position
 
     def collision(self, placed, simultaneous):
         """
-        Checks that there would be no collision had the agents continue
+        Checks that there would be no collisions had the agents continued
         as usual, and returns a potential collision
 
         -------------------
         args:
-            placed (list[Coop_Player]): the list of players already placed likely
-                to collide with this agent
+            placed (list[Coop_Player]): the list of players already placed
+                likely to collide with this agent
 
             simultaneous (list[Coop_Player]): the list of players to be placed
                 at the same time or after this player likely to collide with it
@@ -405,11 +474,14 @@ class Coop_Player:
                 return self.next_position
         return None
 
-    def get_valid_shifts(self):
+    def get_valid_shifts(self, obstacle):
         """
-        Finds all the valid neighbours of this node, i.e. those nodes
+        Finds all of the valid neighbours of this node, i.e. those nodes
         wrapping non-wall and inside-the-grid cells
 
+        -------------------
+        args:
+            obstacle (tuple[int]): the coordinates of an obstacle to be avoided
         -------------------
         return:
             (list[Node]): the list of all this node's valid neighbours
@@ -427,6 +499,8 @@ class Coop_Player:
             placed, _ = self.others
             if pos in [oth.current_position for oth in placed]:
                 return False
+            if pos == obstacle:
+                return False
             return True
 
         shifts = [(1, 0), (-1, 0), (0, 1), (0, -1), (0, 0)]
@@ -438,19 +512,19 @@ class Coop_Player:
 
         -------------------
         args:
-            obstacle (tuple[int]): the coordinates of an obstacle to be considered
-                when recalculating its path
+            obstacle (tuple[int]): the coordinates of an obstacle to be
+                considered when recalculating its path
         -------------------
         """
-        cutoff_steps = self.steps[-Coop_Player.M:]
-        if len(cutoff_steps) < Coop_Player.M:
-            valid_steps = self.get_valid_shifts()
+        cut_path = self.steps[-Coop_Player.CUT_OFF_LIMIT:]
+        if len(cut_path) < Coop_Player.CUT_OFF_LIMIT:
+            valid_steps = self.get_valid_shifts(obstacle)
             self.steps = [random.choice(valid_steps)]
         else:
             placed, _ = self.others
-            nearby_path = A_star(self.current_position, self.get_position_after(cutoff_steps),
+            nearby_path = A_star(self.current_position, self.get_position_after(cut_path),
                                  self.walls + [obstacle] + placed).run()
-            self.steps = self.steps[:-Coop_Player.M] + nearby_path
+            self.steps = self.steps[:-Coop_Player.CUT_OFF_LIMIT] + nearby_path
 
     def get_position_after(self, reversed_steps):
         """
@@ -500,8 +574,6 @@ class Coop_Player:
         self.steps.pop()
         return self.current_position
 
-        # TODO: quid de l'obstacle qui bloque la fiole
-
     @property
     def next(self):
         """
@@ -513,31 +585,29 @@ class Coop_Player:
             (tuple[int]): the next position of the agent
         -------------------
         """
+        # when along the path
         if self.has_next_step():
             obstacle = self.collision(*self.others)
             if obstacle is not None:
                 self.handle_collision(obstacle)
             return self.get_next_position()
+        # the agent took a random step and needs a new path to its current goal
         elif self.current_goal is not None and not self.is_at_goal():
-            self.find_path_to_goal(current=True)
+            self.find_path_to_goal(resume=True)
             return self.next
-            # if self.has_next_step():
-            #     return self.get_next_position()
+        # the agent succeded and wishes to meet another goal
         elif self.has_next_goal():
             self.find_path_to_goal()
-            # if self.has_next_step():
-            #     return self.get_next_position()
             return self.next
-        # else:
         return self.current_position
 
     @classmethod
-    def set_M(cls, M):
+    def set_cut_off_limit(cls, cut_point):
         """
         Sets the number of immediate steps to be recalculated when
         handling a collision
         """
-        cls.M = M
+        cls.CUT_OFF_LIMIT = cut_point
 
 
 class Sequence_Sorting_Strategy:
@@ -628,7 +698,6 @@ class Coop_Planner:
             goal_pos (tuple[int]): the coordinates of a new goal for the agent
         -------------------
         """
-        print("ttttttttttttttttttttttttttttttttttttttttttttt")
         self.players[player].add_goal(goal_pos)
 
     def find_initial_paths(self):
@@ -643,7 +712,7 @@ class Coop_Planner:
 
         collision = False
         while player1.has_next_step() and player2.has_next_step():
-            if player1.collision([player2]) is not None:
+            if player1.collision([], [player2]) is not None:
                 collision = True
                 break
             player1.get_next_position()
@@ -679,20 +748,26 @@ class Coop_Planner:
         self.current_player = (self.current_player + 1) % len(self.players)
         print(self.sequence, self.current_player,
               self.players[self.current_player].current_goal)
-        if not self.players[self.current_player].has_next_step() and not self.players[self.current_player].has_next_goal():
+        if not self.players[self.current_player].has_next_step() and self.players[self.current_player].current_goal is None:
             while True:
                 pass
         # print("position:", self.players[self.current_player].current_position,
         #       "steps:", self.players[self.current_player].steps)
         if not self.players[self.current_player].has_next_step():
-            self.players[self.current_player].find_path_to_goal()
+            self.players[self.current_player].find_path_to_goal(
+                placed=[immobile for sublist in self.sequence[1:] for immobile in sublist])
+            print(self.players[self.current_player].steps)
             self.add_to_sequence(self.current_player)
         if self.current_group == []:
             self.sequence.pop(0)
             self.current_group = self.sequence[0]
         if self.current_player in self.current_group:
-            next_position = self.players[self.current_player].next
+            next_position = self.players[self.current_player].get_next_position(
+            )
             if self.players[self.current_player].is_at_goal():
                 self.current_group.remove(self.current_player)
             return next_position
+        # TODO: if the player stays put in a cell pertaining to the paths
+        # of another player, then the latter will collide with the former
+        # hanlding: check this possibility and random step
         return self.players[self.current_player].current_position

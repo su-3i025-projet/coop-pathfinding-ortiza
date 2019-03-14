@@ -43,7 +43,7 @@ def init(_boardname=None):
 def main():
 
     # for arg in sys.argv:
-    iterations = 500  # default
+    iterations = 50  # default
     if len(sys.argv) == 2:
         iterations = int(sys.argv[1])
     print("Iterations: ")
@@ -101,13 +101,13 @@ def main():
 
                                    game.spriteBuilder.colsize)
 
-    coop.Coop_Player.set_M(5)
+    coop.Coop_Player.set_cut_off_limit(5)
 
     coop_planner = coop.Coop_Planner(initStates, goalPos, wallStates)
 
-    # bon ici on fait juste plusieurs random walker pour exemple...
-
     # posPlayers=initStates
+
+    previous = [(-1, -1), (-1, -1), (-1, -1)]
 
     for i in range(iterations):
 
@@ -124,29 +124,37 @@ def main():
             print(next_row, next_col, goalPos[j])
             if (next_row, next_col) in goalPos[j]:
                 o = players[j].ramasse(game.layers)
-                game.mainiteration()
+                # game.mainiteration()
                 print("Objet trouvé par le joueur ", j)
                 # on enlève ce goalState de la liste
                 goalPos[j].remove((next_row, next_col))
                 score[j] += 1
 
                 # et on remet un même objet à un autre endroit
-                x = random.randint(6, 12)
-                y = random.randint(6, 12)
+                x = random.randint(0, 12)
+                y = random.randint(0, 12)
                 while (x, y) in wallStates:
-                    x = random.randint(6, 12)
-                    y = random.randint(6, 12)
+                    x = random.randint(1, 12)
+                    y = random.randint(1, 12)
                 o.set_rowcol(x, y)
                 goalPos[j].append((x, y))  # on ajoute ce nouveau goalState
                 game.layers['ramassable'].add(o)
                 coop_planner.add_goal(j, (x, y))
                 # print("==================>", coop_players[j].goal_positions)
 
-        # pos = [p.current_position for p in coop_players]
-        # if pos[0] == pos[1] or pos[0] == pos[2] or pos[1] == pos[2]:
-        #     while True:
-        #         print("===== collision =====")
-        #         pass
+        current = [p.current_position for p in coop_planner.players]
+        collision = False
+        if current[0] == current[1] or current[0] == current[2] or current[1] == current[2]:
+            collision = True
+        if (previous[0] == current[1] and current[0] == previous[1]) or \
+                (previous[0] == current[2] and current[0] == previous[2]) or \
+                (previous[1] == current[2] and current[1] == previous[2]):
+            collision = True
+        if collision:
+            print("===== collision =====")
+            while True:
+                pass
+        previous = current
         game.mainiteration()
 
         # break
