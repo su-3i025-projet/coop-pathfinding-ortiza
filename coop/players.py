@@ -270,14 +270,17 @@ class Coop_Player:
             if obstacle is not None:
                 self.handle_collision(obstacle)
             return self.get_next_position()
-        # the agent took a random step and needs a new path to its current goal
+
+        # the agent took a random step and needs a new path towards its current goal
         elif self.current_goal is not None and not self.is_at_goal():
             self.find_path_to_goal(resume=True)
             return self.next
+
         # the agent succeded and wishes to meet another goal
         elif self.has_next_goal():
             self.find_path_to_goal()
             return self.next
+
         return self.current_position
 
     @classmethod

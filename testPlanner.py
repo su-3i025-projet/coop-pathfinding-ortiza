@@ -36,7 +36,7 @@ def init(_boardname=None):
     game.O = Ontology(
         True, '../SpriteSheet-32x32/tiny_spritesheet_ontology.csv')
     game.populate_sprite_names(game.O)
-    game.fps = 5  # frames per second
+    game.fps = 10  # frames per second
     game.mainiteration()
     game.mask.allow_overlaping_players = True
     # player = game.player
@@ -113,8 +113,11 @@ def main():
 
     for i in range(iterations):
 
+        current = []
+
         for j in range(nbPlayers):  # on fait bouger chaque joueur séquentiellement
             next_row, next_col = coop_planner.next
+            current.append((next_row, next_col))
 
             # and ((next_row,next_col) not in posPlayers)
             if ((next_row, next_col) not in wallStates) and next_row >= 0 and next_row <= 19 and next_col >= 0 and next_col <= 19:
@@ -127,24 +130,25 @@ def main():
             if (next_row, next_col) in goalPos[j]:
                 o = players[j].ramasse(game.layers)
                 # game.mainiteration()
-                print("Objet trouvé par le joueur ", j)
+                # print("Objet trouvé par le joueur ", j)
                 # on enlève ce goalState de la liste
                 goalPos[j].remove((next_row, next_col))
                 score[j] += 1
 
                 # et on remet un même objet à un autre endroit
-                x = random.randint(0, 12)
-                y = random.randint(0, 12)
-                while (x, y) in wallStates:
-                    x = random.randint(1, 12)
-                    y = random.randint(1, 12)
+                x = random.randint(0, 19)
+                y = random.randint(0, 19)
+                while (x, y) in wallStates + current:
+                    x = random.randint(1, 19)
+                    y = random.randint(1, 19)
                 o.set_rowcol(x, y)
+                print("Objet trouvé par le joueur ", j, ", new goal :", x, y)
                 goalPos[j].append((x, y))  # on ajoute ce nouveau goalState
                 game.layers['ramassable'].add(o)
                 coop_planner.add_goal(j, (x, y))
                 # print("==================>", coop_players[j].goal_positions)
 
-        current = [p.current_position for p in coop_planner.players]
+        #current = [p.current_position for p in coop_planner.players]
         collision = False
         if current[0] == current[1] or current[0] == current[2] or current[1] == current[2]:
             collision = True
@@ -159,6 +163,7 @@ def main():
         previous = current
         game.mainiteration()
 
+# TODO: improve vials placement
         # break
 
     print("scores:", score)
