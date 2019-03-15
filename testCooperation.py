@@ -11,8 +11,9 @@ from itertools import chain
 import numpy as np
 import pygame
 
-import cooperative_behaviour as coop
 import utils.glo as glo
+from coop.players import Coop_Player
+from coop.tools import Node
 from utils.gameclass import Game, check_init_game_done
 from utils.ontology import Ontology
 from utils.players import Player
@@ -99,13 +100,13 @@ def main():
 
     coop_players = []
     for i in range(nbPlayers):
-        coop_players.append(coop.Coop_Player(
+        coop_players.append(Coop_Player(
             initStates[i], goalPos[i], wallStates))
 
-    coop.Node.set_world_dimensions(game.spriteBuilder.rowsize,
-                                   game.spriteBuilder.colsize)
+    Node.set_world_dimensions(game.spriteBuilder.rowsize,
+                              game.spriteBuilder.colsize)
 
-    coop.Coop_Player.set_cut_off_limit(5)
+    Coop_Player.set_cut_off_limit(5)
 
     # posPlayers=initStates
 

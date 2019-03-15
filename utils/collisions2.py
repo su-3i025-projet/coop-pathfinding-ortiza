@@ -5,7 +5,8 @@ import pygame
 import pygame.sprite
 
 import utils.fast_rect_collision as fast_rect_collision
-from utils.sprite import MovingSprite
+
+from .sprite import MovingSprite
 
 
 class CollisionHandler2:

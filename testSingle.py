@@ -11,8 +11,8 @@ from itertools import chain
 import numpy as np
 import pygame
 
-import cooperative_behaviour as coop
 import utils.glo as glo
+from coop.tools import A_star, Node
 from utils.gameclass import Game, check_init_game_done
 from utils.ontology import Ontology
 from utils.players import Player
@@ -84,14 +84,14 @@ def main():
     #row2,col2 = (5,5)
     steps = []
 
-    coop.Node.set_world_dimensions(game.spriteBuilder.rowsize,
-                                   game.spriteBuilder.colsize)
+    Node.set_world_dimensions(game.spriteBuilder.rowsize,
+                              game.spriteBuilder.colsize)
 
     for i in range(iterations):
 
         if steps == []:
-            steps = coop.A_star(initial_pos=(row, col),
-                                goal_pos=goalStates[0], walls=wallStates).run()
+            steps = A_star(initial_state=(row, col),
+                           goal_state=goalStates[0], walls=wallStates).run()
 
         x_inc, y_inc = steps.pop()
         #x_inc, y_inc = random.choice([(0, 1), (0, -1), (1, 0), (-1, 0)])

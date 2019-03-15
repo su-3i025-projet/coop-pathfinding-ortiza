@@ -3,7 +3,7 @@ import random
 import time
 from collections import namedtuple
 
-from utils.fast_rect_collision import *
+from .fast_rect_collision import *
 
 
 class NaiveGroupCollide:

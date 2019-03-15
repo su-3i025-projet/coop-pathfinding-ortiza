@@ -10,9 +10,10 @@ from functools import wraps
 import pygame
 
 import utils.glo as glo
-from utils.collisions2 import CollisionHandler2
-from utils.sprite import MovingSprite, MySprite
-from utils.spritebuilder import SpriteBuilder
+
+from .collisions2 import CollisionHandler2
+from .sprite import MovingSprite, MySprite
+from .spritebuilder import SpriteBuilder
 
 try:
     from toolz import first

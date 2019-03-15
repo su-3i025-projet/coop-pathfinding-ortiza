@@ -6,9 +6,10 @@ from collections import OrderedDict
 import pygame
 
 import utils.glo as glo
-from utils.players import Player
-from utils.sprite import MovingSprite, MySprite, RecursiveDrawGroup
-from utils.spritesheet_functions import SpriteSheet
+
+from .players import Player
+from .sprite import MovingSprite, MySprite, RecursiveDrawGroup
+from .spritesheet_functions import SpriteSheet
 
 
 class SpriteBuilder(object):

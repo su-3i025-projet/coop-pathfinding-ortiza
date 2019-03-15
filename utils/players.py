@@ -7,8 +7,8 @@ import pygame
 import utils.glo as glo
 import utils.polygons as polygons
 import utils.rayon as rayon
-from utils.sprite import (DrawOnceSprite, MovingSprite, MySprite,
-                          RecursiveDrawGroup)
+
+from .sprite import DrawOnceSprite, MovingSprite, MySprite, RecursiveDrawGroup
 
 try:
     from pygame.gfxdraw import aacircle, filled_circle
