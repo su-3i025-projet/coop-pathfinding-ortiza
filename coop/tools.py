@@ -67,6 +67,10 @@ class Node:
         """
         return self.parent is not None
 
+    @property
+    def position(self):
+        return (self.x, self.y)
+
     def distance(self, other):
         """
         Calculates the Manhattan distance between this node and the given one
@@ -79,7 +83,7 @@ class Node:
             (int): the Manhattan distance between the two nodes
         -------------------
         """
-        return distance((self.x, self.y), (other.x, other.y))
+        return distance(self.position, other.position)
 
     @property
     def h(self):
@@ -165,7 +169,7 @@ class Node:
         return self.f < other.f
 
 
-class A_star:
+class AStar:
     """
     Class implementing the A* algorithm
     """
@@ -180,13 +184,24 @@ class A_star:
         self.closed_set = []
         self.ending_condition = None  # TODO: backwards search
 
+    def set_new_goal(self, new_goal):
+        """
+        Sets the new goal for the A* algorithm
+
+        -------------------
+        args:
+            new_goal (tuple[int]): the coordinates of a new goal to meet
+        -------------------
+        """
+        self.goal_state = Node(self, *new_goal)
+
     def open_set_is_empty(self):
         """
         Tests whether the fringe is empty
 
         -------------------
         return:
-            (bool): True iff the fringe is empty
+        (bool): True iff the fringe is empty
         -------------------
         """
         return self.open_set == []  # or self.goal_state.has_parent()
@@ -201,6 +216,12 @@ class A_star:
         -------------------
         """
         return heapq.heappop(self.open_set)
+
+    def get_node_at(self, position):
+        for node in self.closed_set:
+            if position == node.position:
+                return node
+        return None
 
     def add_to_open_set(self, states):
         """

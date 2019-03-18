@@ -7,7 +7,7 @@ Created on Tue Feb 26 14:20:19 2019
 """
 
 
-class Goal_Choice_Strategy:
+class GoalChoiceStrategy:
     """
     Strategy for the choice of the next goal to pursue
     """
@@ -28,13 +28,13 @@ class Goal_Choice_Strategy:
         raise NotImplementedError
 
 
-class Naive_Strategy(Goal_Choice_Strategy):
+class NaiveStrategy(GoalChoiceStrategy):
     """
     Firsts-as-a-rule goal choice strategy
     """
 
     def __init__(self, goal_positions):
-        Goal_Choice_Strategy.__init__(self, goal_positions)
+        super().__init__(goal_positions)
 
     def get_next_goal(self, current_position):
         """
@@ -48,13 +48,13 @@ class Naive_Strategy(Goal_Choice_Strategy):
         return self.goal_positions.pop(0)
 
 
-class Closest_Strategy(Goal_Choice_Strategy):
+class ClosestStrategy(GoalChoiceStrategy):
     """
     Closest-first goal choice strategy
     """
 
     def __init__(self, goal_positions):
-        Goal_Choice_Strategy.__init__(self, goal_positions)
+        super().__init__(goal_positions)
 
     def get_next_goal(self, current_position):
         """
@@ -71,7 +71,7 @@ class Closest_Strategy(Goal_Choice_Strategy):
         return self.goal_positions.pop(index_of_best)
 
 
-class Sequence_Sorting_Strategy:
+class SequenceSortingStrategy:
 
     def __init__(self, players, sequence):
         self.players = players
@@ -84,13 +84,13 @@ class Sequence_Sorting_Strategy:
         raise NotImplementedError
 
 
-class Average_Group_Duration_Strategy(Sequence_Sorting_Strategy):
+class AverageGroupDurationStrategy(SequenceSortingStrategy):
     """
     Quickest groups first strategy
     """
 
     def __init__(self, players, sequence):
-        Sequence_Sorting_Strategy.__init__(self, players, sequence)
+        super().__init__(players, sequence)
 
     def sort(self):
         durations = {}
@@ -103,13 +103,13 @@ class Average_Group_Duration_Strategy(Sequence_Sorting_Strategy):
         raise NotImplementedError
 
 
-class Group_Length_Strategy(Goal_Choice_Strategy):
+class GroupLengthStrategy(SequenceSortingStrategy):
     """
     Larger groups first strategy
     """
 
     def __init__(self, players, sequence):
-        Sequence_Sorting_Strategy.__init__(self, players, sequence)
+        super().__init__(players, sequence)
 
     def sort(self):
         lengths = {tuple(group): len(group) for group in self.sequence}

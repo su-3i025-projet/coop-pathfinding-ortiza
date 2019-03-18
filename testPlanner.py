@@ -12,8 +12,8 @@ import numpy as np
 import pygame
 
 import utils.glo as glo
-from coop.planner import Coop_Planner
-from coop.players import Coop_Player
+from coop.planner import CoopPlanner
+from coop.players import CoopPlayer
 from coop.tools import Node
 from utils.gameclass import Game, check_init_game_done
 from utils.ontology import Ontology
@@ -103,9 +103,9 @@ def main():
 
                               game.spriteBuilder.colsize)
 
-    Coop_Player.set_cut_off_limit(5)
+    CoopPlayer.set_cut_off_limit(5)
 
-    coop_planner = Coop_Planner(initStates, goalPos, wallStates)
+    coop_planner = CoopPlanner(initStates, goalPos, wallStates)
 
     # posPlayers=initStates
 

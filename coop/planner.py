@@ -6,21 +6,21 @@ Created on Tue Feb 26 14:20:19 2019
 @author: angelo
 """
 
-from .players import Coop_Player
-from .strategies import Group_Length_Strategy
+from .players import CoopPlayer
+from .strategies import GroupLengthStrategy
 
 
-class Coop_Planner:
+class CoopPlanner:
     """
     Class representing a cooperative entity that calculates the path
     of all of its players and defines a sequence of groups of players
     whose paths do not cross each other
     """
 
-    def __init__(self, initial_position, goal_positions, walls, seq_sorting_choice=Group_Length_Strategy):
+    def __init__(self, initial_position, goal_positions, walls, seq_sorting_choice=GroupLengthStrategy):
         for pos, goal in zip(initial_position, goal_positions):
             print(pos, goal)
-        self.players = [Coop_Player(init_pos, goal_pos, walls)
+        self.players = [CoopPlayer(init_pos, goal_pos, walls)
                         for init_pos, goal_pos in zip(initial_position, goal_positions)]
         self.walls = walls
         self.seq_sorting_choice = seq_sorting_choice

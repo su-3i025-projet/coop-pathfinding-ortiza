@@ -9,11 +9,11 @@ Created on Tue Feb 26 14:20:19 2019
 import random
 from functools import reduce
 
-from .strategies import Naive_Strategy
-from .tools import A_star, Node
+from .strategies import NaiveStrategy
+from .tools import AStar, Node
 
 
-class Coop_Player:
+class CoopPlayer:
     """
     Class representing a cooperative player that handles
     collisions on a rolling basis
@@ -22,7 +22,7 @@ class Coop_Player:
     PLAYERS = []
     CUT_OFF_LIMIT = None
 
-    def __init__(self, initial_position, goal_positions, walls, goal_choice=Naive_Strategy):
+    def __init__(self, initial_position, goal_positions, walls, goal_choice=NaiveStrategy):
         self.initial_position = initial_position
         self.current_position = initial_position
         self.goal_positions = goal_positions[:]
@@ -31,7 +31,7 @@ class Coop_Player:
         self.a_star = None
         self.steps = []
         self.goal_choice = goal_choice(self.goal_positions)
-        Coop_Player.PLAYERS.append(self)
+        CoopPlayer.PLAYERS.append(self)
 
     def add_goal(self, goal_position):
         """
@@ -51,13 +51,13 @@ class Coop_Player:
 
         -------------------
         return:
-            (list[Coop_Player], list[Coop_Player]): the list of the cooperative
+            (list[CoopPlayer], list[CoopPlayer]): the list of the cooperative
                 peers already placed during this iteration, and the list of
                 those yet to be placed
         -------------------
         """
-        my_index = Coop_Player.PLAYERS.index(self)
-        return Coop_Player.PLAYERS[:my_index], Coop_Player.PLAYERS[my_index + 1:]
+        my_index = CoopPlayer.PLAYERS.index(self)
+        return CoopPlayer.PLAYERS[:my_index], CoopPlayer.PLAYERS[my_index + 1:]
 
     def has_next_step(self):
         """
@@ -98,7 +98,7 @@ class Coop_Player:
 
         -------------------
         args:
-            [optional] placed (list[Coop_Player]): the list of players already
+            [optional] placed (list[CoopPlayer]): the list of players already
                 placed that need to be avoided
 
             [optional] resume (bool): True iff the agent must resume its pursuit
@@ -108,8 +108,8 @@ class Coop_Player:
         if resume is False:  # for a new path
             self.current_goal = self.goal_choice.get_next_goal(
                 self.current_position)
-        self.a_star = A_star(self.current_position,
-                             self.current_goal, self.walls + placed)
+        self.a_star = AStar(self.current_position,
+                            self.current_goal, self.walls + placed)
         self.steps = self.a_star.run()
 
     def go_through_one_another(self, other):
@@ -136,10 +136,10 @@ class Coop_Player:
 
         -------------------
         args:
-            placed (list[Coop_Player]): the list of players already placed
+            placed (list[CoopPlayer]): the list of players already placed
                 likely to collide with this agent
 
-            simultaneous (list[Coop_Player]): the list of players to be placed
+            simultaneous (list[CoopPlayer]): the list of players to be placed
                 at the same time or after this player likely to collide with it
         -------------------
         return:
@@ -195,15 +195,15 @@ class Coop_Player:
                 considered when recalculating its path
         -------------------
         """
-        cut_path = self.steps[-Coop_Player.CUT_OFF_LIMIT:]
-        if len(cut_path) < Coop_Player.CUT_OFF_LIMIT:
+        cut_path = self.steps[-CoopPlayer.CUT_OFF_LIMIT:]
+        if len(cut_path) < CoopPlayer.CUT_OFF_LIMIT:
             valid_steps = self.get_valid_shifts(obstacle)
             self.steps = [random.choice(valid_steps)]
         else:
             placed, _ = self.others
-            nearby_path = A_star(self.current_position, self.get_position_after(cut_path),
-                                 self.walls + [obstacle] + placed).run()
-            self.steps = self.steps[:-Coop_Player.CUT_OFF_LIMIT] + nearby_path
+            nearby_path = AStar(self.current_position, self.get_position_after(cut_path),
+                                self.walls + [obstacle] + placed).run()
+            self.steps = self.steps[:-CoopPlayer.CUT_OFF_LIMIT] + nearby_path
 
     def get_position_after(self, reversed_steps):
         """
@@ -222,7 +222,7 @@ class Coop_Player:
             """
             Takes the step <s> from position <p>
             """
-            return p[0] + s[0], p[1] + s[1]
+            return tuple([p_i + s_i for p_i, s_i in zip(p, s)])
 
         return reduce(take, reversed_steps[::-1], self.current_position)
 

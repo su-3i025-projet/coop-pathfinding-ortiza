@@ -12,7 +12,7 @@ import numpy as np
 import pygame
 
 import utils.glo as glo
-from coop.players import Coop_Player
+from coop.players import CoopPlayer
 from coop.tools import Node
 from utils.gameclass import Game, check_init_game_done
 from utils.ontology import Ontology
@@ -100,13 +100,13 @@ def main():
 
     coop_players = []
     for i in range(nbPlayers):
-        coop_players.append(Coop_Player(
+        coop_players.append(CoopPlayer(
             initStates[i], goalPos[i], wallStates))
 
     Node.set_world_dimensions(game.spriteBuilder.rowsize,
                               game.spriteBuilder.colsize)
 
-    Coop_Player.set_cut_off_limit(5)
+    CoopPlayer.set_cut_off_limit(5)
 
     # posPlayers=initStates
 
