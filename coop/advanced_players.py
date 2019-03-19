@@ -11,7 +11,7 @@ from functools import reduce
 
 from .players import CoopPlayer
 from .strategies import NaiveStrategy
-from .tools import AStar, Node
+from .tools import AStar, Heap, Node
 
 
 class TimeNode(Node):  # TODO: doc
@@ -26,13 +26,13 @@ class TimeNode(Node):  # TODO: doc
         elif self.has_parent():
             self.t = parent.t + 1
         else:
-            self.t = 0
+            self.t = 32767  # large number
         if self.has_parent() and self.get_step() == (0, 0, 1):
             self.g = parent.g
 
     @property
     def position(self):
-        return *super().position, self.t
+        return (*super().position, self.t)
 
     @property
     def coordinates(self):
@@ -49,7 +49,7 @@ class TimeNode(Node):  # TODO: doc
             (int): the true distance heuristic value for this node
         -------------------
         """
-        return self.a_star.true_distance(self.position)
+        return self.a_star.true_distance(self.coordinates)
 
     def get_valid_neighbours(self, player_id):  # TODO: doc
         """
@@ -87,7 +87,7 @@ class TimeNode(Node):  # TODO: doc
                 from its parent
         -------------------
         """
-        return *super().get_step(), self.t - parent.t
+        return (*super().get_step(), self.t - self.parent.t)
 
     def __repr__(self):
         return '[' + super().__repr__() + f' at t = {self.t}]'
@@ -97,8 +97,8 @@ class TimeNode(Node):  # TODO: doc
         Tests whether the given node is equal to this node, based solely on
         their coordinates
         """
-        return self.__class__ == other.__class__ and \
-            self.x == other.x and self.y == other.y and self.t == other.t
+        return self.__class__ == other.__class__ \
+            and self.x == other.x and self.y == other.y and self.t == other.t
 
     def node_equals(self, other):
         return super().__eq__(other)
@@ -109,24 +109,21 @@ class TimeAStar(AStar):  # TODO:  doc
     Class implementing the A* algorithm
     """
 
-    def __init__(self, initial_state, goal_state, depth, initial_instant, player_id, walls):
+    def __init__(self, initial_state, goal_state, initial_instant, player_id, walls):
         self.initial_state = TimeNode(self, *initial_state, t=initial_instant)
         self.goal_state = TimeNode(self, *goal_state)
+        self.current_state = self.initial_state
         self.player_id = player_id
         self.walls = walls
-        self.last_instant = timepoint + depth
+        self.last_instant = initial_instant + AdvancedPlayer.coop_period
         # the fringe
-        self.open_set = [self.initial_state]
+        self.open_set = Heap([self.initial_state])
         # the set of extended nodes
         self.closed_set = []
         # backwards search
-        self.backwards_search = None
+        self.backwards_search = AStar(goal_state, initial_state, walls)
 
     def true_distance(self, current_position):
-        if self.backwards_search is None:
-            self.backwards_search = AStar(
-                self.goal_state.position, current_position, self.walls)
-            self.backwards_search.run()
         node = self.backwards_search.get_node_at(current_position)
         if node is None:
             self.backwards_search.set_new_goal(current_position)
@@ -134,7 +131,40 @@ class TimeAStar(AStar):  # TODO:  doc
             node = self.backwards_search.get_node_at(current_position)
         return node.g
 
-    def run(self):
+    def set_new_goal(self, new_goal):
+        """
+        Sets the new goal for the A* algorithm
+
+        -------------------
+        args:
+            new_goal (tuple[int]): the coordinates of a new goal to meet
+        -------------------
+        """
+        self.goal_state = TimeNode(self, *new_goal)
+
+    def set_initial_state(self, current_state):
+        for node in self.closed_set:
+            if node.position == (*current_state, AdvancedPlayer.time):
+                self.initial_state = node
+                break
+
+    def reset(self, current_state):
+        self.set_initial_state(current_state)
+        self.last_instant += AdvancedPlayer.coop_period
+
+    def select_best(self, resume):
+        if resume is True:
+            heap = Heap(
+                self.initial_state.get_valid_neighbours(self.player_id))
+            while True:
+                self.current_state = heap.pop()
+                if self.current_state not in self.closed_set:
+                    return self.current_state
+                for nb in self.current_state.get_valid_neighbours(self.player_id):
+                    heap.push(nb)
+        return super().select_best()
+
+    def run(self, resume=False):
         """
         Runs A* algorithm
 
@@ -146,17 +176,13 @@ class TimeAStar(AStar):  # TODO:  doc
         -------------------
         """
         while not self.open_set_is_empty():
-            current_state = self.select_best()
-            if current_state.node_equals(self.goal_state):
-                self.goal_state.t = current_state.t
-                self.goal_state.set_parent(current_state.parent)
-                return self.get_reversed_step_sequence()
-            neighbours = current_state.get_valid_neighbours(self.player_id)
+            self.current_state = self.select_best(resume)
+            neighbours = self.current_state.get_valid_neighbours(
+                self.player_id)
             not_extd_neighbours = self.get_not_extended(neighbours)
             self.add_to_open_set(not_extd_neighbours)
-            self.closed_set.append(current_state)
-            if current_state.t >= self.last_instant:
-                self.goal_state = current_state
+            self.closed_set.append(self.current_state)
+            if self.current_state.t == self.last_instant:
                 return self.get_reversed_step_sequence()
 
     def get_reversed_step_sequence(self):
@@ -170,15 +196,22 @@ class TimeAStar(AStar):  # TODO:  doc
                 to the goal state from the initial state
         -------------------
         """
-        t = self.goal_state.t
-        current_state = self.goal_state
+        t = self.current_state.t
+        current_state = self.current_state
         steps = []
+        print("========================")
         while current_state != self.initial_state:
             steps.append(current_state.get_step())
+            print(current_state, 'from', current_state.parent)
             AdvancedPlayer.reservation_table[(
-                *current_state.coordinates, t)] = player_id
+                *current_state.coordinates, t)] = self.player_id
+            AdvancedPlayer.reservation_table[(
+                *current_state.coordinates, t - 1)] = self.player_id
             t -= 1
             current_state = current_state.parent
+        AdvancedPlayer.reservation_table[(
+            *current_state.coordinates, t + 1)] = self.player_id
+        print("========================")
         return steps
 
 
@@ -196,12 +229,21 @@ class AdvancedPlayer(CoopPlayer):
 
     def __init__(self, initial_position, goal_positions, walls, goal_choice=NaiveStrategy):
         super().__init__(initial_position, goal_positions, walls, goal_choice)
-        self.id = counter
+        self.current_goal = self.goal_choice.get_next_goal(initial_position)
+        self.id = AdvancedPlayer.counter
         AdvancedPlayer.counter += 1
         self.search_instant = None
-        AdvancedPlayer.reservation_table[(*initial_position, 0)] = self.id
         AdvancedPlayer.players.append(self)
 
+    def set_search_instant(self, search_instant):
+        self.search_instant = search_instant
+        self.a_star = TimeAStar(self.current_position, self.current_goal,
+                                self.search_instant, self.id, self.walls)
+        for t in range(search_instant + 1):
+            AdvancedPlayer.reservation_table[(
+                *self.initial_position, t)] = self.id
+
+    @classmethod
     def set_search_instants(cls):
         n = len(cls.players)
         d = cls.coop_period
@@ -209,15 +251,17 @@ class AdvancedPlayer(CoopPlayer):
         cnt = 0
         for t in range(d):
             for _ in range(players_per_instant):
+                cls.players[cnt].set_search_instant(t)
                 cnt += 1
-                cls.players[cnt].search_instant = t
         rem = n - cnt
         for t in range(d):
             if rem == 0:
                 break
+            cls.players[cnt].set_search_instant(t)
             rem -= 1
             cnt += 1
-            cls.players[cnt].search_instant = t
+        for player in cls.players:
+            print(player.id, player.search_instant)
 
     @property
     def others(self):
@@ -234,25 +278,31 @@ class AdvancedPlayer(CoopPlayer):
         my_index = AdvancedPlayer.players.index(self)
         return AdvancedPlayer.players[:my_index], AdvancedPlayer.players[my_index + 1:]
 
-    def find_path_to_goal(self):  # TODO: what about resuming (see paper!)
+    def clear_unused_following_path(self):
+        keys_to_delete = [(x, y, t) for (x, y, t), id in AdvancedPlayer.reservation_table.items()
+                          if id == self.id and t > AdvancedPlayer.time]
+        for k in keys_to_delete:
+            del AdvancedPlayer.reservation_table[k]
+
+    def find_path_to_goal(self, resume=True):
         """
-        Finds a path to a path considering players already fixed on the grid
+        Finds a path to a goal considering players already fixed on the grid
 
         -------------------
         args:
-            [optional] placed (list[Coop_Player]): the list of players already
-                placed that need to be avoided
-
             [optional] resume (bool): True iff the agent must resume its pursuit
                 of the current goal
         -------------------
         """
+        self.clear_unused_following_path()
+
         if resume is False:  # for a new path
             self.current_goal = self.goal_choice.get_next_goal(
                 self.current_position)
-        self.a_star = AStar(self.current_position,
-                            self.current_goal, self.walls + placed)
-        self.steps = self.a_star.run()
+            self.a_star.set_new_goal(self.current_goal)
+
+        self.a_star.reset(self.current_position)
+        self.steps = self.a_star.run(resume)
 
     def is_last(self):
         return self.id == len(AdvancedPlayer.players) - 1
@@ -270,14 +320,11 @@ class AdvancedPlayer(CoopPlayer):
         """
         if self.search_instant == AdvancedPlayer.time:
             self.find_path_to_goal()
-            self.current_goal = None
             self.search_instant += AdvancedPlayer.coop_period
 
         # the agent succeded and wishes to meet another goal
         if self.has_next_goal():
-            self.clear_unused_following_path()  # TODO: clear reservation table
-            self.find_path_to_goal()
-            self.current_goal = None
+            self.find_path_to_goal(resume=False)
 
         # when along the path
         elif self.has_next_step():
@@ -287,3 +334,11 @@ class AdvancedPlayer(CoopPlayer):
             AdvancedPlayer.time += 1
 
         return self.current_position
+
+    @classmethod
+    def set_cooperation_period(cls, coop_period):
+        cls.coop_period = coop_period
+
+    @property
+    def depth(self):
+        return 2 * AdvancedPlayer.coop_period

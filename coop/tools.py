@@ -169,6 +169,97 @@ class Node:
         return self.f < other.f
 
 
+class Heap:
+
+    def __init__(self, elements=[]):
+        self.__set = []
+        self.__size = 0
+        for el in elements:
+            self.push(el)
+
+    @property
+    def size(self):
+        return self.__size
+
+    def __content(self, n):
+        return self.__set[n]
+
+    def __left_child(self, n):
+        return 2 * n + 1
+
+    def __right_child(self, n):
+        return 2 * n + 2
+
+    def __is_leaf(self, n):
+        return self.__left_child(n) > self.__last()
+
+    def __min_child(self, n):
+        min_child = self.__left_child(n)
+        if self.__right_child(n) <= self.__last() and \
+                self.__content(self.__right_child(n)) < self.__content(min_child):
+            min_child = self.__right_child(n)
+        return min_child
+
+    def __parent(self, n):
+        return (n - 1) // 2
+
+    def __root(self):
+        return 0
+
+    def __last(self):
+        return self.size - 1
+
+    def __is_root(self, n):
+        return n == self.__root()
+
+    def __swap(self, n, m):
+        self.__set[n], self.__set[m] = self.__set[m], self.__set[n]
+
+    def __update_bottom_up(self):
+        node = self.__last()
+        while not self.__is_root(node):
+            parent = self.__parent(node)
+            if self.__content(node) < self.__content(parent):
+                self.__swap(node, parent)
+                node = parent
+            else:
+                break
+
+    def __update_top_down(self):
+        node = self.__root()
+        while not self.__is_leaf(node):
+            min_child = self.__min_child(node)
+            # if self.__content(min_child) < self.__content(node):
+            #     self.__swap(node, min_child)
+            #     node = min_child
+            # else:
+            #     break
+            if self.__content(node) < self.__content(min_child):
+                break
+            else:
+                self.__swap(node, min_child)
+                node = min_child
+
+    def is_empty(self):
+        return self.size == 0
+
+    def push(self, el):
+        try:
+            index = self.__set.index(el)
+            if el < self.__content(index):
+                self.__set[index] = el
+        except:
+            self.__size += 1
+            self.__set.append(el)
+            self.__update_bottom_up()
+
+    def pop(self):
+        self.__swap(self.__root(), self.__last())
+        self.__size -= 1
+        self.__update_top_down()
+        return self.__set.pop()
+
+
 class AStar:
     """
     Class implementing the A* algorithm
@@ -179,7 +270,7 @@ class AStar:
         self.goal_state = Node(self, *goal_state)
         self.walls = walls
         # the fringe
-        self.open_set = [self.initial_state]
+        self.open_set = Heap([self.initial_state])
         # the set of extended nodes
         self.closed_set = []
         self.ending_condition = None  # TODO: backwards search
@@ -204,7 +295,7 @@ class AStar:
         (bool): True iff the fringe is empty
         -------------------
         """
-        return self.open_set == []  # or self.goal_state.has_parent()
+        return self.open_set.is_empty()  # or self.goal_state.has_parent()
 
     def select_best(self):
         """
@@ -215,7 +306,8 @@ class AStar:
             (Node): the node of the fringe with the lowest f-value
         -------------------
         """
-        return heapq.heappop(self.open_set)
+        # return heapq.heappop(self.open_set)
+        return self.open_set.pop()
 
     def get_node_at(self, position):
         for node in self.closed_set:
@@ -234,7 +326,8 @@ class AStar:
         -------------------
         """
         for st in states:
-            heapq.heappush(self.open_set, st)
+            # heapq.heappush(self.open_set, st)
+            self.open_set.push(st)
 
     def get_not_extended(self, states):
         """
@@ -263,13 +356,13 @@ class AStar:
         """
         while not self.open_set_is_empty():
             current_state = self.select_best()
-            if current_state == self.goal_state:
-                self.goal_state.set_parent(current_state.parent)
-                return self.get_reversed_step_sequence()
             neighbours = current_state.get_valid_neighbours()
             not_extd_neighbours = self.get_not_extended(neighbours)
             self.add_to_open_set(not_extd_neighbours)
             self.closed_set.append(current_state)
+            if current_state == self.goal_state:
+                self.goal_state.set_parent(current_state.parent)
+                return self.get_reversed_step_sequence()
 
     def get_reversed_step_sequence(self):
         """

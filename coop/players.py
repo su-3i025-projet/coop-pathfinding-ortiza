@@ -94,7 +94,7 @@ class CoopPlayer:
 
     def find_path_to_goal(self, placed=[], resume=False):
         """
-        Finds a path to a path considering players already fixed on the grid
+        Finds a path to a goal considering players already fixed on the grid
 
         -------------------
         args:
