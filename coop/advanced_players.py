@@ -109,10 +109,14 @@ class TimeAStar(AStar):  # TODO:  doc
     Class implementing the A* algorithm
     """
 
+    NB_ITER = 0
+    NB_CALLS = 0
+
     def __init__(self, initial_state, goal_state, initial_instant, player_id, walls, last_instant=None):
         self.initial_state = TimeNode(self, *initial_state, t=initial_instant)
         self.goal_state = TimeNode(self, *goal_state)
         self.current_state = self.initial_state
+        self.next_best = None
         self.player_id = player_id
         self.walls = walls
         self.last_instant = last_instant if last_instant is not None else initial_instant + \
@@ -123,6 +127,10 @@ class TimeAStar(AStar):  # TODO:  doc
         self.closed_set = []
         # backwards search
         self.backwards_search = AStar(goal_state, initial_state, walls)
+        self.backwards_search.run()
+        AdvancedPlayer.reservation_table[self.initial_state.position] = player_id
+        next_epoch = (*self.initial_state.coordinates, initial_instant + 1)
+        AdvancedPlayer.reservation_table[next_epoch] = player_id
 
     def true_distance(self, current_position):
         node = self.backwards_search.get_node_at(current_position)
@@ -153,13 +161,33 @@ class TimeAStar(AStar):  # TODO:  doc
         self.set_initial_state(current_state)
         self.last_instant += AdvancedPlayer.coop_period
 
-    def select_best(self, resume):
+    def select_best_prev(self, resume):
         if resume is True:
+            iter = 0
             heap = Heap(
                 self.initial_state.get_valid_neighbours(self.player_id))
             while True:
+                iter += 1
                 self.current_state = heap.pop()
-                if self.current_state not in self.closed_set:
+                if self.current_state not in self.closed_set[::-1]:
+                    print("=====================\n",
+                          iter, "\n==================")
+                    return self.current_state
+                for nb in self.current_state.get_valid_neighbours(self.player_id):
+                    heap.push(nb)
+        return super().select_best()
+
+    def select_best(self, resume):
+        if resume is True:
+            iter = 0
+            heap = Heap(
+                self.initial_state.get_valid_neighbours(self.player_id))
+            while True:
+                iter += 1
+                self.current_state = heap.pop()
+                if self.current_state not in self.closed_set[::-1]:
+                    print("=====================\n",
+                          iter, "\n==================")
                     return self.current_state
                 for nb in self.current_state.get_valid_neighbours(self.player_id):
                     heap.push(nb)
@@ -176,7 +204,9 @@ class TimeAStar(AStar):  # TODO:  doc
                 to the goal state from the initial state
         -------------------
         """
+        TimeAStar.NB_CALLS += 1
         while not self.open_set_is_empty():
+            TimeAStar.NB_ITER += 1
             self.current_state = self.select_best(resume)
             neighbours = self.current_state.get_valid_neighbours(
                 self.player_id)
@@ -240,7 +270,7 @@ class AdvancedPlayer(CoopPlayer):
         self.search_instant = search_instant
         self.a_star = TimeAStar(self.current_position, self.current_goal,
                                 self.search_instant, self.id, self.walls)
-        for t in range(search_instant + 1):
+        for t in range(search_instant):
             AdvancedPlayer.reservation_table[(
                 *self.initial_position, t)] = self.id
 
@@ -285,6 +315,12 @@ class AdvancedPlayer(CoopPlayer):
         for k in keys_to_delete:
             del AdvancedPlayer.reservation_table[k]
 
+    def clear_past_path(self):
+        keys_to_delete = [(x, y, t) for (x, y, t), id in AdvancedPlayer.reservation_table.items()
+                          if id == self.id and t < AdvancedPlayer.time - 1]
+        for k in keys_to_delete:
+            del AdvancedPlayer.reservation_table[k]
+
     def find_path_to_goal(self, resume=True):
         """
         Finds a path to a goal considering players already fixed on the grid
@@ -296,6 +332,7 @@ class AdvancedPlayer(CoopPlayer):
         -------------------
         """
         self.clear_unused_following_path()
+        self.clear_past_path()
 
         if resume is False:  # for a new path
             self.current_goal = self.goal_choice.get_next_goal(

@@ -12,7 +12,7 @@ import numpy as np
 import pygame
 
 import utils.glo as glo
-from coop.advanced_players import AdvancedPlayer
+from coop.advanced_players import AdvancedPlayer, TimeAStar
 from coop.tools import Node
 from utils.gameclass import Game, check_init_game_done
 from utils.ontology import Ontology
@@ -168,6 +168,9 @@ def main():
         print("===================================")
         # break
 
+    print("Reservation table length:", len(AdvancedPlayer.reservation_table))
+    print("Average number of A* iterations:",
+          TimeAStar.NB_ITER / TimeAStar.NB_CALLS)
     print("scores:", score)
     pygame.quit()
 

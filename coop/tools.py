@@ -259,6 +259,10 @@ class Heap:
         self.__update_top_down()
         return self.__set.pop()
 
+    def clear(self):
+        self.__set = []
+        self.__size = 0
+
 
 class AStar:
     """
@@ -295,7 +299,7 @@ class AStar:
         (bool): True iff the fringe is empty
         -------------------
         """
-        return self.open_set.is_empty()  # or self.goal_state.has_parent()
+        return self.open_set.is_empty()  # self.open_set == []
 
     def select_best(self):
         """
