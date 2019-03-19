@@ -263,6 +263,21 @@ class Heap:
         self.__set = []
         self.__size = 0
 
+    def remove(self, el):
+        index = None
+        for i, content in enumerate(self.__set):
+            if content == el:
+                index = i
+                break
+        if index is not None:
+            to_add = self.__last() - index
+            self.__size = index
+            for i in range(to_add):
+                self.__swap(self.size, self.size + 1)
+                self.__size += 1
+                self.__update_bottom_up()
+            return self.__set.pop()
+
 
 class AStar:
     """

@@ -35,7 +35,7 @@ def init(_boardname=None):
     game.O = Ontology(
         True, '../SpriteSheet-32x32/tiny_spritesheet_ontology.csv')
     game.populate_sprite_names(game.O)
-    game.fps = 5  # frames per second
+    game.fps = 20  # frames per second
     game.mainiteration()
     game.mask.allow_overlaping_players = True
     # player = game.player
@@ -107,11 +107,11 @@ def main():
                               game.spriteBuilder.colsize)
 
     AdvancedPlayer.set_cooperation_period(4)
-    AdvancedPlayer.set_search_instants()
+    AdvancedPlayer.set_search_epochs()
 
     # posPlayers=initStates
 
-    previous = [(-1, -1), (-1, -1), (-1, -1)]
+    previous = [(-1, -1)] * nbPlayers
     time = 1
     for i in range(iterations):
 
@@ -150,12 +150,15 @@ def main():
 
         current = [p.current_position for p in coop_players]
         collision = False
-        if current[0] == current[1] or current[0] == current[2] or current[1] == current[2]:
-            collision = True
-        if (previous[0] == current[1] and current[0] == previous[1]) or \
-                (previous[0] == current[2] and current[0] == previous[2]) or \
-                (previous[1] == current[2] and current[1] == previous[2]):
-            collision = True
+        concurrent = [(p, q) for p in range(nbPlayers)
+                      for q in range(p + 1, nbPlayers)]
+        for p, q in concurrent:
+            if current[p] == current[q]:
+                collision = True
+                break
+            if previous[p] == current[q] and current[p] == previous[q]:
+                collision = True
+                break
         if collision:
             print("===== collision =====")
             print(AdvancedPlayer.reservation_table)
