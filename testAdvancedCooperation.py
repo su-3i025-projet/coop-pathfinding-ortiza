@@ -136,11 +136,11 @@ def main():
                 score[j] += 1
 
                 # et on remet un même objet à un autre endroit
-                x = random.randint(6, 12)
-                y = random.randint(6, 12)
+                x = random.randint(3, 15)
+                y = random.randint(3, 15)
                 while (x, y) in wallStates:
-                    x = random.randint(6, 12)
-                    y = random.randint(6, 12)
+                    x = random.randint(3, 15)
+                    y = random.randint(3, 15)
                 o.set_rowcol(x, y)
                 goalPos[j].append((x, y))  # on ajoute ce nouveau goalState
                 game.layers['ramassable'].add(o)

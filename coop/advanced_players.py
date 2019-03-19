@@ -109,13 +109,14 @@ class TimeAStar(AStar):  # TODO:  doc
     Class implementing the A* algorithm
     """
 
-    def __init__(self, initial_state, goal_state, initial_instant, player_id, walls):
+    def __init__(self, initial_state, goal_state, initial_instant, player_id, walls, last_instant=None):
         self.initial_state = TimeNode(self, *initial_state, t=initial_instant)
         self.goal_state = TimeNode(self, *goal_state)
         self.current_state = self.initial_state
         self.player_id = player_id
         self.walls = walls
-        self.last_instant = initial_instant + AdvancedPlayer.coop_period
+        self.last_instant = last_instant if last_instant is not None else initial_instant + \
+            AdvancedPlayer.coop_period
         # the fringe
         self.open_set = Heap([self.initial_state])
         # the set of extended nodes
@@ -299,7 +300,10 @@ class AdvancedPlayer(CoopPlayer):
         if resume is False:  # for a new path
             self.current_goal = self.goal_choice.get_next_goal(
                 self.current_position)
-            self.a_star.set_new_goal(self.current_goal)
+            # self.a_star.set_new_goal(self.current_goal)
+            last_instant = self.a_star.last_instant
+            self.a_star = TimeAStar(self.current_position, self.current_goal,
+                                    AdvancedPlayer.time, self.id, self.walls, last_instant=last_instant)
 
         self.a_star.reset(self.current_position)
         self.steps = self.a_star.run(resume)
