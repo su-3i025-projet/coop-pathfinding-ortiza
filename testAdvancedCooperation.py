@@ -35,7 +35,7 @@ def init(_boardname=None):
     game.O = Ontology(
         True, '../SpriteSheet-32x32/tiny_spritesheet_ontology.csv')
     game.populate_sprite_names(game.O)
-    game.fps = 20  # frames per second
+    game.fps = 50  # frames per second
     game.mainiteration()
     game.mask.allow_overlaping_players = True
     # player = game.player
@@ -60,7 +60,17 @@ def main():
     nbPlayers = len(players)
     score = [0] * nbPlayers
 
-    # on localise tous les états initiaux (loc du joueur)
+    # initStates = [(3, 3), (6, 3), (12, 13)]
+    # for i, p in enumerate(game.layers['joueur']):
+    #     p.set_rowcol(*initStates[i])
+    #
+    # goalStates = [(6, 1), (3, 8), (19, 19)]
+    # for i, o in enumerate(game.layers['ramassable']):
+    #     o.set_rowcol(*goalStates[i])
+    #
+    # game.mainiteration()
+
+    # on localise tous les états initiaux(loc du joueur)
     initStates = [o.get_rowcol() for o in game.layers['joueur']]
     print("Init states:", initStates)
 
@@ -106,10 +116,12 @@ def main():
     Node.set_world_dimensions(game.spriteBuilder.rowsize,
                               game.spriteBuilder.colsize)
 
-    AdvancedPlayer.set_cooperation_period(4)
+    AdvancedPlayer.set_cooperation_period(8)
     AdvancedPlayer.set_search_epochs()
 
     # posPlayers=initStates
+    # while True:
+    #     pass
 
     previous = [(-1, -1)] * nbPlayers
     time = 1
@@ -173,7 +185,7 @@ def main():
 
     print("Reservation table length:", len(AdvancedPlayer.reservation_table))
     print("Average number of A* iterations:",
-          TimeAStar.NB_ITER / TimeAStar.NB_CALLS)
+          TimeAStar.NB_ITERS / TimeAStar.NB_CALLS)
     print("scores:", score)
     pygame.quit()
 

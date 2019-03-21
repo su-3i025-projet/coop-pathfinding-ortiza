@@ -60,9 +60,19 @@ def main():
     nbPlayers = len(players)
     score = [0] * nbPlayers
 
+    initStates = [(3, 3), (6, 3), (12, 13)]
+    for i, p in enumerate(game.layers['joueur']):
+        p.set_rowcol(*initStates[i])
+
+    goalStates = [(6, 1), (3, 8), (19, 19)]
+    for i, o in enumerate(game.layers['ramassable']):
+        o.set_rowcol(*goalStates[i])
+
+    game.mainiteration()
+
     # on localise tous les états initiaux (loc du joueur)
-    initStates = [o.get_rowcol() for o in game.layers['joueur']]
-    print("Init states:", initStates)
+    # initStates = [o.get_rowcol() for o in game.layers['joueur']]
+    # print("Init states:", initStates)
 
     # on localise tous les murs
     wallStates = [w.get_rowcol() for w in game.layers['obstacle']]
@@ -72,16 +82,16 @@ def main():
     # Placement aleatoire des fioles
     # -------------------------------
 
-    for o in game.layers['ramassable']:  # les rouges puis jaunes puis bleues
-        # et on met la fiole qqpart au hasard
-        x = random.randint(7, 12)
-        y = random.randint(7, 12)
-        while (x, y) in wallStates:
-            x = random.randint(7, 12)
-            y = random.randint(7, 12)
-        o.set_rowcol(x, y)
-        game.layers['ramassable'].add(o)
-        game.mainiteration()
+    # for o in game.layers['ramassable']:  # les rouges puis jaunes puis bleues
+    #     # et on met la fiole qqpart au hasard
+    #     x = random.randint(7, 12)
+    #     y = random.randint(7, 12)
+    #     while (x, y) in wallStates:
+    #         x = random.randint(7, 12)
+    #         y = random.randint(7, 12)
+    #     o.set_rowcol(x, y)
+    #     game.layers['ramassable'].add(o)
+    #     game.mainiteration()
 
     print(game.layers['ramassable'])
 

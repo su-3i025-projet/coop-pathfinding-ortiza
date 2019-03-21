@@ -21,7 +21,6 @@ class TimeNode(Node):
 
     def __init__(self, a_star, x, y, t=None, parent=None):
         super().__init__(a_star, x, y, parent)
-        self.best_child = None  # for accelerating A* resuming
         if t is not None:
             self.t = t
         elif self.has_parent():
@@ -31,13 +30,6 @@ class TimeNode(Node):
         # staying put has cost 0
         if self.has_parent() and self.get_step() == (0, 0, 1):
             self.g = parent.g
-
-    def update_best(self):
-        if self.parent is not None:
-            if self.parent.best_child is None:
-                self.parent.best_child = self
-            elif self < self.parent.best_child:
-                self.parent.best_child = self
 
     @property
     def position(self):
@@ -75,20 +67,24 @@ class TimeNode(Node):
         valid_neighbours = []
         t = self.t
         for x, y in neighbours:
+            # the cell is not a wall nor an invalid position (outside the grid)
             if (x, y) in self.a_star.walls or not TimeNode.is_valid(x, y):
                 continue
+
             # the cell is currently available
             try:
                 if AdvancedPlayer.reservation_table[(x, y, t)] != player_id:
                     continue
             except:
                 pass
+
             # the cell will be available at next epoch
             try:
                 if AdvancedPlayer.reservation_table[(x, y, t + 1)] != player_id:
                     continue
             except:
                 pass
+
             valid_neighbours.append(
                 TimeNode(self.a_star, x, y, t + 1, parent=self))
         return valid_neighbours
@@ -125,10 +121,10 @@ class TimeAStar(AStar):  # TODO:  doc
     Class implementing the A* algorithm
     """
 
-    NB_ITER = 0
+    NB_ITERS = 0
     NB_CALLS = 0
 
-    def __init__(self, initial_state, goal_state, initial_epoch, player_id, walls, last_epoch=None):
+    def __init__(self, initial_state, goal_state, initial_epoch, player_id, walls, backwards_search, last_epoch=None):
         self.initial_state = TimeNode(self, *initial_state, t=initial_epoch)
         self.goal_state = TimeNode(self, *goal_state)
         self.current_state = self.initial_state
@@ -142,8 +138,10 @@ class TimeAStar(AStar):  # TODO:  doc
         # the set of extended nodes
         self.closed_set = []
         # backwards search
-        self.backwards_search = AStar(goal_state, initial_state, walls)
-        self.backwards_search.run()
+        self.backwards_search = backwards_search
+        if self.backwards_search is None:
+            self.backwards_search = AStar(goal_state, initial_state, walls)
+            self.backwards_search.run()
         AdvancedPlayer.reservation_table[self.initial_state.position] = player_id
         next_epoch = (*self.initial_state.coordinates, initial_epoch + 1)
         AdvancedPlayer.reservation_table[next_epoch] = player_id
@@ -155,64 +153,6 @@ class TimeAStar(AStar):  # TODO:  doc
             self.backwards_search.run()
             node = self.backwards_search.get_node_at(current_position)
         return node.g
-
-    def set_new_goal(self, new_goal):
-        """
-        Sets the new goal for the A* algorithm
-
-        -------------------
-        args:
-            new_goal (tuple[int]): the coordinates of a new goal to meet
-        -------------------
-        """
-        self.goal_state = TimeNode(self, *new_goal)
-
-    def set_initial_state(self, current_state):
-        for node in self.closed_set:
-            if node.position == (*current_state, AdvancedPlayer.epoch):
-                self.initial_state = node
-                break
-
-    def reset(self, current_state):
-        self.set_initial_state(current_state)
-        self.last_epoch += AdvancedPlayer.coop_period
-
-    def select_best_prev(self, resume):
-        if resume is True:
-            iter = 0
-            heap = Heap(
-                self.initial_state.get_valid_neighbours(self.player_id))
-            while True:
-                iter += 1
-                self.current_state = heap.pop()
-                if self.current_state not in self.closed_set:
-                    print("=====================\n",
-                          iter, "\n==================")
-                    return self.current_state
-                for nb in self.current_state.get_valid_neighbours(self.player_id):
-                    heap.push(nb)
-        return super().select_best()
-
-    def select_best(self, resume):
-        if resume is True:
-            current = self.initial_state
-            while current.best_child is not None:
-                current = current.best_child
-            self.closed_set.append(self.open_set.pop())
-            # print(self.open_set._Heap__set)
-            # if current not in self.closed_set:  # first call = singleton fringe
-            #     return current
-            hp = Heap(current.get_valid_neighbours(self.player_id))
-            try:
-                while True:
-                    next = hp.pop()
-                    if next not in self.closed_set:
-                        self.open_set.push(next)
-                        return next
-            except:
-                0 / 0
-                pass
-        return super().select_best()
 
     def run(self, resume=False):
         """
@@ -226,15 +166,13 @@ class TimeAStar(AStar):  # TODO:  doc
         """
         TimeAStar.NB_CALLS += 1
         while not self.open_set_is_empty():
-            TimeAStar.NB_ITER += 1
-            self.current_state = self.select_best(resume)
-            self.current_state.update_best()
-            if not resume:
-                neighbours = self.current_state.get_valid_neighbours(
-                    self.player_id)
-                not_extd_neighbours = self.get_not_extended(neighbours)
-                self.add_to_open_set(not_extd_neighbours)
-                self.closed_set.append(self.current_state)
+            TimeAStar.NB_ITERS += 1
+            self.current_state = self.select_best()
+            neighbours = self.current_state.get_valid_neighbours(
+                self.player_id)
+            not_extd_neighbours = self.get_not_extended(neighbours)
+            self.add_to_open_set(not_extd_neighbours)
+            self.closed_set.append(self.current_state)
             if self.current_state.t == self.last_epoch:
                 return self.get_reversed_step_sequence()
 
@@ -252,25 +190,15 @@ class TimeAStar(AStar):  # TODO:  doc
         t = self.current_state.t
         current_state = self.current_state
         steps = []
-        print("========================")
         while current_state != self.initial_state:
             t -= 1
             steps.append(current_state.get_step())
-            print(current_state, 'from', current_state.parent, current_state.position, (
-                *current_state.coordinates, t))
-            if current_state.position in AdvancedPlayer.reservation_table.keys() and \
-                    AdvancedPlayer.reservation_table[current_state.position] != self.player_id:
-                print("previous:",
-                      AdvancedPlayer.reservation_table[current_state.position])
-                print(AdvancedPlayer.reservation_table)
-                print("===========================")
             AdvancedPlayer.reservation_table[current_state.position] = self.player_id
             AdvancedPlayer.reservation_table[(
                 *current_state.coordinates, t)] = self.player_id
             current_state = current_state.parent
             AdvancedPlayer.reservation_table[(
                 *current_state.coordinates, t + 1)] = self.player_id
-        print("========================")
         return steps
 
 
@@ -310,9 +238,7 @@ class AdvancedPlayer(CoopPlayer):
         """
         self.search_epoch = search_epoch
         self.a_star = TimeAStar(self.current_position, self.current_goal,
-                                self.search_epoch, self.id, self.walls)
-        # r
-        #
+                                self.search_epoch, self.id, self.walls, backwards_search=None)
         for t in range(search_epoch):
             AdvancedPlayer.reservation_table[(
                 *self.initial_position, t)] = self.id
@@ -340,6 +266,7 @@ class AdvancedPlayer(CoopPlayer):
             cnt += 1
         for player in cls.players:
             print(player.id, player.search_epoch)
+        print(cls.reservation_table)
 
     @classmethod
     def set_cooperation_period(cls, coop_period):
@@ -348,22 +275,12 @@ class AdvancedPlayer(CoopPlayer):
         """
         cls.coop_period = coop_period
 
-    def clear_unused_following_path(self):
+    def clear_trace(self):
         """
-        Removes the keys correponding to steps that will be soon replaced and
-        are thus useless
-        """
-        keys_to_delete = [(x, y, t) for (x, y, t), id in AdvancedPlayer.reservation_table.items()
-                          if id == self.id and t > AdvancedPlayer.epoch]
-        for k in keys_to_delete:
-            del AdvancedPlayer.reservation_table[k]
-
-    def clear_past_path(self):
-        """
-        Removes the keys correponding to past epochs from the reservation table
+        Removes any trace of its use from the reservation table
         """
         keys_to_delete = [(x, y, t) for (x, y, t), id in AdvancedPlayer.reservation_table.items()
-                          if id == self.id and t < AdvancedPlayer.epoch - 2]
+                          if id == self.id]
         for k in keys_to_delete:
             del AdvancedPlayer.reservation_table[k]
 
@@ -378,19 +295,25 @@ class AdvancedPlayer(CoopPlayer):
                 of the current goal
         -------------------
         """
-        # remove useless path slices from the reservation table
-        self.clear_unused_following_path()
-        self.clear_past_path()
+        self.clear_trace()
 
-        if resume is False:  # for a new path
+        if resume is True:  # for continuing the pursuit of current goal
+            backwards_search = self.a_star.backwards_search
+            last_epoch = self.a_star.last_epoch + AdvancedPlayer.coop_period
+        else:  # for a new path
             self.current_goal = self.goal_choice.get_next_goal(
                 self.current_position)
-            last_epoch = self.a_star.last_epoch - AdvancedPlayer.coop_period
-            self.a_star = TimeAStar(self.current_position, self.current_goal,
-                                    AdvancedPlayer.epoch, self.id, self.walls, last_epoch=last_epoch)
+            last_epoch = self.a_star.last_epoch
 
-        self.a_star.reset(self.current_position)
-        self.steps = self.a_star.run(resume)
+            # when replanning time
+            if last_epoch == AdvancedPlayer.epoch + AdvancedPlayer.coop_period:
+                last_epoch += AdvancedPlayer.coop_period
+
+            backwards_search = None
+
+        self.a_star = TimeAStar(self.current_position, self.current_goal,
+                                AdvancedPlayer.epoch, self.id, self.walls, backwards_search, last_epoch=last_epoch)
+        self.steps = self.a_star.run(resume=False)
 
     def is_last(self):
         """
@@ -415,14 +338,16 @@ class AdvancedPlayer(CoopPlayer):
             (tuple[int]): the next position of the agent
         -------------------
         """
-        # replanning time
-        if self.search_epoch == AdvancedPlayer.epoch:
-            self.find_path_to_goal()
-            self.search_epoch += AdvancedPlayer.coop_period
-
         # the agent succeded and wishes to meet another goal
         if self.has_next_goal():
             self.find_path_to_goal(resume=False)
+            if AdvancedPlayer.epoch == self.search_epoch:
+                self.search_epoch += AdvancedPlayer.coop_period
+
+        # replanning time
+        elif AdvancedPlayer.epoch == self.search_epoch:
+            self.find_path_to_goal(resume=True)
+            self.search_epoch += AdvancedPlayer.coop_period
 
         # when along the path
         if self.has_next_step():

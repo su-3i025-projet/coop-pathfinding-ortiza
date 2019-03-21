@@ -229,11 +229,6 @@ class Heap:
         node = self.__root()
         while not self.__is_leaf(node):
             min_child = self.__min_child(node)
-            # if self.__content(min_child) < self.__content(node):
-            #     self.__swap(node, min_child)
-            #     node = min_child
-            # else:
-            #     break
             if self.__content(node) < self.__content(min_child):
                 break
             else:
@@ -244,6 +239,9 @@ class Heap:
         return self.size == 0
 
     def push(self, el):
+        """
+        uniqueness
+        """
         try:
             index = self.__set.index(el)
             if el < self.__content(index):
@@ -262,21 +260,6 @@ class Heap:
     def clear(self):
         self.__set = []
         self.__size = 0
-
-    def remove(self, el):
-        index = None
-        for i, content in enumerate(self.__set):
-            if content == el:
-                index = i
-                break
-        if index is not None:
-            to_add = self.__last() - index
-            self.__size = index
-            for i in range(to_add):
-                self.__swap(self.size, self.size + 1)
-                self.__size += 1
-                self.__update_bottom_up()
-            return self.__set.pop()
 
 
 class AStar:
