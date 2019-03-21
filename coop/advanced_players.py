@@ -29,7 +29,7 @@ class TimeNode(Node):
             self.t = 32767  # large number for the goal
         # staying put has cost 0
         if self.has_parent() and self.get_step() == (0, 0, 1):
-            self.g = parent.g
+            self.g = parent.g  # TODO: apply this idea to Node
 
     @property
     def position(self):
