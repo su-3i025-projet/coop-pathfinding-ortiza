@@ -42,8 +42,18 @@ class Node:
         self.x = x
         # column index
         self.y = y
-        # cost of the path from the root to this node
-        self.g = parent.g + 1 if parent is not None else 0
+        # initialise cost of the path from the root to this node
+        self.init_cost()
+
+    def init_cost(self):
+        if self.has_parent():
+            # staying put has cost 0
+            if self.get_step() == (0, 0):
+                self.g = self.parent.g
+            else:
+                self.g = self.parent.g + 1
+        else:
+            self.g = 0
 
     def set_parent(self, parent):
         """
@@ -68,7 +78,7 @@ class Node:
         return self.parent is not None
 
     @property
-    def position(self):
+    def coordinates(self):
         return (self.x, self.y)
 
     def distance(self, other):
@@ -83,7 +93,7 @@ class Node:
             (int): the Manhattan distance between the two nodes
         -------------------
         """
-        return distance(self.position, other.position)
+        return distance(self.coordinates, other.coordinates)
 
     @property
     def h(self):
@@ -311,9 +321,9 @@ class AStar:
         # return heapq.heappop(self.open_set)
         return self.open_set.pop()
 
-    def get_node_at(self, position):
+    def get_node_at(self, coordinates):
         for node in self.closed_set:
-            if position == node.position:
+            if coordinates == node.coordinates:
                 return node
         return None
 

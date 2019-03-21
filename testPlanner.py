@@ -36,7 +36,7 @@ def init(_boardname=None):
     game.O = Ontology(
         True, '../SpriteSheet-32x32/tiny_spritesheet_ontology.csv')
     game.populate_sprite_names(game.O)
-    game.fps = 10  # frames per second
+    game.fps = 70  # frames per second
     game.mainiteration()
     game.mask.allow_overlaping_players = True
     # player = game.player
@@ -72,15 +72,16 @@ def main():
     # -------------------------------
     # Placement aleatoire des fioles
     # -------------------------------
-
+    goalPos = []
     for o in game.layers['ramassable']:  # les rouges puis jaunes puis bleues
         # et on met la fiole qqpart au hasard
         x = random.randint(6, 12)
         y = random.randint(6, 12)
-        while (x, y) in wallStates:
+        while (x, y) in wallStates + goalPos:
             x = random.randint(6, 12)
             y = random.randint(6, 12)
         o.set_rowcol(x, y)
+        goalPos.append((x, y))
         game.layers['ramassable'].add(o)
         game.mainiteration()
 
@@ -122,11 +123,11 @@ def main():
             # and ((next_row,next_col) not in posPlayers)
             if ((next_row, next_col) not in wallStates) and next_row >= 0 and next_row <= 19 and next_col >= 0 and next_col <= 19:
                 players[j].set_rowcol(next_row, next_col)
-                print("pos :", j, next_row, next_col)
+                print("player", j, "in (", next_row, next_col, ")")
                 # game.mainiteration()
 
             # si on a  trouvé un objet on le ramasse
-            print(next_row, next_col, goalPos[j])
+            print("\tgoal", goalPos[j])
             if (next_row, next_col) in goalPos[j]:
                 o = players[j].ramasse(game.layers)
                 # game.mainiteration()
@@ -138,7 +139,7 @@ def main():
                 # et on remet un même objet à un autre endroit
                 x = random.randint(0, 19)
                 y = random.randint(0, 19)
-                while (x, y) in wallStates + current:
+                while (x, y) in wallStates + current + [el for sub in goalPos for el in sub]:
                     x = random.randint(1, 19)
                     y = random.randint(1, 19)
                 o.set_rowcol(x, y)
@@ -162,8 +163,8 @@ def main():
                 pass
         previous = current
         game.mainiteration()
-
-# TODO: improve vials placement
+        print("Ended iteration", i + 1)
+        print("===================================")
         # break
 
     print("scores:", score)

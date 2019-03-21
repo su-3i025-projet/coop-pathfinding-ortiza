@@ -35,7 +35,7 @@ def init(_boardname=None):
     game.O = Ontology(
         True, '../SpriteSheet-32x32/tiny_spritesheet_ontology.csv')
     game.populate_sprite_names(game.O)
-    game.fps = 50  # frames per second
+    game.fps = 70  # frames per second
     game.mainiteration()
     game.mask.allow_overlaping_players = True
     # player = game.player
@@ -130,15 +130,15 @@ def main():
             # and ((next_row,next_col) not in posPlayers)
             if ((next_row, next_col) not in wallStates) and next_row >= 0 and next_row <= 19 and next_col >= 0 and next_col <= 19:
                 players[j].set_rowcol(next_row, next_col)
-                print("pos :", j, next_row, next_col)
+                print("player", j, "in (", next_row, next_col, ")")
                 # game.mainiteration()
 
             # si on a  trouvé un objet on le ramasse
-            print(next_row, next_col, goalPos[j])
+            print("\tgoal", goalPos[j])
             if (next_row, next_col) in goalPos[j]:
                 o = players[j].ramasse(game.layers)
                 # game.mainiteration()
-                print("Objet trouvé par le joueur ", j)
+                print("\nObjet trouvé par le joueur ", j, end='')
                 # on enlève ce goalState de la liste
                 goalPos[j].remove((next_row, next_col))
                 score[j] += 1
@@ -153,6 +153,7 @@ def main():
                 goalPos[j].append((x, y))  # on ajoute ce nouveau goalState
                 game.layers['ramassable'].add(o)
                 coop_players[j].add_goal((x, y))
+                print('\tnew goal at', (x, y))
                 # print("==================>", coop_players[j].goal_positions)
 
         current = [p.current_position for p in coop_players]
@@ -169,7 +170,8 @@ def main():
                 pass
         previous = current
         game.mainiteration()
-
+        print("Ended iteration", i + 1)
+        print("===================================")
         # break
 
     print("scores:", score)

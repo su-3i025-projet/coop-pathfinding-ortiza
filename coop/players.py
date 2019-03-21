@@ -25,6 +25,7 @@ class CoopPlayer:
     def __init__(self, initial_position, goal_positions, walls, goal_choice=NaiveStrategy):
         self.initial_position = initial_position
         self.current_position = initial_position
+        self.past_position = tuple([-1 for _ in initial_position])
         self.goal_positions = goal_positions[:]
         self.current_goal = None
         self.walls = walls
@@ -108,6 +109,9 @@ class CoopPlayer:
         if resume is False:  # for a new path
             self.current_goal = self.goal_choice.get_next_goal(
                 self.current_position)
+
+        placed = [pos for pos in placed if pos != self.current_goal]
+
         self.a_star = AStar(self.current_position,
                             self.current_goal, self.walls + placed)
         self.steps = self.a_star.run()
@@ -148,21 +152,23 @@ class CoopPlayer:
         -------------------
         """
         for oth in placed:
-            if oth.current_position == self.next_position:
+            if oth.current_position == self.next_position or \
+                    (oth.past_position == self.next_position and oth.current_position == self.current_position):
                 return self.next_position
         for oth in simultaneous:
             if oth.next_position == self.next_position or self.go_through_one_another(oth):
                 return self.next_position
         return None
 
-    def get_valid_shifts(self, obstacle):
+    def get_valid_shifts(self, obstacles):
         """
         Finds all of the valid neighbours of this node, i.e. those nodes
         wrapping non-wall and inside-the-grid cells
 
         -------------------
         args:
-            obstacle (tuple[int]): the coordinates of an obstacle to be avoided
+            obstacles (list[tuple[int]]): the coordinates of obstacles to be
+                avoided
         -------------------
         return:
             (list[Node]): the list of all this node's valid neighbours
@@ -175,14 +181,11 @@ class CoopPlayer:
                 return False
             if not Node.is_valid(*pos):
                 return False
-            placed, _ = self.others
-            if pos in [oth.current_position for oth in placed]:
-                return False
-            if pos == obstacle:
+            if pos in obstacles:
                 return False
             return True
 
-        shifts = [(1, 0), (-1, 0), (0, 1), (0, -1), (0, 0)]
+        shifts = [(1, 0), (-1, 0), (0, 1), (0, -1)]
         return [sh for sh in shifts if is_valid(sh)]
 
     def handle_collision(self, obstacle):
@@ -195,14 +198,28 @@ class CoopPlayer:
                 considered when recalculating its path
         -------------------
         """
+
+        def are_adjacent(pos1, pos2):
+            diff = (pos1[0] - pos2[0], pos1[1] - pos2[1])
+            return diff in [(0, 1), (0, -1), (1, 0), (-1, 0), (0, 0)]
+
         cut_path = self.steps[-CoopPlayer.CUT_OFF_LIMIT:]
+        placed, _ = self.others
+        obstacles = [oth.current_position for oth in placed if are_adjacent(
+            self.current_position, oth.current_position)]
+        obstacles += [oth.past_position for oth in placed if are_adjacent(
+            self.current_position, oth.past_position)]
+        obstacles += [obstacle]
         if len(cut_path) < CoopPlayer.CUT_OFF_LIMIT:
-            valid_steps = self.get_valid_shifts(obstacle)
+            valid_steps = self.get_valid_shifts(obstacles)
             self.steps = [random.choice(valid_steps)]
         else:
-            placed, _ = self.others
-            nearby_path = AStar(self.current_position, self.get_position_after(cut_path),
-                                self.walls + [obstacle] + placed).run()
+            temp_goal = self.get_position_after(cut_path)
+            if temp_goal == self.current_goal:
+                temp_goal = self.get_position_after(
+                    self.steps[-CoopPlayer.CUT_OFF_LIMIT + 1:])
+            nearby_path = AStar(self.current_position, temp_goal,
+                                self.walls + obstacles).run()
             self.steps = self.steps[:-CoopPlayer.CUT_OFF_LIMIT] + nearby_path
 
     def get_position_after(self, reversed_steps):
@@ -249,6 +266,7 @@ class CoopPlayer:
             (tuple[int]): the next position of the agent
         -------------------
         """
+        self.past_position = self.current_position
         self.current_position = self.next_position
         self.steps.pop()
         return self.current_position
@@ -268,6 +286,7 @@ class CoopPlayer:
         if self.has_next_step():
             obstacle = self.collision(*self.others)
             if obstacle is not None:
+                print("Collision:", self.current_position, obstacle)
                 self.handle_collision(obstacle)
             return self.get_next_position()
 

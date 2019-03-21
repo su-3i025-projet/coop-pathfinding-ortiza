@@ -20,24 +20,38 @@ class TimeNode(Node):
     """
 
     def __init__(self, a_star, x, y, t=None, parent=None):
-        super().__init__(a_star, x, y, parent)
+        self.a_star = a_star
+        self.parent = parent
+        # row index
+        self.x = x
+        # column index
+        self.y = y
         if t is not None:
             self.t = t
         elif self.has_parent():
             self.t = parent.t + 1
         else:
             self.t = 32767  # large number for the goal
-        # staying put has cost 0
-        if self.has_parent() and self.get_step() == (0, 0, 1):
-            self.g = parent.g  # TODO: apply this idea to Node
+        # initialise cost of the path from the root to this node
+        self.init_cost()
 
-    @property
-    def position(self):
-        return (*super().position, self.t)
+    def init_cost(self):
+        if self.has_parent():
+            # staying put has cost 0
+            if self.get_step() == (0, 0, 1):
+                self.g = self.parent.g
+            else:
+                self.g = self.parent.g + 1
+        else:
+            self.g = 0
 
     @property
     def coordinates(self):
-        return super().position
+        return (*self.position, self.t)
+
+    @property
+    def position(self):
+        return super().coordinates
 
     @property
     def h(self):
@@ -50,7 +64,7 @@ class TimeNode(Node):
             (int): the true distance heuristic value for this node
         -------------------
         """
-        return self.a_star.true_distance(self.coordinates)
+        return self.a_star.true_distance(self.position)
 
     def get_valid_neighbours(self, player_id):  # TODO: doc
         """
@@ -142,8 +156,8 @@ class TimeAStar(AStar):  # TODO:  doc
         if self.backwards_search is None:
             self.backwards_search = AStar(goal_state, initial_state, walls)
             self.backwards_search.run()
-        AdvancedPlayer.reservation_table[self.initial_state.position] = player_id
-        next_epoch = (*self.initial_state.coordinates, initial_epoch + 1)
+        AdvancedPlayer.reservation_table[self.initial_state.coordinates] = player_id
+        next_epoch = (*self.initial_state.position, initial_epoch + 1)
         AdvancedPlayer.reservation_table[next_epoch] = player_id
 
     def true_distance(self, current_position):
@@ -193,12 +207,12 @@ class TimeAStar(AStar):  # TODO:  doc
         while current_state != self.initial_state:
             t -= 1
             steps.append(current_state.get_step())
-            AdvancedPlayer.reservation_table[current_state.position] = self.player_id
+            AdvancedPlayer.reservation_table[current_state.coordinates] = self.player_id
             AdvancedPlayer.reservation_table[(
-                *current_state.coordinates, t)] = self.player_id
+                *current_state.position, t)] = self.player_id
             current_state = current_state.parent
             AdvancedPlayer.reservation_table[(
-                *current_state.coordinates, t + 1)] = self.player_id
+                *current_state.position, t + 1)] = self.player_id
         return steps
 
 

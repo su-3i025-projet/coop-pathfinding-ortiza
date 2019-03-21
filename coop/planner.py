@@ -62,8 +62,8 @@ class CoopPlanner:
     def update_paths(self):
         for player in self.players:
             bef, aft = player.others
-            others = [oth.current_goal for oth in bef + aft]
-            others += [oth.current_position for oth in bef + aft]
+            # others = [oth.current_goal for oth in bef + aft]
+            others = [oth.current_position for oth in bef + aft]  # +=
             player.find_path_to_goal(others, resume=True)
 
     def exists_collision(self, player1, player2):
@@ -72,24 +72,34 @@ class CoopPlanner:
 
         # save current state
         saved_current_pos2, saved_steps2 = player2.current_position, player2.steps
+
+        if saved_steps2 == []:
+            return True
+        # try:
         player2.steps = player2.steps[:]
+        # except Exception:
+        #     return False
+
+        # find all the cells of an already-in-the-sequence agent's path
+        other_positions = [saved_current_pos2]
+        while player2.has_next_step():
+            other_positions.append(player2.get_next_position())
 
         # find all the cells of the to-be-added agent's path for the first and only time
         if self.collision_baseline_positions == []:
             # save current state
             saved_current_pos1, saved_steps1 = player1.current_position, player1.steps
-            player1.steps = player1.steps[:]
+            try:
+                player1.steps = player1.steps[:]
+            except Exception:
+                player2.steps = saved_steps2
+                return False
             restore = True
 
             self.collision_baseline_positions.append(saved_current_pos1)
             while player1.has_next_step():
                 self.collision_baseline_positions.append(
                     player1.get_next_position())
-
-        # find all the cells of an already-in-the-sequence agent's path
-        other_positions = [saved_current_pos2]
-        while player2.has_next_step():
-            other_positions.append(player2.get_next_position())
 
         # there is a collision iff at least one cell belongs to both paths
         collision = False
@@ -127,6 +137,8 @@ class CoopPlanner:
             self.sequence.append([player])
 
     def update_sequence(self, players):
+        import random
+        random.shuffle(players)
         for player in players:
             self.add_to_sequence(player)
 
@@ -138,21 +150,34 @@ class CoopPlanner:
         if not self.players[self.current_player].has_next_step():
             bef, aft = self.players[self.current_player].others
             placed = [oth.current_position for oth in bef + aft]
+            placed += [oth.current_goal for oth in bef + aft]
             self.players[self.current_player].find_path_to_goal(
                 placed=placed)
             print(self.players[self.current_player].steps)
             self.add_to_sequence(self.current_player)
+            print(self.sequence)
 
         # change the current active group when empty
         if self.current_group == []:
-            self.sequence.pop(0)
+            # self.sequence.pop(0)
+            # self.current_group = self.sequence[0]
+            # self.update_paths()
+            self.sequence.clear()  # TODO: replan A* paths instead of just updating the turns list
+            self.update_sequence(
+                [i for i, p in enumerate(self.players) if p.has_next_step()])
+            self.seq_sorting_choice.sort()
             self.current_group = self.sequence[0]
-            self.update_paths()
+
+        print(self.current_group)
 
         # the current agent will move if being part of the current active group
         if self.current_player in self.current_group:
-            next_position = self.players[self.current_player].get_next_position(
-            )
+            try:
+                next_position = self.players[self.current_player].get_next_position(
+                )
+            except Exception:
+                while True:
+                    pass
             if self.players[self.current_player].is_at_goal():
                 self.current_group.remove(self.current_player)
             return next_position
