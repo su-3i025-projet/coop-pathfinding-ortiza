@@ -1,0 +1,672 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>coop.tools &#8212; Cooperative Pathfinding 1.0.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">Cooperative Pathfinding</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tools.html">Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../players.html">Players</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../planner.html">Planner</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../advanced-players.html">Advanced players</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for coop.tools</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">.. module:: tools</span>
+<span class="sd">   :synopsis: All the basic functions for cooperative players are defined here</span>
+<span class="sd">.. moduleauthor:: Angelo Ortiz &lt;github.com/angelo-ortiz&gt;</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">heapq</span>
+
+
+<div class="viewcode-block" id="distance"><a class="viewcode-back" href="../../tools.html#coop.tools.distance">[docs]</a><span class="k">def</span> <span class="nf">distance</span><span class="p">(</span><span class="n">point</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Calculates the Manhattan distance between the given points.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    point : tuple of int</span>
+<span class="sd">        The coordinates of the first point.</span>
+<span class="sd">    other : tuple of int</span>
+<span class="sd">        The coordinates of the second point.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    int</span>
+<span class="sd">        The Manhattan distance between the two points.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">dists</span> <span class="o">=</span> <span class="p">[</span><span class="nb">abs</span><span class="p">(</span><span class="n">c1</span> <span class="o">-</span> <span class="n">c2</span><span class="p">)</span> <span class="k">for</span> <span class="n">c1</span><span class="p">,</span> <span class="n">c2</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">point</span><span class="p">,</span> <span class="n">other</span><span class="p">)]</span>
+    <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="n">dists</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Node"><a class="viewcode-back" href="../../tools.html#coop.tools.Node">[docs]</a><span class="k">class</span> <span class="nc">Node</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;A node in A* algorithm&#39;s state graph.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    a_star : AStar</span>
+<span class="sd">        This argument points to the A* instance that created this node.</span>
+<span class="sd">    x : int</span>
+<span class="sd">        This argument contains the row number of this node.</span>
+<span class="sd">    y : int</span>
+<span class="sd">        This argument contains the column number of this node.</span>
+<span class="sd">    parent : Node, optional</span>
+<span class="sd">        This keyword argument points to the node preceding this node in `a_star`.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    coordinates</span>
+<span class="sd">    a_star : AStar</span>
+<span class="sd">        The storage location of the associated A* instance.</span>
+<span class="sd">    x : int</span>
+<span class="sd">        The storage location of the node&#39;s row number.</span>
+<span class="sd">    y : int</span>
+<span class="sd">        The storage location of the node&#39;s column number.</span>
+<span class="sd">    parent : Node</span>
+<span class="sd">        The storage location of the node&#39;s parent.</span>
+<span class="sd">    cost : int</span>
+<span class="sd">        The cost of the path from A*&#39;s root to this node.</span>
+
+<span class="sd">    NB_ROWS : int</span>
+<span class="sd">        The number of rows of the grid.</span>
+<span class="sd">    NB_COLUMNS : int</span>
+<span class="sd">        The number of columns of the grid.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">NB_ROWS</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">NB_COLUMNS</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a_star</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">a_star</span> <span class="o">=</span> <span class="n">a_star</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">y</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">parent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__init_cost</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Node.set_world_dimensions"><a class="viewcode-back" href="../../tools.html#coop.tools.Node.set_world_dimensions">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">set_world_dimensions</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">nb_rows</span><span class="p">,</span> <span class="n">nb_columns</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Sets the dimensions of the grid.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        nb_rows : int</span>
+<span class="sd">            The number of rows.</span>
+<span class="sd">        nb_columns : int</span>
+<span class="sd">            The number of columns.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">NB_ROWS</span> <span class="o">=</span> <span class="n">nb_rows</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">NB_COLUMNS</span> <span class="o">=</span> <span class="n">nb_columns</span></div>
+
+    <span class="k">def</span> <span class="nf">__init_cost</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># TODO: doc</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_parent</span><span class="p">():</span>
+            <span class="c1"># staying put has cost 0</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_step</span><span class="p">()</span> <span class="o">==</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">cost</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">cost</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">cost</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">cost</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cost</span> <span class="o">=</span> <span class="mi">0</span>
+
+<div class="viewcode-block" id="Node.set_parent"><a class="viewcode-back" href="../../tools.html#coop.tools.Node.set_parent">[docs]</a>    <span class="k">def</span> <span class="nf">set_parent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Changes the parent of this node.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        parent : Node</span>
+<span class="sd">            The new parent.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">parent</span></div>
+
+<div class="viewcode-block" id="Node.has_parent"><a class="viewcode-back" href="../../tools.html#coop.tools.Node.has_parent">[docs]</a>    <span class="k">def</span> <span class="nf">has_parent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Tests whether this node has a parent.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            True iff this node has a parent node assigned to it.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">coordinates</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The coordinates of the node.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">            the row number of this node.</span>
+<span class="sd">        int</span>
+<span class="sd">            the column number of this node.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Node.distance"><a class="viewcode-back" href="../../tools.html#coop.tools.Node.distance">[docs]</a>    <span class="k">def</span> <span class="nf">distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Calculates the distance between this node and the given one.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        other : Node</span>
+<span class="sd">            The node for which the distance will be calculated.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">            The distance between the two nodes.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        distance</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">distance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coordinates</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">coordinates</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Node.h"><a class="viewcode-back" href="../../tools.html#coop.tools.Node.h">[docs]</a>    <span class="k">def</span> <span class="nf">h</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Calculates the Manhattan heuristic value for this node.</span>
+
+<span class="sd">        It corresponds to an estimate of the cheapest path from this node to</span>
+<span class="sd">        the goal.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">            The heuristic value for this node.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">a_star</span><span class="o">.</span><span class="n">goal_state</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Node.f"><a class="viewcode-back" href="../../tools.html#coop.tools.Node.f">[docs]</a>    <span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Calculates the f-value of this node.</span>
+
+<span class="sd">        The f-value of a node corresponds to an estimate of the full</span>
+<span class="sd">        path starting from the root and ending at the goal.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">            The f-value of this node.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cost</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">h</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Node.is_valid"><a class="viewcode-back" href="../../tools.html#coop.tools.Node.is_valid">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">is_valid</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Tests whether the given position is in the grid bounds.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        x : int</span>
+<span class="sd">            The row number.</span>
+<span class="sd">        y : int</span>
+<span class="sd">            The column number.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            True iff the given position is located inside the grid.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">x</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="n">Node</span><span class="o">.</span><span class="n">NB_ROWS</span> <span class="ow">and</span> <span class="n">y</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">y</span> <span class="o">&lt;</span> <span class="n">Node</span><span class="o">.</span><span class="n">NB_COLUMNS</span></div>
+
+<div class="viewcode-block" id="Node.get_valid_neighbours"><a class="viewcode-back" href="../../tools.html#coop.tools.Node.get_valid_neighbours">[docs]</a>    <span class="k">def</span> <span class="nf">get_valid_neighbours</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Finds all the valid neighbours of this node.</span>
+
+<span class="sd">        A node is said to be valid if it does not enclose a wall and is located</span>
+<span class="sd">        inside the grid.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list of Node</span>
+<span class="sd">            The list of all this node&#39;s valid neighbours.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">shifts</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)]</span>
+        <span class="n">neighbours</span> <span class="o">=</span> <span class="p">[(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">dx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">+</span> <span class="n">dy</span><span class="p">)</span> <span class="k">for</span> <span class="n">dx</span><span class="p">,</span> <span class="n">dy</span> <span class="ow">in</span> <span class="n">shifts</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">Node</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">a_star</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">neighbours</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">a_star</span><span class="o">.</span><span class="n">walls</span> <span class="ow">and</span> <span class="n">Node</span><span class="o">.</span><span class="n">is_valid</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="Node.get_step"><a class="viewcode-back" href="../../tools.html#coop.tools.Node.get_step">[docs]</a>    <span class="k">def</span> <span class="nf">get_step</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Determines the step taken to come to this node from its parent.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">            The step taken along the column axis.</span>
+<span class="sd">        int</span>
+<span class="sd">            The step taken along the row axis.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">y</span></div>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Textual representation of this node&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">f</span><span class="s1">&#39;(</span><span class="si">{self.x}</span><span class="s1">, </span><span class="si">{self.y}</span><span class="s1">)&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Equality test based on the nodes&#39; coordinates&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="vm">__class__</span> <span class="ow">and</span> \
+            <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">x</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">y</span>
+
+    <span class="k">def</span> <span class="nf">__lt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Greatness test based on the nodes&#39; f-value&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">other</span><span class="o">.</span><span class="n">f</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Heap"><a class="viewcode-back" href="../../tools.html#coop.tools.Heap">[docs]</a><span class="k">class</span> <span class="nc">Heap</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;A priority queue assuring unicity.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    elements : list of comparable object, optional</span>
+<span class="sd">        This argument is used to initialise the heap.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    size</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    This priority queue implementation uses a list as the container of the</span>
+<span class="sd">    elements, which have to implement at least one greatness comparison function.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elements</span><span class="o">=</span><span class="p">[]):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__set</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__size</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">elements</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="n">el</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The size of the heap&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__size</span>
+
+    <span class="k">def</span> <span class="nf">__content</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The content at the given index in the list.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        index : int</span>
+<span class="sd">            The index of the wanted element.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        comparable object</span>
+<span class="sd">            The element at `index` in the list.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__set</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">__left_child</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The index of the left child of the given node.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        node : int</span>
+<span class="sd">            The index of the parent node.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">            The index of the left child node.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">node</span> <span class="o">+</span> <span class="mi">1</span>
+
+    <span class="k">def</span> <span class="nf">__right_child</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The index of the right child of the given node.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        node : int</span>
+<span class="sd">            The index of the parent node.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">            The index of the right child node.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">node</span> <span class="o">+</span> <span class="mi">2</span>
+
+    <span class="k">def</span> <span class="nf">__is_leaf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Tests whether the given node is a leaf.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        node : int</span>
+<span class="sd">            The node to verify.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            True iff the node does not have any children.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__left_child</span><span class="p">(</span><span class="n">node</span><span class="p">)</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">__last</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">__max_child</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The index of the given node&#39;s child with the highest priority.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        node : int</span>
+<span class="sd">            The index of the parent node.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">            The index of child node with the highest priority.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">max_child</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__left_child</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__right_child</span><span class="p">(</span><span class="n">node</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__last</span><span class="p">()</span> <span class="ow">and</span> \
+                <span class="bp">self</span><span class="o">.</span><span class="n">__content</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__right_child</span><span class="p">(</span><span class="n">node</span><span class="p">))</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">__content</span><span class="p">(</span><span class="n">max_child</span><span class="p">):</span>
+            <span class="n">max_child</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__right_child</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">max_child</span>
+
+    <span class="k">def</span> <span class="nf">__parent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
+
+    <span class="k">def</span> <span class="nf">__root</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">__last</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">-</span> <span class="mi">1</span>
+
+    <span class="k">def</span> <span class="nf">__is_root</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">n</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">__root</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">__swap</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">m</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__set</span><span class="p">[</span><span class="n">n</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">__set</span><span class="p">[</span><span class="n">m</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__set</span><span class="p">[</span><span class="n">m</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">__set</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">__update_bottom_up</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">node</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__last</span><span class="p">()</span>
+        <span class="k">while</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">__is_root</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
+            <span class="n">parent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__parent</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__content</span><span class="p">(</span><span class="n">node</span><span class="p">)</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">__content</span><span class="p">(</span><span class="n">parent</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__swap</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">parent</span><span class="p">)</span>
+                <span class="n">node</span> <span class="o">=</span> <span class="n">parent</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">break</span>
+
+    <span class="k">def</span> <span class="nf">__update_top_down</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">node</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__root</span><span class="p">()</span>
+        <span class="k">while</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">__is_leaf</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
+            <span class="n">max_child</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__max_child</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__content</span><span class="p">(</span><span class="n">node</span><span class="p">)</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">__content</span><span class="p">(</span><span class="n">max_child</span><span class="p">):</span>
+                <span class="k">break</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__swap</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">max_child</span><span class="p">)</span>
+                <span class="n">node</span> <span class="o">=</span> <span class="n">max_child</span>
+
+<div class="viewcode-block" id="Heap.is_empty"><a class="viewcode-back" href="../../tools.html#coop.tools.Heap.is_empty">[docs]</a>    <span class="k">def</span> <span class="nf">is_empty</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Tests emptyness</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span></div>
+
+<div class="viewcode-block" id="Heap.push"><a class="viewcode-back" href="../../tools.html#coop.tools.Heap.push">[docs]</a>    <span class="k">def</span> <span class="nf">push</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">el</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        unicity</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__set</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">el</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">el</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">__content</span><span class="p">(</span><span class="n">index</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">__set</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">el</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__size</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__set</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">el</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__update_bottom_up</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Heap.pop"><a class="viewcode-back" href="../../tools.html#coop.tools.Heap.pop">[docs]</a>    <span class="k">def</span> <span class="nf">pop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Removes the element with the highest priority.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__swap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__root</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">__last</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__size</span> <span class="o">-=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__update_top_down</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__set</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span></div></div>
+
+
+<div class="viewcode-block" id="AStar"><a class="viewcode-back" href="../../tools.html#coop.tools.AStar">[docs]</a><span class="k">class</span> <span class="nc">AStar</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;An execution of the A* algorithm.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    initial_state : (int, int)</span>
+<span class="sd">        This argument contains the coordinates of the initial node.</span>
+<span class="sd">    goal_state : (int, int)</span>
+<span class="sd">        This argument contains the coordinates of the goal node.</span>
+<span class="sd">    walls : list of (int, int)</span>
+<span class="sd">        This argument contains the list of all the obstacles to be avoided.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    initial_state : Node</span>
+<span class="sd">        The initial node.</span>
+<span class="sd">    goal_state : Node</span>
+<span class="sd">        The goal node.</span>
+<span class="sd">    walls : list of (int, int)</span>
+<span class="sd">        The storage location of the walls position.</span>
+<span class="sd">    open_set : Heap</span>
+<span class="sd">        The fringe of the algorithm.</span>
+<span class="sd">    closed_set : list of Node</span>
+<span class="sd">        The list of nodes already extended during the execution.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initial_state</span><span class="p">,</span> <span class="n">goal_state</span><span class="p">,</span> <span class="n">walls</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">initial_state</span> <span class="o">=</span> <span class="n">Node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">initial_state</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">goal_state</span> <span class="o">=</span> <span class="n">Node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">goal_state</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">walls</span> <span class="o">=</span> <span class="n">walls</span>
+        <span class="c1"># the fringe</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">open_set</span> <span class="o">=</span> <span class="n">Heap</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">initial_state</span><span class="p">])</span>
+        <span class="c1"># the set of extended nodes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">closed_set</span> <span class="o">=</span> <span class="p">[]</span>
+
+<div class="viewcode-block" id="AStar.set_new_goal"><a class="viewcode-back" href="../../tools.html#coop.tools.AStar.set_new_goal">[docs]</a>    <span class="k">def</span> <span class="nf">set_new_goal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_goal</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Sets the new goal for the A* algorithm.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        new_goal : (int, int)</span>
+<span class="sd">            The coordinates of a new goal to meet.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">goal_state</span> <span class="o">=</span> <span class="n">Node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">new_goal</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AStar.open_set_is_empty"><a class="viewcode-back" href="../../tools.html#coop.tools.AStar.open_set_is_empty">[docs]</a>    <span class="k">def</span> <span class="nf">open_set_is_empty</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Tests whether the fringe is empty.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            True iff the fringe is empty.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_set</span><span class="o">.</span><span class="n">is_empty</span><span class="p">()</span>  <span class="c1"># self.open_set == []</span></div>
+
+<div class="viewcode-block" id="AStar.select_best"><a class="viewcode-back" href="../../tools.html#coop.tools.AStar.select_best">[docs]</a>    <span class="k">def</span> <span class="nf">select_best</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Selects the best node in the fringe on the basis of its f-value.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Node</span>
+<span class="sd">            The node of the fringe with the lowest f-value.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># return heapq.heappop(self.open_set)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_set</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="AStar.get_node_at"><a class="viewcode-back" href="../../tools.html#coop.tools.AStar.get_node_at">[docs]</a>    <span class="k">def</span> <span class="nf">get_node_at</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coordinates</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Retrieves the node with the given coordinates in the closed set.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        coordinates : (int, int)</span>
+<span class="sd">            The coordinates of the desired node.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Node or None</span>
+<span class="sd">            The node in the closed set whose coordinates are given.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">closed_set</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">coordinates</span> <span class="o">==</span> <span class="n">node</span><span class="o">.</span><span class="n">coordinates</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">node</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="AStar.add_to_open_set"><a class="viewcode-back" href="../../tools.html#coop.tools.AStar.add_to_open_set">[docs]</a>    <span class="k">def</span> <span class="nf">add_to_open_set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">states</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Appends the given nodes to the fringe.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        states : list of Node</span>
+<span class="sd">            A list of state-wrapping nodes to be added to the fringe.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">st</span> <span class="ow">in</span> <span class="n">states</span><span class="p">:</span>
+            <span class="c1"># heapq.heappush(self.open_set, st)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">open_set</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="n">st</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AStar.get_not_extended"><a class="viewcode-back" href="../../tools.html#coop.tools.AStar.get_not_extended">[docs]</a>    <span class="k">def</span> <span class="nf">get_not_extended</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">states</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Filters out already extended nodes from the given list of nodes.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        states : list[Node]</span>
+<span class="sd">            A list of state-wrapping nodes.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list of Node</span>
+<span class="sd">            The list obtained as a result of removing already extended nodes</span>
+<span class="sd">            from the given list.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">st</span> <span class="k">for</span> <span class="n">st</span> <span class="ow">in</span> <span class="n">states</span> <span class="k">if</span> <span class="n">st</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">closed_set</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="AStar.run"><a class="viewcode-back" href="../../tools.html#coop.tools.AStar.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Runs A* algorithm</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list of (int, int)</span>
+<span class="sd">            The reversed list of steps to take to get to the goal state from</span>
+<span class="sd">            the initial state.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">while</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_set_is_empty</span><span class="p">():</span>
+            <span class="n">current_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">select_best</span><span class="p">()</span>
+            <span class="n">neighbours</span> <span class="o">=</span> <span class="n">current_state</span><span class="o">.</span><span class="n">get_valid_neighbours</span><span class="p">()</span>
+            <span class="n">not_extd_neighbours</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_not_extended</span><span class="p">(</span><span class="n">neighbours</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_to_open_set</span><span class="p">(</span><span class="n">not_extd_neighbours</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">closed_set</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">current_state</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">current_state</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">goal_state</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">goal_state</span><span class="o">.</span><span class="n">set_parent</span><span class="p">(</span><span class="n">current_state</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_reversed_step_sequence</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="AStar.get_reversed_step_sequence"><a class="viewcode-back" href="../../tools.html#coop.tools.AStar.get_reversed_step_sequence">[docs]</a>    <span class="k">def</span> <span class="nf">get_reversed_step_sequence</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Determines the steps leading to the goal from the initial state.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list of (int, int)</span>
+<span class="sd">            The step sequence to take to get to the goal state from the initial</span>
+<span class="sd">            state.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        The returned step sequence was built as a stack so the agent must use</span>
+<span class="sd">        `pop()` in order to obtain the immediate next step to take.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">current_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">goal_state</span>
+        <span class="n">steps</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">while</span> <span class="n">current_state</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_state</span><span class="p">:</span>
+            <span class="n">steps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">current_state</span><span class="o">.</span><span class="n">get_step</span><span class="p">())</span>
+            <span class="n">current_state</span> <span class="o">=</span> <span class="n">current_state</span><span class="o">.</span><span class="n">parent</span>
+        <span class="k">return</span> <span class="n">steps</span></div></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2019, Angelo Ortiz.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

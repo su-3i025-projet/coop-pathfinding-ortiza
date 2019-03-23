@@ -1,0 +1,511 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Players &#8212; Cooperative Pathfinding 1.0.0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Cooperative Pathfinding</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="tools.html">Tools</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Players</a></li>
+<li class="toctree-l1"><a class="reference internal" href="planner.html">Planner</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advanced-players.html">Advanced players</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="toctree-wrapper compound">
+</div>
+<div class="section" id="module-coop.players">
+<span id="players"></span><h1>Players<a class="headerlink" href="#module-coop.players" title="Permalink to this headline">¶</a></h1>
+<span class="target" id="module-players"></span><dl class="class">
+<dt id="coop.players.CoopPlayer">
+<em class="property">class </em><code class="descclassname">coop.players.</code><code class="descname">CoopPlayer</code><span class="sig-paren">(</span><em>initial_position</em>, <em>goal_positions</em>, <em>walls</em>, <em>goal_choice=&lt;class 'coop.strategies.NaiveStrategy'&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/coop/players.html#CoopPlayer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coop.players.CoopPlayer" title="Permalink to this definition">¶</a></dt>
+<dd><p>A cooperative player that handles collisions on a rolling basis</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>initial_position</strong> <span class="classifier-delimiter">:</span> <span class="classifier">(int, int)</span></dt>
+<dd><p class="first last">This argument contains the initial coordinates of the agent.</p>
+</dd>
+<dt><strong>goal_positions</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of (int, int)</span></dt>
+<dd><p class="first last">This argument contains a list of all the goals of the agent.</p>
+</dd>
+<dt><strong>walls</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of (int, int)</span></dt>
+<dd><p class="first last">This argument contains the list of all the obstacles to be avoided.</p>
+</dd>
+<dt><strong>goal_choice</strong> <span class="classifier-delimiter">:</span> <span class="classifier">GoalChoiceStrategy</span></dt>
+<dd><p class="first last">This argument defines the next goal choice mode.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
+<dt><a class="reference internal" href="#coop.players.CoopPlayer.others" title="coop.players.CoopPlayer.others"><code class="xref py py-obj docutils literal notranslate"><span class="pre">others</span></code></a></dt>
+<dd><p class="first last">The list of all the cooperative peers of this agent.</p>
+</dd>
+<dt><a class="reference internal" href="#coop.players.CoopPlayer.next_position" title="coop.players.CoopPlayer.next_position"><code class="xref py py-obj docutils literal notranslate"><span class="pre">next_position</span></code></a></dt>
+<dd><p class="first last">Determines this agent’s position after taking its next.</p>
+</dd>
+<dt><strong>initial_position</strong> <span class="classifier-delimiter">:</span> <span class="classifier">(int, int)</span></dt>
+<dd><p class="first last">The storage location of the initial coordinates of the player.</p>
+</dd>
+<dt><strong>current_position</strong> <span class="classifier-delimiter">:</span> <span class="classifier">(int, int)</span></dt>
+<dd><p class="first last">The coordinates of the agent’s current position.</p>
+</dd>
+<dt><strong>previous_position</strong> <span class="classifier-delimiter">:</span> <span class="classifier">(int, int)</span></dt>
+<dd><p class="first last">The coordinates of the agent’s previous position.</p>
+</dd>
+<dt><strong>goal_positions</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of (int, int)</span></dt>
+<dd><p class="first last">The storage location of the agent’s goal list.</p>
+</dd>
+<dt><strong>current_goal</strong> <span class="classifier-delimiter">:</span> <span class="classifier">(int, int)</span></dt>
+<dd><p class="first last">The coordinates of the agent’s current goal.</p>
+</dd>
+<dt><strong>walls</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of (int, int)</span></dt>
+<dd><p class="first last">The storage location of the walls position.</p>
+</dd>
+<dt><strong>a_star</strong> <span class="classifier-delimiter">:</span> <span class="classifier">AStar or None</span></dt>
+<dd><p class="first last">The A* algorithm execution leading the agent’s steps.</p>
+</dd>
+<dt><strong>steps</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of (int, int)</span></dt>
+<dd><p class="first last">The list of steps the agent must take to get to its current goal.</p>
+</dd>
+<dt><strong>goal_choice</strong> <span class="classifier-delimiter">:</span> <span class="classifier">GoalChoiceStrategy</span></dt>
+<dd><p class="first last">The storage location of the agent’s goal choice strategy.</p>
+</dd>
+<dt><strong>PLAYERS</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of CoopPlayer</span></dt>
+<dd><p class="first last">The list of all cooperative agents in the grid.</p>
+</dd>
+<dt><strong>CUT_OFF_LIMIT</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">The length of the path to be cut when handling collisions.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#coop.players.CoopPlayer.add_goal" title="coop.players.CoopPlayer.add_goal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_goal</span></code></a>(goal_position)</td>
+<td>Adds a new goal to this agent.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#coop.players.CoopPlayer.collision" title="coop.players.CoopPlayer.collision"><code class="xref py py-obj docutils literal notranslate"><span class="pre">collision</span></code></a>(placed,&nbsp;following)</td>
+<td>Checks that this agent does not collide with any other.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#coop.players.CoopPlayer.find_path_to_goal" title="coop.players.CoopPlayer.find_path_to_goal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">find_path_to_goal</span></code></a>([placed,&nbsp;resume])</td>
+<td>Finds a path to a goal considering players already fixed on the grid.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#coop.players.CoopPlayer.get_next_position" title="coop.players.CoopPlayer.get_next_position"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_next_position</span></code></a>()</td>
+<td>Pops the next step out of the list and takes it to calculate its next position.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#coop.players.CoopPlayer.get_position_after" title="coop.players.CoopPlayer.get_position_after"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_position_after</span></code></a>(reversed_steps)</td>
+<td>Determines this agent’s position after following the given step sequence.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#coop.players.CoopPlayer.go_through_one_another" title="coop.players.CoopPlayer.go_through_one_another"><code class="xref py py-obj docutils literal notranslate"><span class="pre">go_through_one_another</span></code></a>(other,&nbsp;placed)</td>
+<td>Tests whether this agent will have crossed the given one after the current iteration.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#coop.players.CoopPlayer.handle_collision" title="coop.players.CoopPlayer.handle_collision"><code class="xref py py-obj docutils literal notranslate"><span class="pre">handle_collision</span></code></a>(obstacle)</td>
+<td>Replans a part of this agent’s immediate path considering the given obstacle.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#coop.players.CoopPlayer.has_next_goal" title="coop.players.CoopPlayer.has_next_goal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_next_goal</span></code></a>()</td>
+<td>Tests whether this agent has another goal to pursue.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#coop.players.CoopPlayer.has_next_step" title="coop.players.CoopPlayer.has_next_step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_next_step</span></code></a>()</td>
+<td>Tests whether this agent has a planned step to take.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#coop.players.CoopPlayer.is_at_goal" title="coop.players.CoopPlayer.is_at_goal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_at_goal</span></code></a>()</td>
+<td>Tests whether this agent has reached its goal.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#coop.players.CoopPlayer.next" title="coop.players.CoopPlayer.next"><code class="xref py py-obj docutils literal notranslate"><span class="pre">next</span></code></a>()</td>
+<td>Determines this agent’s next position in the grid.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#coop.players.CoopPlayer.set_cut_off_limit" title="coop.players.CoopPlayer.set_cut_off_limit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_cut_off_limit</span></code></a>(cut_point)</td>
+<td>Sets the number of immediate steps to be recalculated when handling a collision.</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="coop.players.CoopPlayer.add_goal">
+<code class="descname">add_goal</code><span class="sig-paren">(</span><em>goal_position</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/coop/players.html#CoopPlayer.add_goal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coop.players.CoopPlayer.add_goal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a new goal to this agent.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>goal_position</strong> <span class="classifier-delimiter">:</span> <span class="classifier">(int, int)</span></dt>
+<dd><p class="first last">The coordinates of a new goal for the agent.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="coop.players.CoopPlayer.collision">
+<code class="descname">collision</code><span class="sig-paren">(</span><em>placed</em>, <em>following</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/coop/players.html#CoopPlayer.collision"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coop.players.CoopPlayer.collision" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks that this agent does not collide with any other.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>placed</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of CoopPlayer</span></dt>
+<dd><p class="first last">The list of players already placed during the current iteration.</p>
+</dd>
+<dt><strong>following</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of CoopPlayer</span></dt>
+<dd><p class="first last">The list of players to be placed after this agent.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>(int, int) or None</strong></dt>
+<dd><p class="first last">The coordinates a potential collision if any, otherwise None.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="coop.players.CoopPlayer.find_path_to_goal">
+<code class="descname">find_path_to_goal</code><span class="sig-paren">(</span><em>placed=[]</em>, <em>resume=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/coop/players.html#CoopPlayer.find_path_to_goal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coop.players.CoopPlayer.find_path_to_goal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds a path to a goal considering players already fixed on the grid.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>placed</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of CoopPlayer, optional</span></dt>
+<dd><p class="first last">The list of players already placed that need to be avoided.</p>
+</dd>
+<dt><strong>resume</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool, optional</span></dt>
+<dd><p class="first last">True iff the agent must resume its pursuit of the current goal.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="coop.players.CoopPlayer.get_next_position">
+<code class="descname">get_next_position</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/coop/players.html#CoopPlayer.get_next_position"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coop.players.CoopPlayer.get_next_position" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pops the next step out of the list and takes it to calculate its
+next position.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>(int, int)</strong></dt>
+<dd><p class="first last">The next position of the agent.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="coop.players.CoopPlayer.get_position_after">
+<code class="descname">get_position_after</code><span class="sig-paren">(</span><em>reversed_steps</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/coop/players.html#CoopPlayer.get_position_after"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coop.players.CoopPlayer.get_position_after" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines this agent’s position after following the given step
+sequence.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>reversed_steps</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of (int, int)</span></dt>
+<dd><p class="first last">The list of steps to take in a reverse manner.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>(int, int)</strong></dt>
+<dd><p class="first last">This agent’s position after taking the given step sequence.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="coop.players.CoopPlayer.go_through_one_another">
+<code class="descname">go_through_one_another</code><span class="sig-paren">(</span><em>other</em>, <em>placed</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/coop/players.html#CoopPlayer.go_through_one_another"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coop.players.CoopPlayer.go_through_one_another" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tests whether this agent will have crossed the given one after the
+current iteration.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>other</strong> <span class="classifier-delimiter">:</span> <span class="classifier">CoopPlayer</span></dt>
+<dd><p class="first last">The peer agent to check.</p>
+</dd>
+<dt><strong>placed</strong> <span class="classifier-delimiter">:</span> <span class="classifier">bool</span></dt>
+<dd><p class="first last">True iff the agent has already been placed on the grid during the
+current iteration.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>bool</strong></dt>
+<dd><p class="first last">True iff the agent’s next position is the other’s current position,
+and the other way round.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="coop.players.CoopPlayer.handle_collision">
+<code class="descname">handle_collision</code><span class="sig-paren">(</span><em>obstacle</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/coop/players.html#CoopPlayer.handle_collision"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coop.players.CoopPlayer.handle_collision" title="Permalink to this definition">¶</a></dt>
+<dd><p>Replans a part of this agent’s immediate path considering the given
+obstacle.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>obstacle</strong> <span class="classifier-delimiter">:</span> <span class="classifier">(int, int)</span></dt>
+<dd><p class="first last">The coordinates of a cell to be avoided when replanning.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="coop.players.CoopPlayer.has_next_goal">
+<code class="descname">has_next_goal</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/coop/players.html#CoopPlayer.has_next_goal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coop.players.CoopPlayer.has_next_goal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tests whether this agent has another goal to pursue.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>bool</strong></dt>
+<dd><p class="first last">True iff the list of goals is not empty.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="coop.players.CoopPlayer.has_next_step">
+<code class="descname">has_next_step</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/coop/players.html#CoopPlayer.has_next_step"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coop.players.CoopPlayer.has_next_step" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tests whether this agent has a planned step to take.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>bool</strong></dt>
+<dd><p class="first last">True iff the list of planned steps is not empty.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="coop.players.CoopPlayer.is_at_goal">
+<code class="descname">is_at_goal</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/coop/players.html#CoopPlayer.is_at_goal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coop.players.CoopPlayer.is_at_goal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tests whether this agent has reached its goal.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>bool</strong></dt>
+<dd><p class="first last">True iff the agent is currently at its goal position.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="coop.players.CoopPlayer.next">
+<code class="descname">next</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/coop/players.html#CoopPlayer.next"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coop.players.CoopPlayer.next" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines this agent’s next position in the grid.</p>
+<p>This method considers the agent’s current and remaining goals, and any
+potential collisions for this purpose.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>(int, int)</strong></dt>
+<dd><p class="first last">The next position of the agent.</p>
+</dd>
+<dt><strong>——————-</strong></dt>
+<dd></dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="coop.players.CoopPlayer.next_position">
+<code class="descname">next_position</code><a class="headerlink" href="#coop.players.CoopPlayer.next_position" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines this agent’s position after taking its next.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>(int, int)</strong></dt>
+<dd><p class="first last">The next position of this agent.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>This method does not pop out the next step. If you wish to do it,
+however, see <a class="reference internal" href="#coop.players.CoopPlayer.get_next_position" title="coop.players.CoopPlayer.get_next_position"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_next_position()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="coop.players.CoopPlayer.others">
+<code class="descname">others</code><a class="headerlink" href="#coop.players.CoopPlayer.others" title="Permalink to this definition">¶</a></dt>
+<dd><p>The list of all the cooperative peers of this agent.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>(list of CoopPlayer, list of CoopPlayer)</strong></dt>
+<dd><p class="first last">The list of the cooperative peers already placed during the current
+iteration, and the list of those yet to be placed.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="coop.players.CoopPlayer.set_cut_off_limit">
+<em class="property">classmethod </em><code class="descname">set_cut_off_limit</code><span class="sig-paren">(</span><em>cut_point</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/coop/players.html#CoopPlayer.set_cut_off_limit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coop.players.CoopPlayer.set_cut_off_limit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the number of immediate steps to be recalculated when
+handling a collision.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2019, Angelo Ortiz.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/players.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

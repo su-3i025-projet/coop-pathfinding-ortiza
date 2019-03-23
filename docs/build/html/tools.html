@@ -1,0 +1,771 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Tools &#8212; Cooperative Pathfinding 1.0.0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Overview of the project" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Cooperative Pathfinding</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="players.html">Players</a></li>
+<li class="toctree-l1"><a class="reference internal" href="planner.html">Planner</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advanced-players.html">Advanced players</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="toctree-wrapper compound">
+</div>
+<div class="section" id="module-coop.tools">
+<span id="tools"></span><h1>Tools<a class="headerlink" href="#module-coop.tools" title="Permalink to this headline">¶</a></h1>
+<span class="target" id="module-tools"></span><dl class="class">
+<dt id="coop.tools.AStar">
+<em class="property">class </em><code class="descclassname">coop.tools.</code><code class="descname">AStar</code><span class="sig-paren">(</span><em>initial_state</em>, <em>goal_state</em>, <em>walls</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/coop/tools.html#AStar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coop.tools.AStar" title="Permalink to this definition">¶</a></dt>
+<dd><p>An execution of the A* algorithm.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>initial_state</strong> <span class="classifier-delimiter">:</span> <span class="classifier">(int, int)</span></dt>
+<dd><p class="first last">This argument contains the coordinates of the initial node.</p>
+</dd>
+<dt><strong>goal_state</strong> <span class="classifier-delimiter">:</span> <span class="classifier">(int, int)</span></dt>
+<dd><p class="first last">This argument contains the coordinates of the goal node.</p>
+</dd>
+<dt><strong>walls</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of (int, int)</span></dt>
+<dd><p class="first last">This argument contains the list of all the obstacles to be avoided.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>initial_state</strong> <span class="classifier-delimiter">:</span> <span class="classifier">Node</span></dt>
+<dd><p class="first last">The initial node.</p>
+</dd>
+<dt><strong>goal_state</strong> <span class="classifier-delimiter">:</span> <span class="classifier">Node</span></dt>
+<dd><p class="first last">The goal node.</p>
+</dd>
+<dt><strong>walls</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of (int, int)</span></dt>
+<dd><p class="first last">The storage location of the walls position.</p>
+</dd>
+<dt><strong>open_set</strong> <span class="classifier-delimiter">:</span> <span class="classifier">Heap</span></dt>
+<dd><p class="first last">The fringe of the algorithm.</p>
+</dd>
+<dt><strong>closed_set</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of Node</span></dt>
+<dd><p class="first last">The list of nodes already extended during the execution.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#coop.tools.AStar.add_to_open_set" title="coop.tools.AStar.add_to_open_set"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_to_open_set</span></code></a>(states)</td>
+<td>Appends the given nodes to the fringe.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#coop.tools.AStar.get_node_at" title="coop.tools.AStar.get_node_at"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_node_at</span></code></a>(coordinates)</td>
+<td>Retrieves the node with the given coordinates in the closed set.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#coop.tools.AStar.get_not_extended" title="coop.tools.AStar.get_not_extended"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_not_extended</span></code></a>(states)</td>
+<td>Filters out already extended nodes from the given list of nodes.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#coop.tools.AStar.get_reversed_step_sequence" title="coop.tools.AStar.get_reversed_step_sequence"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_reversed_step_sequence</span></code></a>()</td>
+<td>Determines the steps leading to the goal from the initial state.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#coop.tools.AStar.open_set_is_empty" title="coop.tools.AStar.open_set_is_empty"><code class="xref py py-obj docutils literal notranslate"><span class="pre">open_set_is_empty</span></code></a>()</td>
+<td>Tests whether the fringe is empty.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#coop.tools.AStar.run" title="coop.tools.AStar.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a>()</td>
+<td>Runs A* algorithm</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#coop.tools.AStar.select_best" title="coop.tools.AStar.select_best"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_best</span></code></a>()</td>
+<td>Selects the best node in the fringe on the basis of its f-value.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#coop.tools.AStar.set_new_goal" title="coop.tools.AStar.set_new_goal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_new_goal</span></code></a>(new_goal)</td>
+<td>Sets the new goal for the A* algorithm.</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="coop.tools.AStar.add_to_open_set">
+<code class="descname">add_to_open_set</code><span class="sig-paren">(</span><em>states</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/coop/tools.html#AStar.add_to_open_set"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coop.tools.AStar.add_to_open_set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Appends the given nodes to the fringe.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>states</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of Node</span></dt>
+<dd><p class="first last">A list of state-wrapping nodes to be added to the fringe.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="coop.tools.AStar.get_node_at">
+<code class="descname">get_node_at</code><span class="sig-paren">(</span><em>coordinates</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/coop/tools.html#AStar.get_node_at"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coop.tools.AStar.get_node_at" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieves the node with the given coordinates in the closed set.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>coordinates</strong> <span class="classifier-delimiter">:</span> <span class="classifier">(int, int)</span></dt>
+<dd><p class="first last">The coordinates of the desired node.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>Node or None</strong></dt>
+<dd><p class="first last">The node in the closed set whose coordinates are given.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="coop.tools.AStar.get_not_extended">
+<code class="descname">get_not_extended</code><span class="sig-paren">(</span><em>states</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/coop/tools.html#AStar.get_not_extended"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coop.tools.AStar.get_not_extended" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filters out already extended nodes from the given list of nodes.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>states</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list[Node]</span></dt>
+<dd><p class="first last">A list of state-wrapping nodes.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>list of Node</strong></dt>
+<dd><p class="first last">The list obtained as a result of removing already extended nodes
+from the given list.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="coop.tools.AStar.get_reversed_step_sequence">
+<code class="descname">get_reversed_step_sequence</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/coop/tools.html#AStar.get_reversed_step_sequence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coop.tools.AStar.get_reversed_step_sequence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines the steps leading to the goal from the initial state.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>list of (int, int)</strong></dt>
+<dd><p class="first last">The step sequence to take to get to the goal state from the initial
+state.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>The returned step sequence was built as a stack so the agent must use
+<cite>pop()</cite> in order to obtain the immediate next step to take.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="coop.tools.AStar.open_set_is_empty">
+<code class="descname">open_set_is_empty</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/coop/tools.html#AStar.open_set_is_empty"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coop.tools.AStar.open_set_is_empty" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tests whether the fringe is empty.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>bool</strong></dt>
+<dd><p class="first last">True iff the fringe is empty.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="coop.tools.AStar.run">
+<code class="descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/coop/tools.html#AStar.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coop.tools.AStar.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Runs A* algorithm</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>list of (int, int)</strong></dt>
+<dd><p class="first last">The reversed list of steps to take to get to the goal state from
+the initial state.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="coop.tools.AStar.select_best">
+<code class="descname">select_best</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/coop/tools.html#AStar.select_best"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coop.tools.AStar.select_best" title="Permalink to this definition">¶</a></dt>
+<dd><p>Selects the best node in the fringe on the basis of its f-value.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>Node</strong></dt>
+<dd><p class="first last">The node of the fringe with the lowest f-value.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="coop.tools.AStar.set_new_goal">
+<code class="descname">set_new_goal</code><span class="sig-paren">(</span><em>new_goal</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/coop/tools.html#AStar.set_new_goal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coop.tools.AStar.set_new_goal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the new goal for the A* algorithm.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>new_goal</strong> <span class="classifier-delimiter">:</span> <span class="classifier">(int, int)</span></dt>
+<dd><p class="first last">The coordinates of a new goal to meet.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="coop.tools.Heap">
+<em class="property">class </em><code class="descclassname">coop.tools.</code><code class="descname">Heap</code><span class="sig-paren">(</span><em>elements=[]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/coop/tools.html#Heap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coop.tools.Heap" title="Permalink to this definition">¶</a></dt>
+<dd><p>A priority queue assuring unicity.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>elements</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of comparable object, optional</span></dt>
+<dd><p class="first last">This argument is used to initialise the heap.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>This priority queue implementation uses a list as the container of the
+elements, which have to implement at least one greatness comparison function.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
+<dt><a class="reference internal" href="#coop.tools.Heap.size" title="coop.tools.Heap.size"><code class="xref py py-obj docutils literal notranslate"><span class="pre">size</span></code></a></dt>
+<dd><p class="first last">The size of the heap</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#coop.tools.Heap.is_empty" title="coop.tools.Heap.is_empty"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_empty</span></code></a>()</td>
+<td>Tests emptyness</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#coop.tools.Heap.pop" title="coop.tools.Heap.pop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pop</span></code></a>()</td>
+<td>Removes the element with the highest priority.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#coop.tools.Heap.push" title="coop.tools.Heap.push"><code class="xref py py-obj docutils literal notranslate"><span class="pre">push</span></code></a>(el)</td>
+<td>unicity</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="coop.tools.Heap.is_empty">
+<code class="descname">is_empty</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/coop/tools.html#Heap.is_empty"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coop.tools.Heap.is_empty" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tests emptyness</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="coop.tools.Heap.pop">
+<code class="descname">pop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/coop/tools.html#Heap.pop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coop.tools.Heap.pop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes the element with the highest priority.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="coop.tools.Heap.push">
+<code class="descname">push</code><span class="sig-paren">(</span><em>el</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/coop/tools.html#Heap.push"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coop.tools.Heap.push" title="Permalink to this definition">¶</a></dt>
+<dd><p>unicity</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="coop.tools.Heap.size">
+<code class="descname">size</code><a class="headerlink" href="#coop.tools.Heap.size" title="Permalink to this definition">¶</a></dt>
+<dd><p>The size of the heap</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="coop.tools.Node">
+<em class="property">class </em><code class="descclassname">coop.tools.</code><code class="descname">Node</code><span class="sig-paren">(</span><em>a_star</em>, <em>x</em>, <em>y</em>, <em>parent=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/coop/tools.html#Node"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coop.tools.Node" title="Permalink to this definition">¶</a></dt>
+<dd><p>A node in A* algorithm’s state graph.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>a_star</strong> <span class="classifier-delimiter">:</span> <span class="classifier">AStar</span></dt>
+<dd><p class="first last">This argument points to the A* instance that created this node.</p>
+</dd>
+<dt><strong>x</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">This argument contains the row number of this node.</p>
+</dd>
+<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">This argument contains the column number of this node.</p>
+</dd>
+<dt><strong>parent</strong> <span class="classifier-delimiter">:</span> <span class="classifier">Node, optional</span></dt>
+<dd><p class="first last">This keyword argument points to the node preceding this node in <cite>a_star</cite>.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
+<dt><a class="reference internal" href="#coop.tools.Node.coordinates" title="coop.tools.Node.coordinates"><code class="xref py py-obj docutils literal notranslate"><span class="pre">coordinates</span></code></a></dt>
+<dd><p class="first last">The coordinates of the node.</p>
+</dd>
+<dt><strong>a_star</strong> <span class="classifier-delimiter">:</span> <span class="classifier">AStar</span></dt>
+<dd><p class="first last">The storage location of the associated A* instance.</p>
+</dd>
+<dt><strong>x</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">The storage location of the node’s row number.</p>
+</dd>
+<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">The storage location of the node’s column number.</p>
+</dd>
+<dt><strong>parent</strong> <span class="classifier-delimiter">:</span> <span class="classifier">Node</span></dt>
+<dd><p class="first last">The storage location of the node’s parent.</p>
+</dd>
+<dt><strong>cost</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">The cost of the path from A*’s root to this node.</p>
+</dd>
+<dt><strong>NB_ROWS</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">The number of rows of the grid.</p>
+</dd>
+<dt><strong>NB_COLUMNS</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">The number of columns of the grid.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#coop.tools.Node.distance" title="coop.tools.Node.distance"><code class="xref py py-obj docutils literal notranslate"><span class="pre">distance</span></code></a>(other)</td>
+<td>Calculates the distance between this node and the given one.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#coop.tools.Node.f" title="coop.tools.Node.f"><code class="xref py py-obj docutils literal notranslate"><span class="pre">f</span></code></a>()</td>
+<td>Calculates the f-value of this node.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#coop.tools.Node.get_step" title="coop.tools.Node.get_step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_step</span></code></a>()</td>
+<td>Determines the step taken to come to this node from its parent.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#coop.tools.Node.get_valid_neighbours" title="coop.tools.Node.get_valid_neighbours"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_valid_neighbours</span></code></a>()</td>
+<td>Finds all the valid neighbours of this node.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#coop.tools.Node.h" title="coop.tools.Node.h"><code class="xref py py-obj docutils literal notranslate"><span class="pre">h</span></code></a>()</td>
+<td>Calculates the Manhattan heuristic value for this node.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#coop.tools.Node.has_parent" title="coop.tools.Node.has_parent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_parent</span></code></a>()</td>
+<td>Tests whether this node has a parent.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#coop.tools.Node.is_valid" title="coop.tools.Node.is_valid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_valid</span></code></a>(x,&nbsp;y)</td>
+<td>Tests whether the given position is in the grid bounds.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#coop.tools.Node.set_parent" title="coop.tools.Node.set_parent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_parent</span></code></a>(parent)</td>
+<td>Changes the parent of this node.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#coop.tools.Node.set_world_dimensions" title="coop.tools.Node.set_world_dimensions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_world_dimensions</span></code></a>(nb_rows,&nbsp;nb_columns)</td>
+<td>Sets the dimensions of the grid.</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="coop.tools.Node.coordinates">
+<code class="descname">coordinates</code><a class="headerlink" href="#coop.tools.Node.coordinates" title="Permalink to this definition">¶</a></dt>
+<dd><p>The coordinates of the node.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>int</strong></dt>
+<dd><p class="first last">the row number of this node.</p>
+</dd>
+<dt><strong>int</strong></dt>
+<dd><p class="first last">the column number of this node.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="coop.tools.Node.distance">
+<code class="descname">distance</code><span class="sig-paren">(</span><em>other</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/coop/tools.html#Node.distance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coop.tools.Node.distance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the distance between this node and the given one.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>other</strong> <span class="classifier-delimiter">:</span> <span class="classifier">Node</span></dt>
+<dd><p class="first last">The node for which the distance will be calculated.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>int</strong></dt>
+<dd><p class="first last">The distance between the two nodes.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition seealso">
+<p class="first admonition-title">See also</p>
+<p class="last"><a class="reference internal" href="#coop.tools.distance" title="coop.tools.distance"><code class="xref py py-obj docutils literal notranslate"><span class="pre">distance</span></code></a></p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="coop.tools.Node.f">
+<code class="descname">f</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/coop/tools.html#Node.f"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coop.tools.Node.f" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the f-value of this node.</p>
+<p>The f-value of a node corresponds to an estimate of the full
+path starting from the root and ending at the goal.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>int</strong></dt>
+<dd><p class="first last">The f-value of this node.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="coop.tools.Node.get_step">
+<code class="descname">get_step</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/coop/tools.html#Node.get_step"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coop.tools.Node.get_step" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determines the step taken to come to this node from its parent.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>int</strong></dt>
+<dd><p class="first last">The step taken along the column axis.</p>
+</dd>
+<dt><strong>int</strong></dt>
+<dd><p class="first last">The step taken along the row axis.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="coop.tools.Node.get_valid_neighbours">
+<code class="descname">get_valid_neighbours</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/coop/tools.html#Node.get_valid_neighbours"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coop.tools.Node.get_valid_neighbours" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds all the valid neighbours of this node.</p>
+<p>A node is said to be valid if it does not enclose a wall and is located
+inside the grid.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>list of Node</strong></dt>
+<dd><p class="first last">The list of all this node’s valid neighbours.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="coop.tools.Node.h">
+<code class="descname">h</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/coop/tools.html#Node.h"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coop.tools.Node.h" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the Manhattan heuristic value for this node.</p>
+<p>It corresponds to an estimate of the cheapest path from this node to
+the goal.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>int</strong></dt>
+<dd><p class="first last">The heuristic value for this node.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="coop.tools.Node.has_parent">
+<code class="descname">has_parent</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/coop/tools.html#Node.has_parent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coop.tools.Node.has_parent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tests whether this node has a parent.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>bool</strong></dt>
+<dd><p class="first last">True iff this node has a parent node assigned to it.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="coop.tools.Node.is_valid">
+<em class="property">classmethod </em><code class="descname">is_valid</code><span class="sig-paren">(</span><em>x</em>, <em>y</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/coop/tools.html#Node.is_valid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coop.tools.Node.is_valid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tests whether the given position is in the grid bounds.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>x</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">The row number.</p>
+</dd>
+<dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">The column number.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>bool</strong></dt>
+<dd><p class="first last">True iff the given position is located inside the grid.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="coop.tools.Node.set_parent">
+<code class="descname">set_parent</code><span class="sig-paren">(</span><em>parent</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/coop/tools.html#Node.set_parent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coop.tools.Node.set_parent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Changes the parent of this node.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>parent</strong> <span class="classifier-delimiter">:</span> <span class="classifier">Node</span></dt>
+<dd><p class="first last">The new parent.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="coop.tools.Node.set_world_dimensions">
+<em class="property">classmethod </em><code class="descname">set_world_dimensions</code><span class="sig-paren">(</span><em>nb_rows</em>, <em>nb_columns</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/coop/tools.html#Node.set_world_dimensions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coop.tools.Node.set_world_dimensions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the dimensions of the grid.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>nb_rows</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">The number of rows.</p>
+</dd>
+<dt><strong>nb_columns</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">The number of columns.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="coop.tools.distance">
+<code class="descclassname">coop.tools.</code><code class="descname">distance</code><span class="sig-paren">(</span><em>point</em>, <em>other</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/coop/tools.html#distance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coop.tools.distance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the Manhattan distance between the given points.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>point</strong> <span class="classifier-delimiter">:</span> <span class="classifier">tuple of int</span></dt>
+<dd><p class="first last">The coordinates of the first point.</p>
+</dd>
+<dt><strong>other</strong> <span class="classifier-delimiter">:</span> <span class="classifier">tuple of int</span></dt>
+<dd><p class="first last">The coordinates of the second point.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>int</strong></dt>
+<dd><p class="first last">The Manhattan distance between the two points.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2019, Angelo Ortiz.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/tools.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

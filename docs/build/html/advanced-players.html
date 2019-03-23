@@ -1,0 +1,460 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Advanced players &#8212; Cooperative Pathfinding 1.0.0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Cooperative Pathfinding</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="tools.html">Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="players.html">Players</a></li>
+<li class="toctree-l1"><a class="reference internal" href="planner.html">Planner</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Advanced players</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="toctree-wrapper compound">
+</div>
+<div class="section" id="module-coop.advanced_players">
+<span id="advanced-players"></span><h1>Advanced players<a class="headerlink" href="#module-coop.advanced_players" title="Permalink to this headline">¶</a></h1>
+<span class="target" id="module-advanced_players"></span><dl class="class">
+<dt id="coop.advanced_players.AdvancedPlayer">
+<em class="property">class </em><code class="descclassname">coop.advanced_players.</code><code class="descname">AdvancedPlayer</code><span class="sig-paren">(</span><em>initial_position</em>, <em>goal_positions</em>, <em>walls</em>, <em>goal_choice=&lt;class 'coop.strategies.NaiveStrategy'&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/coop/advanced_players.html#AdvancedPlayer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coop.advanced_players.AdvancedPlayer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class representing an advanced cooperative player that utilises
+a space-time reservation table to handle collisions, and that limits
+the path search depth</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>coop_period</strong></dt>
+<dd></dd>
+<dt><a class="reference internal" href="#coop.advanced_players.AdvancedPlayer.next" title="coop.advanced_players.AdvancedPlayer.next"><code class="xref py py-obj docutils literal notranslate"><span class="pre">next</span></code></a></dt>
+<dd><p class="first last">Calculates this agent’s next position considering its current</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">next_position</span></code></dt>
+<dd><p class="first last">Determines this agent’s position after taking its next.</p>
+</dd>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">others</span></code></dt>
+<dd><p class="first last">The list of all the cooperative peers of this agent.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_goal</span></code>(goal_position)</td>
+<td>Adds a new goal to this agent.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#coop.advanced_players.AdvancedPlayer.clear_trace" title="coop.advanced_players.AdvancedPlayer.clear_trace"><code class="xref py py-obj docutils literal notranslate"><span class="pre">clear_trace</span></code></a>()</td>
+<td>Removes any trace of its use from the reservation table</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">collision</span></code>(placed,&nbsp;following)</td>
+<td>Checks that this agent does not collide with any other.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#coop.advanced_players.AdvancedPlayer.find_path_to_goal" title="coop.advanced_players.AdvancedPlayer.find_path_to_goal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">find_path_to_goal</span></code></a>([resume])</td>
+<td>Finds a path to a goal for this agent considering its peers as potential obstacles</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_next_position</span></code>()</td>
+<td>Pops the next step out of the list and takes it to calculate its next position.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_position_after</span></code>(reversed_steps)</td>
+<td>Determines this agent’s position after following the given step sequence.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">go_through_one_another</span></code>(other,&nbsp;placed)</td>
+<td>Tests whether this agent will have crossed the given one after the current iteration.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">handle_collision</span></code>(obstacle)</td>
+<td>Replans a part of this agent’s immediate path considering the given obstacle.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_next_goal</span></code>()</td>
+<td>Tests whether this agent has another goal to pursue.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_next_step</span></code>()</td>
+<td>Tests whether this agent has a planned step to take.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_at_goal</span></code>()</td>
+<td>Tests whether this agent has reached its goal.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#coop.advanced_players.AdvancedPlayer.is_last" title="coop.advanced_players.AdvancedPlayer.is_last"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_last</span></code></a>()</td>
+<td>Tests whether this agent is the last one in the list of players for the purpose of timer update</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#coop.advanced_players.AdvancedPlayer.set_cooperation_period" title="coop.advanced_players.AdvancedPlayer.set_cooperation_period"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_cooperation_period</span></code></a>(coop_period)</td>
+<td>Sets the cooperative period for the agents of this class</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_cut_off_limit</span></code>(cut_point)</td>
+<td>Sets the number of immediate steps to be recalculated when handling a collision.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#coop.advanced_players.AdvancedPlayer.set_search_epoch" title="coop.advanced_players.AdvancedPlayer.set_search_epoch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_search_epoch</span></code></a>(search_epoch)</td>
+<td>Sets the search epoch, i.e.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#coop.advanced_players.AdvancedPlayer.set_search_epochs" title="coop.advanced_players.AdvancedPlayer.set_search_epochs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_search_epochs</span></code></a>()</td>
+<td>Initialises the search epoch for each agent of this class so that there are approximately 2n/depth agents replanning at any epoch</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="coop.advanced_players.AdvancedPlayer.clear_trace">
+<code class="descname">clear_trace</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/coop/advanced_players.html#AdvancedPlayer.clear_trace"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coop.advanced_players.AdvancedPlayer.clear_trace" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes any trace of its use from the reservation table</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="coop.advanced_players.AdvancedPlayer.find_path_to_goal">
+<code class="descname">find_path_to_goal</code><span class="sig-paren">(</span><em>resume=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/coop/advanced_players.html#AdvancedPlayer.find_path_to_goal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coop.advanced_players.AdvancedPlayer.find_path_to_goal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds a path to a goal for this agent considering its peers as potential
+obstacles</p>
+<dl class="docutils">
+<dt>args:</dt>
+<dd><dl class="first last docutils">
+<dt>[optional] resume (bool): True iff the agent must resume its pursuit</dt>
+<dd>of the current goal</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="coop.advanced_players.AdvancedPlayer.is_last">
+<code class="descname">is_last</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/coop/advanced_players.html#AdvancedPlayer.is_last"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coop.advanced_players.AdvancedPlayer.is_last" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tests whether this agent is the last one in the list of players for
+the purpose of timer update</p>
+<dl class="docutils">
+<dt>return:</dt>
+<dd>(bool): whether this agent is the last in the list of players</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="coop.advanced_players.AdvancedPlayer.next">
+<code class="descname">next</code><a class="headerlink" href="#coop.advanced_players.AdvancedPlayer.next" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates this agent’s next position considering its current
+and remaining goals</p>
+<dl class="docutils">
+<dt>return:</dt>
+<dd>(tuple[int]): the next position of the agent</dd>
+</dl>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="coop.advanced_players.AdvancedPlayer.set_cooperation_period">
+<em class="property">classmethod </em><code class="descname">set_cooperation_period</code><span class="sig-paren">(</span><em>coop_period</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/coop/advanced_players.html#AdvancedPlayer.set_cooperation_period"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coop.advanced_players.AdvancedPlayer.set_cooperation_period" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the cooperative period for the agents of this class</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="coop.advanced_players.AdvancedPlayer.set_search_epoch">
+<code class="descname">set_search_epoch</code><span class="sig-paren">(</span><em>search_epoch</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/coop/advanced_players.html#AdvancedPlayer.set_search_epoch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coop.advanced_players.AdvancedPlayer.set_search_epoch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the search epoch, i.e. the time at which this agent will plan its
+path, and reserves its current position in the reservation table for
+all the epochs prior to the given search epoch</p>
+<dl class="docutils">
+<dt>args:</dt>
+<dd>search_epoch (int): the epoch at which this agent will plan its
+path to its current goal</dd>
+</dl>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="coop.advanced_players.AdvancedPlayer.set_search_epochs">
+<em class="property">classmethod </em><code class="descname">set_search_epochs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/coop/advanced_players.html#AdvancedPlayer.set_search_epochs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coop.advanced_players.AdvancedPlayer.set_search_epochs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialises the search epoch for each agent of this class so that
+there are approximately 2n/depth agents replanning at any epoch</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="coop.advanced_players.TimeAStar">
+<em class="property">class </em><code class="descclassname">coop.advanced_players.</code><code class="descname">TimeAStar</code><span class="sig-paren">(</span><em>initial_state</em>, <em>goal_state</em>, <em>initial_epoch</em>, <em>player_id</em>, <em>walls</em>, <em>backwards_search</em>, <em>last_epoch=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/coop/advanced_players.html#TimeAStar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coop.advanced_players.TimeAStar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class implementing the A* algorithm</p>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_to_open_set</span></code>(states)</td>
+<td>Appends the given nodes to the fringe.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_node_at</span></code>(coordinates)</td>
+<td>Retrieves the node with the given coordinates in the closed set.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_not_extended</span></code>(states)</td>
+<td>Filters out already extended nodes from the given list of nodes.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#coop.advanced_players.TimeAStar.get_reversed_step_sequence" title="coop.advanced_players.TimeAStar.get_reversed_step_sequence"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_reversed_step_sequence</span></code></a>()</td>
+<td>Finds the step sequence to follow from the initial state in order to get to the goal state</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">open_set_is_empty</span></code>()</td>
+<td>Tests whether the fringe is empty.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#coop.advanced_players.TimeAStar.run" title="coop.advanced_players.TimeAStar.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a>([resume])</td>
+<td>Runs A* algorithm</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_best</span></code>()</td>
+<td>Selects the best node in the fringe on the basis of its f-value.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_new_goal</span></code>(new_goal)</td>
+<td>Sets the new goal for the A* algorithm.</td>
+</tr>
+</tbody>
+</table>
+<table border="1" class="docutils">
+<colgroup>
+<col width="63%" />
+<col width="37%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><strong>true_distance</strong></td>
+<td>&#160;</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="coop.advanced_players.TimeAStar.get_reversed_step_sequence">
+<code class="descname">get_reversed_step_sequence</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/coop/advanced_players.html#TimeAStar.get_reversed_step_sequence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coop.advanced_players.TimeAStar.get_reversed_step_sequence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds the step sequence to follow from the initial state in order to
+get to the goal state</p>
+<dl class="docutils">
+<dt>return:</dt>
+<dd><dl class="first last docutils">
+<dt>(list[tuple[int]]): the reversed list of steps to take to get</dt>
+<dd>to the goal state from the initial state</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="coop.advanced_players.TimeAStar.run">
+<code class="descname">run</code><span class="sig-paren">(</span><em>resume=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/coop/advanced_players.html#TimeAStar.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coop.advanced_players.TimeAStar.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Runs A* algorithm</p>
+<dl class="docutils">
+<dt>return:</dt>
+<dd><dl class="first last docutils">
+<dt>(list[tuple[int]]): the reversed list of steps to take to get</dt>
+<dd>to the goal state from the initial state</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="coop.advanced_players.TimeNode">
+<em class="property">class </em><code class="descclassname">coop.advanced_players.</code><code class="descname">TimeNode</code><span class="sig-paren">(</span><em>a_star</em>, <em>x</em>, <em>y</em>, <em>t=None</em>, <em>parent=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/coop/advanced_players.html#TimeNode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coop.advanced_players.TimeNode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class representing a node in space-time A* algorithm’s state graph</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
+<dt><a class="reference internal" href="#coop.advanced_players.TimeNode.coordinates" title="coop.advanced_players.TimeNode.coordinates"><code class="xref py py-obj docutils literal notranslate"><span class="pre">coordinates</span></code></a></dt>
+<dd><p class="first last">The coordinates of the node.</p>
+</dd>
+<dt><strong>position</strong></dt>
+<dd></dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">distance</span></code>(other)</td>
+<td>Calculates the distance between this node and the given one.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">f</span></code>()</td>
+<td>Calculates the f-value of this node.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#coop.advanced_players.TimeNode.get_step" title="coop.advanced_players.TimeNode.get_step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_step</span></code></a>()</td>
+<td>Calculates the step to take to come to this node from its parent</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#coop.advanced_players.TimeNode.get_valid_neighbours" title="coop.advanced_players.TimeNode.get_valid_neighbours"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_valid_neighbours</span></code></a>(player_id)</td>
+<td>Finds all the valid neighbours of this node, i.e.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="#coop.advanced_players.TimeNode.h" title="coop.advanced_players.TimeNode.h"><code class="xref py py-obj docutils literal notranslate"><span class="pre">h</span></code></a>()</td>
+<td>Calculates the true distance heuristic value for this node, i.e.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">has_parent</span></code>()</td>
+<td>Tests whether this node has a parent.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_valid</span></code>(x,&nbsp;y)</td>
+<td>Tests whether the given position is in the grid bounds.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_parent</span></code>(parent)</td>
+<td>Changes the parent of this node.</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_world_dimensions</span></code>(nb_rows,&nbsp;nb_columns)</td>
+<td>Sets the dimensions of the grid.</td>
+</tr>
+</tbody>
+</table>
+<table border="1" class="docutils">
+<colgroup>
+<col width="60%" />
+<col width="40%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><strong>init_cost</strong></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td><strong>node_equals</strong></td>
+<td>&#160;</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="coop.advanced_players.TimeNode.coordinates">
+<code class="descname">coordinates</code><a class="headerlink" href="#coop.advanced_players.TimeNode.coordinates" title="Permalink to this definition">¶</a></dt>
+<dd><p>The coordinates of the node.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>int</strong></dt>
+<dd><p class="first last">the row number of this node.</p>
+</dd>
+<dt><strong>int</strong></dt>
+<dd><p class="first last">the column number of this node.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="coop.advanced_players.TimeNode.get_step">
+<code class="descname">get_step</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/coop/advanced_players.html#TimeNode.get_step"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coop.advanced_players.TimeNode.get_step" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the step to take to come to this node from its parent</p>
+<dl class="docutils">
+<dt>return:</dt>
+<dd><dl class="first last docutils">
+<dt>(tuple[int]): the step the agent must take to come to this node</dt>
+<dd>from its parent</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="coop.advanced_players.TimeNode.get_valid_neighbours">
+<code class="descname">get_valid_neighbours</code><span class="sig-paren">(</span><em>player_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/coop/advanced_players.html#TimeNode.get_valid_neighbours"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coop.advanced_players.TimeNode.get_valid_neighbours" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds all the valid neighbours of this node, i.e. those nodes
+wrapping non-wall and inside-the-grid cells</p>
+<dl class="docutils">
+<dt>return:</dt>
+<dd>(list[Node]): the list of all this node’s valid neighbours</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="coop.advanced_players.TimeNode.h">
+<code class="descname">h</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/coop/advanced_players.html#TimeNode.h"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coop.advanced_players.TimeNode.h" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the true distance heuristic value for this node, i.e.
+the exact distance between this node and the goalManhattan</p>
+<dl class="docutils">
+<dt>return:</dt>
+<dd>(int): the true distance heuristic value for this node</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2019, Angelo Ortiz.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/advanced-players.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

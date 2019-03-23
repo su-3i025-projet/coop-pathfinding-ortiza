@@ -1,0 +1,167 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Planner &#8212; Cooperative Pathfinding 1.0.0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Cooperative Pathfinding</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="tools.html">Tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="players.html">Players</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Planner</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advanced-players.html">Advanced players</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="toctree-wrapper compound">
+</div>
+<div class="section" id="module-coop.planner">
+<span id="planner"></span><h1>Planner<a class="headerlink" href="#module-coop.planner" title="Permalink to this headline">¶</a></h1>
+<span class="target" id="module-planner"></span><dl class="class">
+<dt id="coop.planner.CoopPlanner">
+<em class="property">class </em><code class="descclassname">coop.planner.</code><code class="descname">CoopPlanner</code><span class="sig-paren">(</span><em>initial_position</em>, <em>goal_positions</em>, <em>walls</em>, <em>seq_sorting_choice=&lt;class 'coop.strategies.GroupLengthStrategy'&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/coop/planner.html#CoopPlanner"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coop.planner.CoopPlanner" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class representing a cooperative entity that calculates the path
+of all of its players and defines a sequence of groups of players
+whose paths do not cross each other</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>next</strong></dt>
+<dd></dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods</p>
+<table border="1" class="longtable docutils">
+<colgroup>
+<col width="10%" />
+<col width="90%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="#coop.planner.CoopPlanner.add_goal" title="coop.planner.CoopPlanner.add_goal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_goal</span></code></a>(player,&nbsp;goal_pos)</td>
+<td>Adds a new goal for the given player</td>
+</tr>
+</tbody>
+</table>
+<table border="1" class="docutils">
+<colgroup>
+<col width="70%" />
+<col width="30%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><strong>add_to_sequence</strong></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td><strong>exists_collision</strong></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td><strong>find_initial_paths</strong></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td><strong>initialise_sequence</strong></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td><strong>update_paths</strong></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-even"><td><strong>update_sequence</strong></td>
+<td>&#160;</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="coop.planner.CoopPlanner.add_goal">
+<code class="descname">add_goal</code><span class="sig-paren">(</span><em>player</em>, <em>goal_pos</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/coop/planner.html#CoopPlanner.add_goal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coop.planner.CoopPlanner.add_goal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a new goal for the given player</p>
+<dl class="docutils">
+<dt>args:</dt>
+<dd><p class="first">player (int): the index of the agent</p>
+<p class="last">goal_pos (tuple[int]): the coordinates of a new goal for the agent</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2019, Angelo Ortiz.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/planner.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
