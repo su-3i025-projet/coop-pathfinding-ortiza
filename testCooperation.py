@@ -125,7 +125,7 @@ def main():
     for i in range(iterations):
 
         for j in range(nbPlayers):  # on fait bouger chaque joueur séquentiellement
-            next_row, next_col = coop_players[j].next
+            next_row, next_col = coop_players[j].next()
 
             # and ((next_row,next_col) not in posPlayers)
             if ((next_row, next_col) not in wallStates) and next_row >= 0 and next_row <= 19 and next_col >= 0 and next_col <= 19:

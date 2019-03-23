@@ -1,10 +1,9 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
-Created on Tue Feb 26 14:20:19 2019
+.. module:: planner
+   :synopsis: All endpoints of the Teacher API are defined here
+.. moduleauthor:: Angelo Ortiz <github.com/angelo-ortiz>
+"""
 
-@author: angelo
-"""
 
 from .players import CoopPlayer
 from .strategies import GroupLengthStrategy

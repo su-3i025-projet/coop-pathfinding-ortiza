@@ -1,10 +1,9 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
-Created on Mon Mar 18 13:40:19 2019
+.. module:: advanced_players
+   :synopsis: All endpoints of the Teacher API are defined here
+.. moduleauthor:: Angelo Ortiz <github.com/angelo-ortiz>
+"""
 
-@author: angelo
-"""
 
 import random
 from functools import reduce
@@ -39,11 +38,11 @@ class TimeNode(Node):
         if self.has_parent():
             # staying put has cost 0
             if self.get_step() == (0, 0, 1):
-                self.g = self.parent.g
+                self.cost = self.parent.cost
             else:
-                self.g = self.parent.g + 1
+                self.cost = self.parent.cost + 1
         else:
-            self.g = 0
+            self.cost = 0
 
     @property
     def coordinates(self):
@@ -53,7 +52,6 @@ class TimeNode(Node):
     def position(self):
         return super().coordinates
 
-    @property
     def h(self):
         """
         Calculates the true distance heuristic value for this node, i.e.
@@ -166,7 +164,7 @@ class TimeAStar(AStar):  # TODO:  doc
             self.backwards_search.set_new_goal(current_position)
             self.backwards_search.run()
             node = self.backwards_search.get_node_at(current_position)
-        return node.g
+        return node.cost
 
     def run(self, resume=False):
         """
