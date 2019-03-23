@@ -1,0 +1,102 @@
+\documentclass[12pt,a4paper]{article}
+
+%########################### Preferences #################################
+
+
+% ******** vmargin settings *********
+\usepackage{vmargin} %This give you full control over the used page arae, it maybe not the idea od Latex to do so, but I wanted to reduce to amount of white space on the page
+\setpapersize{A4}
+\setmargins{3cm}%			%left edge
+            {1.5cm}%        %top edge
+           {14.7cm}%		%text width
+           {23.42cm}%       %text hight
+           {14pt}%			%header hight
+           {1cm}%   	    %header distance
+           {0pt}%			%footer hight
+           {2cm}%    	    %footer distance
+
+% ********* Font definiton ************
+\usepackage{t1enc} % as usual
+\usepackage[utf8]{inputenc} % as usual
+\usepackage[french]{babel}
+\usepackage{makeidx}
+\usepackage[titletoc]{appendix}
+\usepackage[shortlabels]{enumitem} 
+\usepackage{listingsutf8}
+\usepackage{csquotes}
+\usepackage[table]{xcolor}
+\usepackage{xspace}
+\usepackage{hyperref}
+\usepackage{xparse}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{mathtools, stmaryrd}
+\usepackage{amsmath}
+\usepackage[T1]{fontenc}
+\usepackage[pdftex]{graphicx}
+
+% ********* Graphics definition *******
+\usepackage{eso-pic} % these two are required to add the little picture on top of every page
+\usepackage{everyshi} % these two are required to add the little picture on top of every page
+\usepackage[colorinlistoftodos,prependcaption,textsize=tiny]{todonotes}
+
+\renewcommand{\appendixname}{Annexe}
+\hypersetup{
+    colorlinks  = true,
+    linkcolor   = black,
+    citecolor   = blue,
+    urlcolor    = blue,
+    linktocpage = false
+}
+
+\pagestyle{plain} % on headers or footers on the first page
+
+\makeindex
+\begin{document}
+
+\begin{titlepage}
+	\centering
+	\includegraphics[width=0.30\textwidth]{logo.jpg}\par\vspace{1cm}
+	{\scshape\LARGE Sorbonne Universit\'e \par}
+	\vspace{1cm}
+	{\scshape\Large 3I025 : Introduction \`a l'IA et la RO\par}
+	\vspace{1.5cm}
+	{\Large \bfseries Projet :\par}
+	{\huge\bfseries Cooperative Pathfinding\par}
+	\vspace{2cm}
+	{\Large\itshape Angelo Ortiz\par}
+	
+	\vfill
+
+% Bottom of the page
+	{\large Licence d'Informatique\par}
+	{\large Ann\'ee 2018/2019\par}
+\end{titlepage}
+
+%\newpage
+
+\tableofcontents
+\listoffigures
+\listoftables
+
+\newpage
+
+\part*{Introduction}
+\addcontentsline{toc}{part}{Introduction}
+
+Intro
+
+\newpage
+\part{Partie th\'eorique}
+
+\section{Algorithme I : Recherche exhaustive}
+
+\subsection*{Question 2}
+s
+
+	
+\printindex
+\end{document}
+
+
+

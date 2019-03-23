@@ -1,0 +1,4 @@
+\babel@toc {french}{}
+\contentsline {part}{Introduction}{2}{part*.4}
+\contentsline {part}{I\hspace {1em}Partie th\'eorique}{3}{part.1}
+\contentsline {section}{\numberline {1}Algorithme I : Recherche exhaustive}{3}{section.1}
