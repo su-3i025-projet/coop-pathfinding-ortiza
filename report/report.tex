@@ -84,12 +84,38 @@
 \part*{Introduction}
 \addcontentsline{toc}{part}{Introduction}
 
-Intro
+De nos jours, c'est un fait que les robots se sont r\'epandus dans les industries et ils ont ainsi remplac\'e, parfois compl\`etement, l'humain dans certaines t\^aches. 
+Par exemple, ils sont de plus en plus utilis\'es dans les actes chirurgicaux, comme la laparoscopie, du fait de leur pr\'ecision. Pour d'autres t\^aches, comme le d\'eplacement de marchandises ou des objets lourds dans les usines, il est aussi plus int\'eressant de les attribuer aux robots.
+
+Mettons-nous dans cette derni\`ere situation. Nous avons une entreprise ABC qui compte plusieurs robots charg\'es de d\'eplacer des marchandises \`a l'int\'erieur d'une usine. 
+Il est \'evident que l'objectif est d'effectuer des d\'eplacements de mani\`ere efficace, i.e.\ des trajets plus courts. 
+Supposons de plus que les objets \`a ramasser sont r\'epartis entre l'ensemble de robots de sorte qu'il n'y ait qu'un seul robot ciblant un objet.
+
+La premi\`ere r\'eponse na\"ive au probl\`eme des d\'eplacements est de calculer, pour chaque entit\'e, le plus court chemin \`a son but et de les faire emprunter ces chemins. En effet, plusieurs algorithmes de tr\`es bonnes complexit\'es temporelles et spatiales  sont connus pour la recherche des plus courts chemins. Cependant, nous nous apercevons que cette approche est \'erron\'ee car elle a n\'eglig\'e les potentielles collisions qui peuvent survenir en cours de route.
+
+Cela nous amene \`a concevoir une autre strat\'egie tenant compte des possibles collisions pour r\'esoudre ce probl\`eme. Il s'agit ainsi du probl\`eme de la recherche coop\'erative (en anglais \textit{Cooperative Pathfinding}).
+
+Dans le cadre de l'UE 3I025 - Introduction \`a l'intelligence artificielle et la recherche op\'erationnelle, le sujet du premier projet propos\'e prend la forme du probl\`eme \textit{Cooperative Pathfinding} et consiste \`a le r\'esoudre au travers des diff\'erentes strat\'egies appel\'ees opportuniste, coop\'erative de base et coop\'erative avanc\'ee.
+
+Dans la suite de ce document, je vais expliquer en d\'etail les sp\'ecifications du sujet, mes choix d'impl\'ementation et commenter mes r\'esultats obtenus.
 
 \newpage
-\part{Partie th\'eorique}
+\part{Pr\'esetation}
 
-\section{Algorithme I : Recherche exhaustive}
+
+L'environnement de travail de ce projet a \'et\'e \texttt{PySpriteWorld} qui
+Ce projet a consist\'e \`a concevoir diff\'erentes strat\'egies pour 
+
+\part{Strat\'egies}
+
+\section{Opportunisme}
+\textit{local repair}
+
+\section{Coop\'eration na\"ive}
+\textit{planification}
+
+\section{Coop\'eration avanc\'ee}
+
 
 \subsection*{Question 2}
 s
