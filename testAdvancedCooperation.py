@@ -116,7 +116,7 @@ def main():
     Node.set_world_dimensions(game.spriteBuilder.rowsize,
                               game.spriteBuilder.colsize)
 
-    AdvancedPlayer.set_cooperation_period(8)
+    AdvancedPlayer.set_pathfinding_frequence(8)
     AdvancedPlayer.set_search_epochs()
 
     # posPlayers=initStates
@@ -129,7 +129,7 @@ def main():
 
         for j in range(nbPlayers):  # on fait bouger chaque joueur séquentiellement
             # _ = input("next")
-            next_row, next_col = coop_players[j].next
+            next_row, next_col = coop_players[j].next()
 
             # and ((next_row,next_col) not in posPlayers)
             if ((next_row, next_col) not in wallStates) and next_row >= 0 and next_row <= 19 and next_col >= 0 and next_col <= 19:

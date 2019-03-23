@@ -71,17 +71,50 @@
 <span id="planner"></span><h1>Planner<a class="headerlink" href="#module-coop.planner" title="Permalink to this headline">¶</a></h1>
 <span class="target" id="module-planner"></span><dl class="class">
 <dt id="coop.planner.CoopPlanner">
-<em class="property">class </em><code class="descclassname">coop.planner.</code><code class="descname">CoopPlanner</code><span class="sig-paren">(</span><em>initial_position</em>, <em>goal_positions</em>, <em>walls</em>, <em>seq_sorting_choice=&lt;class 'coop.strategies.GroupLengthStrategy'&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/coop/planner.html#CoopPlanner"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coop.planner.CoopPlanner" title="Permalink to this definition">¶</a></dt>
-<dd><p>Class representing a cooperative entity that calculates the path
-of all of its players and defines a sequence of groups of players
-whose paths do not cross each other</p>
+<em class="property">class </em><code class="descclassname">coop.planner.</code><code class="descname">CoopPlanner</code><span class="sig-paren">(</span><em>initial_positions</em>, <em>goal_positions</em>, <em>walls</em>, <em>seq_sorting_choice=&lt;class 'coop.strategies.GroupLengthStrategy'&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/coop/planner.html#CoopPlanner"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coop.planner.CoopPlanner" title="Permalink to this definition">¶</a></dt>
+<dd><p>A cooperative entity that defines the action turns of its players.</p>
+<p>This planner plans the path of all of its players and groups them by
+path compatibility, i.e. their paths do not cross each other. It then
+defines the order of passing for the aforementioned groups of players.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>next</strong></dt>
-<dd></dd>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>initial_positions</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of (int, int)</span></dt>
+<dd><p class="first last">This argument contains the initial coordinates of the agents.</p>
+</dd>
+<dt><strong>goal_positions</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of list of (int, int)</span></dt>
+<dd><p class="first last">This argument contains a list of goals per agent.</p>
+</dd>
+<dt><strong>walls</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of (int, int)</span></dt>
+<dd><p class="first last">This argument contains the list of all the obstacles to be avoided.</p>
+</dd>
+<dt><strong>seq_sorting_choice</strong> <span class="classifier-delimiter">:</span> <span class="classifier">SequenceSortingStrategy</span></dt>
+<dd><p class="first last">This argument defines the grouping mode.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Attributes:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>players</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of CoopPlayer</span></dt>
+<dd><p class="first last">The list of cooperative players on the grid.</p>
+</dd>
+<dt><strong>walls</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of (int, int)</span></dt>
+<dd><p class="first last">The storage location of the walls position.</p>
+</dd>
+<dt><strong>seq_sorting_choice</strong> <span class="classifier-delimiter">:</span> <span class="classifier">SequenceSortingStrategy</span></dt>
+<dd><p class="first last">The storage location of the grouping strategy.</p>
+</dd>
+<dt><strong>sequence</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of int</span></dt>
+<dd><p class="first last">The sequence in which the groups will pass.</p>
+</dd>
+<dt><strong>current_player</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">The index of the current player in the players list.</p>
+</dd>
+<dt><strong>collision_baseline_positions</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of (int, int)</span></dt>
+<dd><p class="first last">The list of next positions for the player to be (re)added to a group.</p>
+</dd>
 </dl>
 </td>
 </tr>
@@ -95,7 +128,7 @@ whose paths do not cross each other</p>
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td><a class="reference internal" href="#coop.planner.CoopPlanner.add_goal" title="coop.planner.CoopPlanner.add_goal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_goal</span></code></a>(player,&nbsp;goal_pos)</td>
-<td>Adds a new goal for the given player</td>
+<td>Adds a new goal to the given player.</td>
 </tr>
 </tbody>
 </table>
@@ -117,10 +150,13 @@ whose paths do not cross each other</p>
 <tr class="row-even"><td><strong>initialise_sequence</strong></td>
 <td>&#160;</td>
 </tr>
-<tr class="row-odd"><td><strong>update_paths</strong></td>
+<tr class="row-odd"><td><strong>next</strong></td>
 <td>&#160;</td>
 </tr>
-<tr class="row-even"><td><strong>update_sequence</strong></td>
+<tr class="row-even"><td><strong>update_paths</strong></td>
+<td>&#160;</td>
+</tr>
+<tr class="row-odd"><td><strong>update_sequence</strong></td>
 <td>&#160;</td>
 </tr>
 </tbody>
@@ -128,14 +164,29 @@ whose paths do not cross each other</p>
 <dl class="method">
 <dt id="coop.planner.CoopPlanner.add_goal">
 <code class="descname">add_goal</code><span class="sig-paren">(</span><em>player</em>, <em>goal_pos</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/coop/planner.html#CoopPlanner.add_goal"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coop.planner.CoopPlanner.add_goal" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adds a new goal for the given player</p>
-<dl class="docutils">
-<dt>args:</dt>
-<dd><p class="first">player (int): the index of the agent</p>
-<p class="last">goal_pos (tuple[int]): the coordinates of a new goal for the agent</p>
+<dd><p>Adds a new goal to the given player.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>player</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">The index of the agent.</p>
+</dd>
+<dt><strong>goal_pos</strong> <span class="classifier-delimiter">:</span> <span class="classifier">(int, int)</span></dt>
+<dd><p class="first last">The coordinates of a new goal for the given agent.</p>
 </dd>
 </dl>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
+
+<dl class="method">
+<dt id="coop.planner.CoopPlanner.find_initial_paths">
+<code class="descname">find_initial_paths</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/coop/planner.html#CoopPlanner.find_initial_paths"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coop.planner.CoopPlanner.find_initial_paths" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 

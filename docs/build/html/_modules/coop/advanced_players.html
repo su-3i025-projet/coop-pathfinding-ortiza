@@ -68,7 +68,7 @@
   <h1>Source code for coop.advanced_players</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">.. module:: advanced_players</span>
-<span class="sd">   :synopsis: All endpoints of the Teacher API are defined here</span>
+<span class="sd">   :synopsis: This file contains the advanced cooperative players.</span>
 <span class="sd">.. moduleauthor:: Angelo Ortiz &lt;github.com/angelo-ortiz&gt;</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
@@ -82,27 +82,55 @@
 
 
 <div class="viewcode-block" id="TimeNode"><a class="viewcode-back" href="../../advanced-players.html#coop.advanced_players.TimeNode">[docs]</a><span class="k">class</span> <span class="nc">TimeNode</span><span class="p">(</span><span class="n">Node</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Class representing a node in space-time A* algorithm&#39;s state graph</span>
+    <span class="sd">&quot;&quot;&quot;A node in space-time A* algorithm&#39;s state graph.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    a_star : AStar</span>
+<span class="sd">        This argument points to the space-time A* instance that created this node.</span>
+<span class="sd">    x : int</span>
+<span class="sd">        This argument contains the row number of this node.</span>
+<span class="sd">    y : int</span>
+<span class="sd">        This argument contains the column number of this node.</span>
+<span class="sd">    t : int or None, optional</span>
+<span class="sd">        This keyword argument sets the epoch for this node.</span>
+<span class="sd">    parent : Node or None, optional</span>
+<span class="sd">        This keyword argument points to the node preceding this node in `a_star`.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    position</span>
+<span class="sd">    coordinates</span>
+<span class="sd">    a_star : AStar</span>
+<span class="sd">        The storage location of the associated space-time A* instance.</span>
+<span class="sd">    x : int</span>
+<span class="sd">        The storage location of the node&#39;s row number.</span>
+<span class="sd">    y : int</span>
+<span class="sd">        The storage location of the node&#39;s column number.</span>
+<span class="sd">    t : int</span>
+<span class="sd">        The storage location of the node&#39;s epoch.</span>
+<span class="sd">    parent : Node or None</span>
+<span class="sd">        The storage location of the node&#39;s parent.</span>
+<span class="sd">    cost : int</span>
+<span class="sd">        The cost of the path from space-time A*&#39;s root to this node.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">a_star</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">a_star</span> <span class="o">=</span> <span class="n">a_star</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">parent</span>
-        <span class="c1"># row index</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">x</span>
-        <span class="c1"># column index</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">y</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">parent</span>
         <span class="k">if</span> <span class="n">t</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">t</span> <span class="o">=</span> <span class="n">t</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_parent</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">t</span> <span class="o">=</span> <span class="n">parent</span><span class="o">.</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">t</span> <span class="o">=</span> <span class="mi">32767</span>  <span class="c1"># large number for the goal</span>
-        <span class="c1"># initialise cost of the path from the root to this node</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">init_cost</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__init_cost</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">init_cost</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init_cost</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># initialise cost of the path from the root to this node</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_parent</span><span class="p">():</span>
             <span class="c1"># staying put has cost 0</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_step</span><span class="p">()</span> <span class="o">==</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
@@ -113,34 +141,60 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">cost</span> <span class="o">=</span> <span class="mi">0</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">coordinates</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">position</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The space coordinates of the node.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">            The row number of this node.</span>
+<span class="sd">        int</span>
+<span class="sd">            The column number of this node.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">coordinates</span>
 
-<div class="viewcode-block" id="TimeNode.h"><a class="viewcode-back" href="../../advanced-players.html#coop.advanced_players.TimeNode.h">[docs]</a>    <span class="k">def</span> <span class="nf">h</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Calculates the true distance heuristic value for this node, i.e.</span>
-<span class="sd">        the exact distance between this node and the goalManhattan</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">coordinates</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The space-time coordinates of the node.</span>
 
-<span class="sd">        -------------------</span>
-<span class="sd">        return:</span>
-<span class="sd">            (int): the true distance heuristic value for this node</span>
-<span class="sd">        -------------------</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">            The row number of this node.</span>
+<span class="sd">        int</span>
+<span class="sd">            The column number of this node.</span>
+<span class="sd">        int</span>
+<span class="sd">            The epoch of this node.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">t</span><span class="p">)</span>
+
+<div class="viewcode-block" id="TimeNode.h"><a class="viewcode-back" href="../../advanced-players.html#coop.advanced_players.TimeNode.h">[docs]</a>    <span class="k">def</span> <span class="nf">h</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Calculates the true distance heuristic value for this node.</span>
+
+<span class="sd">        It corresponds to the exact distance between this node and the goal.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">            The true distance value for this node.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">a_star</span><span class="o">.</span><span class="n">true_distance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="TimeNode.get_valid_neighbours"><a class="viewcode-back" href="../../advanced-players.html#coop.advanced_players.TimeNode.get_valid_neighbours">[docs]</a>    <span class="k">def</span> <span class="nf">get_valid_neighbours</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">player_id</span><span class="p">):</span>  <span class="c1"># TODO: doc</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Finds all the valid neighbours of this node, i.e. those nodes</span>
-<span class="sd">        wrapping non-wall and inside-the-grid cells</span>
+<div class="viewcode-block" id="TimeNode.get_valid_neighbours"><a class="viewcode-back" href="../../advanced-players.html#coop.advanced_players.TimeNode.get_valid_neighbours">[docs]</a>    <span class="k">def</span> <span class="nf">get_valid_neighbours</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">player_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Finds all the valid neighbours of this node.</span>
 
-<span class="sd">        -------------------</span>
-<span class="sd">        return:</span>
-<span class="sd">            (list[Node]): the list of all this node&#39;s valid neighbours</span>
-<span class="sd">        -------------------</span>
+<span class="sd">        A future node is said to be valid if it does not enclose a wall, is</span>
+<span class="sd">        located inside the grid, and its space coordinates have not been</span>
+<span class="sd">        reserved by another agent this node&#39;s epoch as well as the next one.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list of Node</span>
+<span class="sd">            The list of all this node&#39;s valid neighbours.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">shifts</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)]</span>
         <span class="n">neighbours</span> <span class="o">=</span> <span class="p">[(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">dx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">+</span> <span class="n">dy</span><span class="p">)</span> <span class="k">for</span> <span class="n">dx</span><span class="p">,</span> <span class="n">dy</span> <span class="ow">in</span> <span class="n">shifts</span><span class="p">]</span>
@@ -170,35 +224,79 @@
         <span class="k">return</span> <span class="n">valid_neighbours</span></div>
 
 <div class="viewcode-block" id="TimeNode.get_step"><a class="viewcode-back" href="../../advanced-players.html#coop.advanced_players.TimeNode.get_step">[docs]</a>    <span class="k">def</span> <span class="nf">get_step</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Calculates the step to take to come to this node from its parent</span>
+        <span class="sd">&quot;&quot;&quot;Determines the step taken to come to this node from its parent.</span>
 
-<span class="sd">        -------------------</span>
-<span class="sd">        return:</span>
-<span class="sd">            (tuple[int]): the step the agent must take to come to this node</span>
-<span class="sd">                from its parent</span>
-<span class="sd">        -------------------</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">            The step taken along the column axis.</span>
+<span class="sd">        int</span>
+<span class="sd">            The step taken along the row axis.</span>
+<span class="sd">        int</span>
+<span class="sd">            The step taken in the timeline.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">(</span><span class="o">*</span><span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_step</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">t</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">t</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Textual representation of this node.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="s1">&#39;[&#39;</span> <span class="o">+</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">()</span> <span class="o">+</span> <span class="n">f</span><span class="s1">&#39; at t = </span><span class="si">{self.t}</span><span class="s1">]&#39;</span>
 
     <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Tests whether the given node is equal to this node, based solely on</span>
-<span class="sd">        their coordinates</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Equality test based on the nodes&#39; coordinates.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="vm">__class__</span> \
-            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">x</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">y</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">t</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">t</span>
-
-    <span class="k">def</span> <span class="nf">node_equals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__eq__</span><span class="p">(</span><span class="n">other</span><span class="p">)</span></div>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">x</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">y</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">t</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">t</span></div>
 
 
-<div class="viewcode-block" id="TimeAStar"><a class="viewcode-back" href="../../advanced-players.html#coop.advanced_players.TimeAStar">[docs]</a><span class="k">class</span> <span class="nc">TimeAStar</span><span class="p">(</span><span class="n">AStar</span><span class="p">):</span>  <span class="c1"># TODO:  doc</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Class implementing the A* algorithm</span>
+<div class="viewcode-block" id="TimeAStar"><a class="viewcode-back" href="../../advanced-players.html#coop.advanced_players.TimeAStar">[docs]</a><span class="k">class</span> <span class="nc">TimeAStar</span><span class="p">(</span><span class="n">AStar</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;An execution of the space-time version of the A* algorithm.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    initial_state : (int, int)</span>
+<span class="sd">        This argument contains the coordinates of the initial node.</span>
+<span class="sd">    goal_state : (int, int)</span>
+<span class="sd">        This argument contains the coordinates of the goal node.</span>
+<span class="sd">    initial_epoch : int</span>
+<span class="sd">        This argument contains the epoch at which the algorithm will start.</span>
+<span class="sd">    player_id : int</span>
+<span class="sd">        This argument contains the id of the agent that run this A* instance.</span>
+<span class="sd">    walls : list of (int, int)</span>
+<span class="sd">        This argument contains the list of all the obstacles to be avoided.</span>
+<span class="sd">    backwards_search : AStar or None</span>
+<span class="sd">        This argument contains the backwards A* instance for true distances.</span>
+<span class="sd">    last_epoch : int or None, optional</span>
+<span class="sd">        This argument contains the epoch at which pathfinding will stop.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    initial_state : TimeNode</span>
+<span class="sd">        The initial node.</span>
+<span class="sd">    goal_state : TimeNode</span>
+<span class="sd">        The goal node.</span>
+<span class="sd">    player_id : int</span>
+<span class="sd">        The storage location for the associated agent&#39;s id.</span>
+<span class="sd">    walls : list of (int, int)</span>
+<span class="sd">        The storage location of the walls position.</span>
+<span class="sd">    last_epoch : int</span>
+<span class="sd">        The endpoint of the associated agent&#39;s pathfinding window.</span>
+<span class="sd">    open_set : Heap</span>
+<span class="sd">        The fringe of the algorithm.</span>
+<span class="sd">    closed_set : list of Node</span>
+<span class="sd">        The list of nodes already extended during the execution.</span>
+<span class="sd">    backwards_search : AStar</span>
+<span class="sd">        The A* instance used to obtain the true distances to the goal.</span>
+
+<span class="sd">    NB_ITERS : int</span>
+<span class="sd">        The number of iterations in all space-time A* instances.</span>
+<span class="sd">    NB_CALLS : int</span>
+<span class="sd">        The number of executions of space-time A*.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    This space-time version was based on David Silver&#39;s algorithm for cooperative</span>
+<span class="sd">    pathfinding. In particular, it fixes the depth for pathfinding.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">NB_ITERS</span> <span class="o">=</span> <span class="mi">0</span>
@@ -207,68 +305,80 @@
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initial_state</span><span class="p">,</span> <span class="n">goal_state</span><span class="p">,</span> <span class="n">initial_epoch</span><span class="p">,</span> <span class="n">player_id</span><span class="p">,</span> <span class="n">walls</span><span class="p">,</span> <span class="n">backwards_search</span><span class="p">,</span> <span class="n">last_epoch</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">initial_state</span> <span class="o">=</span> <span class="n">TimeNode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">initial_state</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="n">initial_epoch</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">goal_state</span> <span class="o">=</span> <span class="n">TimeNode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">goal_state</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">current_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_state</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">player_id</span> <span class="o">=</span> <span class="n">player_id</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">walls</span> <span class="o">=</span> <span class="n">walls</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">last_epoch</span> <span class="o">=</span> <span class="n">last_epoch</span> <span class="k">if</span> <span class="n">last_epoch</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">initial_epoch</span> <span class="o">+</span> \
-            <span class="n">AdvancedPlayer</span><span class="o">.</span><span class="n">coop_period</span>
-        <span class="c1"># the fringe</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_epoch</span> <span class="o">=</span> <span class="n">last_epoch</span> <span class="k">if</span> <span class="n">last_epoch</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> \
+            <span class="k">else</span> <span class="n">initial_epoch</span> <span class="o">+</span> <span class="n">AdvancedPlayer</span><span class="o">.</span><span class="n">frequence</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">open_set</span> <span class="o">=</span> <span class="n">Heap</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">initial_state</span><span class="p">])</span>
-        <span class="c1"># the set of extended nodes</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">closed_set</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="c1"># backwards search</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">backwards_search</span> <span class="o">=</span> <span class="n">backwards_search</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">backwards_search</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">backwards_search</span> <span class="o">=</span> <span class="n">AStar</span><span class="p">(</span><span class="n">goal_state</span><span class="p">,</span> <span class="n">initial_state</span><span class="p">,</span> <span class="n">walls</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">backwards_search</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
-        <span class="n">AdvancedPlayer</span><span class="o">.</span><span class="n">reservation_table</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">initial_state</span><span class="o">.</span><span class="n">coordinates</span><span class="p">]</span> <span class="o">=</span> <span class="n">player_id</span>
-        <span class="n">next_epoch</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">initial_state</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="n">initial_epoch</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="n">AdvancedPlayer</span><span class="o">.</span><span class="n">reservation_table</span><span class="p">[</span><span class="n">next_epoch</span><span class="p">]</span> <span class="o">=</span> <span class="n">player_id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">backwards_search</span> <span class="o">=</span> <span class="n">backwards_search</span> <span class="k">if</span> <span class="n">backwards_search</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> \
+            <span class="k">else</span> <span class="n">AStar</span><span class="p">(</span><span class="n">goal_state</span><span class="p">,</span> <span class="n">initial_state</span><span class="p">,</span> <span class="n">walls</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__initial_reservation</span><span class="p">(</span><span class="n">initial_epoch</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">true_distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current_position</span><span class="p">):</span>
-        <span class="n">node</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">backwards_search</span><span class="o">.</span><span class="n">get_node_at</span><span class="p">(</span><span class="n">current_position</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">__initial_reservation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initial_epoch</span><span class="p">):</span>
+        <span class="n">AdvancedPlayer</span><span class="o">.</span><span class="n">reservation_table</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">initial_state</span><span class="o">.</span><span class="n">coordinates</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">player_id</span>
+        <span class="n">next_coordinates</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">initial_state</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="n">initial_epoch</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">AdvancedPlayer</span><span class="o">.</span><span class="n">reservation_table</span><span class="p">[</span><span class="n">next_coordinates</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">player_id</span>
+
+<div class="viewcode-block" id="TimeAStar.true_distance"><a class="viewcode-back" href="../../advanced-players.html#coop.advanced_players.TimeAStar.true_distance">[docs]</a>    <span class="k">def</span> <span class="nf">true_distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Calculates the true distance from the given position to the goal.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">            The Manhattan distance from the given position to the goal.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">node</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">backwards_search</span><span class="o">.</span><span class="n">get_node_at</span><span class="p">(</span><span class="n">position</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">node</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">backwards_search</span><span class="o">.</span><span class="n">set_new_goal</span><span class="p">(</span><span class="n">current_position</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">backwards_search</span><span class="o">.</span><span class="n">set_new_goal</span><span class="p">(</span><span class="n">position</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">backwards_search</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
-            <span class="n">node</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">backwards_search</span><span class="o">.</span><span class="n">get_node_at</span><span class="p">(</span><span class="n">current_position</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">node</span><span class="o">.</span><span class="n">cost</span>
+            <span class="n">node</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">backwards_search</span><span class="o">.</span><span class="n">get_node_at</span><span class="p">(</span><span class="n">position</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">node</span><span class="o">.</span><span class="n">cost</span></div>
 
-<div class="viewcode-block" id="TimeAStar.run"><a class="viewcode-back" href="../../advanced-players.html#coop.advanced_players.TimeAStar.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resume</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Runs A* algorithm</span>
+<div class="viewcode-block" id="TimeAStar.run"><a class="viewcode-back" href="../../advanced-players.html#coop.advanced_players.TimeAStar.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Runs this space-time A* instance.</span>
 
-<span class="sd">        -------------------</span>
-<span class="sd">        return:</span>
-<span class="sd">            (list[tuple[int]]): the reversed list of steps to take to get</span>
-<span class="sd">                to the goal state from the initial state</span>
-<span class="sd">        -------------------</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list of (int, int)</span>
+<span class="sd">            The reversed list of steps to take to get to the goal state from</span>
+<span class="sd">            the initial state.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        The returned step sequence was built as a stack so the agent must use</span>
+<span class="sd">        `pop()` in order to obtain the immediate next step to take.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">TimeAStar</span><span class="o">.</span><span class="n">NB_CALLS</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="k">while</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_set_is_empty</span><span class="p">():</span>
             <span class="n">TimeAStar</span><span class="o">.</span><span class="n">NB_ITERS</span> <span class="o">+=</span> <span class="mi">1</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">current_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">select_best</span><span class="p">()</span>
-            <span class="n">neighbours</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_state</span><span class="o">.</span><span class="n">get_valid_neighbours</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">player_id</span><span class="p">)</span>
+            <span class="n">current_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">select_best</span><span class="p">()</span>
+            <span class="n">neighbours</span> <span class="o">=</span> <span class="n">current_state</span><span class="o">.</span><span class="n">get_valid_neighbours</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">player_id</span><span class="p">)</span>
             <span class="n">not_extd_neighbours</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_not_extended</span><span class="p">(</span><span class="n">neighbours</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_to_open_set</span><span class="p">(</span><span class="n">not_extd_neighbours</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">closed_set</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_state</span><span class="p">)</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_state</span><span class="o">.</span><span class="n">t</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_epoch</span><span class="p">:</span>
-                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_reversed_step_sequence</span><span class="p">()</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">closed_set</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">current_state</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">current_state</span><span class="o">.</span><span class="n">t</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_epoch</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_reversed_step_sequence</span><span class="p">(</span><span class="n">current_state</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="TimeAStar.get_reversed_step_sequence"><a class="viewcode-back" href="../../advanced-players.html#coop.advanced_players.TimeAStar.get_reversed_step_sequence">[docs]</a>    <span class="k">def</span> <span class="nf">get_reversed_step_sequence</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Finds the step sequence to follow from the initial state in order to</span>
-<span class="sd">        get to the goal state</span>
+    <span class="k">def</span> <span class="nf">__get_reversed_step_sequence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">final_state</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Determines the steps leading to the given state from the initial state.</span>
 
-<span class="sd">        -------------------</span>
-<span class="sd">        return:</span>
-<span class="sd">            (list[tuple[int]]): the reversed list of steps to take to get</span>
-<span class="sd">                to the goal state from the initial state</span>
-<span class="sd">        -------------------</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        final_state : TimeNode</span>
+<span class="sd">            The state that will be reached.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list of (int, int)</span>
+<span class="sd">            The step sequence to take to get to the given state from the initial</span>
+<span class="sd">            state.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_state</span><span class="o">.</span><span class="n">t</span>
-        <span class="n">current_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_state</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">final_state</span><span class="o">.</span><span class="n">t</span>
+        <span class="n">current_state</span> <span class="o">=</span> <span class="n">final_state</span>
         <span class="n">steps</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">while</span> <span class="n">current_state</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_state</span><span class="p">:</span>
             <span class="n">t</span> <span class="o">-=</span> <span class="mi">1</span>
@@ -279,19 +389,72 @@
             <span class="n">current_state</span> <span class="o">=</span> <span class="n">current_state</span><span class="o">.</span><span class="n">parent</span>
             <span class="n">AdvancedPlayer</span><span class="o">.</span><span class="n">reservation_table</span><span class="p">[(</span>
                 <span class="o">*</span><span class="n">current_state</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">player_id</span>
-        <span class="k">return</span> <span class="n">steps</span></div></div>
+        <span class="k">return</span> <span class="n">steps</span></div>
 
 
 <div class="viewcode-block" id="AdvancedPlayer"><a class="viewcode-back" href="../../advanced-players.html#coop.advanced_players.AdvancedPlayer">[docs]</a><span class="k">class</span> <span class="nc">AdvancedPlayer</span><span class="p">(</span><span class="n">CoopPlayer</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Class representing an advanced cooperative player that utilises</span>
-<span class="sd">    a space-time reservation table to handle collisions, and that limits</span>
-<span class="sd">    the path search depth</span>
+    <span class="sd">&quot;&quot;&quot;A cooperative player that handles collisions based on a reservation table.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    initial_position : (int, int)</span>
+<span class="sd">        This argument contains the initial coordinates of the agent.</span>
+<span class="sd">    goal_positions : list of (int, int)</span>
+<span class="sd">        This argument contains a list of all the goals of the agent.</span>
+<span class="sd">    walls : list of (int, int)</span>
+<span class="sd">        This argument contains the list of all the obstacles to be avoided.</span>
+<span class="sd">    goal_choice : GoalChoiceStrategy, optional</span>
+<span class="sd">        This argument defines the next goal choice mode.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    others</span>
+<span class="sd">    next_position</span>
+<span class="sd">    initial_position : (int, int)</span>
+<span class="sd">        The storage location of the initial coordinates of the player.</span>
+<span class="sd">    current_position : (int, int)</span>
+<span class="sd">        The coordinates of the agent&#39;s current position.</span>
+<span class="sd">    previous_position : (int, int)</span>
+<span class="sd">        The coordinates of the agent&#39;s previous position.</span>
+<span class="sd">    goal_positions : list of (int, int)</span>
+<span class="sd">        The storage location of the agent&#39;s goal list.</span>
+<span class="sd">    current_goal : (int, int)</span>
+<span class="sd">        The coordinates of the agent&#39;s current goal.</span>
+<span class="sd">    id : int</span>
+<span class="sd">        The agent&#39;s id number.</span>
+<span class="sd">    walls : list of (int, int)</span>
+<span class="sd">        The storage location of the walls position.</span>
+<span class="sd">    a_star : AStar or None</span>
+<span class="sd">        The A* algorithm execution leading the agent&#39;s steps.</span>
+<span class="sd">    steps : list of (int, int)</span>
+<span class="sd">        The list of steps the agent must take to get to its current goal.</span>
+<span class="sd">    goal_choice : GoalChoiceStrategy</span>
+<span class="sd">        The storage location of the agent&#39;s goal choice strategy.</span>
+<span class="sd">    search_epoch : int</span>
+<span class="sd">        The epoch at which the player must replan its path.</span>
+
+<span class="sd">    timer : int</span>
+<span class="sd">        A universal timer.</span>
+<span class="sd">    frequence : int</span>
+<span class="sd">        The frequence of pathfinding in the stationary case.</span>
+<span class="sd">    players : list of AdvancedPlayer</span>
+<span class="sd">        The list of all advanced cooperative agents in the grid.</span>
+<span class="sd">    reservation_table : dict of (int, int, int): int</span>
+<span class="sd">        A structure used to reserve grid positions at any time.</span>
+<span class="sd">    counter : int</span>
+<span class="sd">        The number of players on the grid.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    This space-time version was based on David Silver&#39;s algorithm for cooperative</span>
+<span class="sd">    pathfinding. Particularly, it implements a reservation table for space-time</span>
+<span class="sd">    coordinates, and interleaves agents&#39; searches.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">epoch</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># universal timer</span>
-    <span class="n">coop_period</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># half the depth</span>
-    <span class="n">players</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># list of all the player</span>
+    <span class="n">timer</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">frequence</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">players</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">reservation_table</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># for id&#39;s initialisation</span>
 
@@ -299,135 +462,142 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">initial_position</span><span class="p">,</span> <span class="n">goal_positions</span><span class="p">,</span> <span class="n">walls</span><span class="p">,</span> <span class="n">goal_choice</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">current_goal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">goal_choice</span><span class="o">.</span><span class="n">get_next_goal</span><span class="p">(</span><span class="n">initial_position</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">AdvancedPlayer</span><span class="o">.</span><span class="n">counter</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">search_epoch</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">search_epoch</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
 
+        <span class="c1"># update the list of players</span>
         <span class="n">AdvancedPlayer</span><span class="o">.</span><span class="n">counter</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="n">AdvancedPlayer</span><span class="o">.</span><span class="n">players</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
-<div class="viewcode-block" id="AdvancedPlayer.set_search_epoch"><a class="viewcode-back" href="../../advanced-players.html#coop.advanced_players.AdvancedPlayer.set_search_epoch">[docs]</a>    <span class="k">def</span> <span class="nf">set_search_epoch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">search_epoch</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Sets the search epoch, i.e. the time at which this agent will plan its</span>
-<span class="sd">        path, and reserves its current position in the reservation table for</span>
-<span class="sd">        all the epochs prior to the given search epoch</span>
+    <span class="k">def</span> <span class="nf">__set_search_epoch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">search_epoch</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Sets the search epoch of this agent.</span>
 
-<span class="sd">        -------------------</span>
-<span class="sd">        args:</span>
-<span class="sd">            search_epoch (int): the epoch at which this agent will plan its</span>
-<span class="sd">            path to its current goal</span>
-<span class="sd">        -------------------</span>
+<span class="sd">        The search epoch corresponds to the time at which the agent will plan</span>
+<span class="sd">        its path. This method also reserves its current coordinates in the</span>
+<span class="sd">        reservation table for all the epochs prior to the given search epoch.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        search_epoch : int</span>
+<span class="sd">            The epoch at which this agent will plan its path to its current goal.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">search_epoch</span> <span class="o">=</span> <span class="n">search_epoch</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">a_star</span> <span class="o">=</span> <span class="n">TimeAStar</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_position</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_goal</span><span class="p">,</span>
                                 <span class="bp">self</span><span class="o">.</span><span class="n">search_epoch</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">walls</span><span class="p">,</span> <span class="n">backwards_search</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">search_epoch</span><span class="p">):</span>
             <span class="n">AdvancedPlayer</span><span class="o">.</span><span class="n">reservation_table</span><span class="p">[(</span>
-                <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">initial_position</span><span class="p">,</span> <span class="n">t</span><span class="p">)]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span></div>
+                <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">initial_position</span><span class="p">,</span> <span class="n">t</span><span class="p">)]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span>
 
 <div class="viewcode-block" id="AdvancedPlayer.set_search_epochs"><a class="viewcode-back" href="../../advanced-players.html#coop.advanced_players.AdvancedPlayer.set_search_epochs">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">set_search_epochs</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Initialises the search epoch for each agent of this class so that</span>
-<span class="sd">        there are approximately 2n/depth agents replanning at any epoch</span>
+        <span class="sd">&quot;&quot;&quot;Initialises the search epoch for each agent.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        This method interleaves the searches, i.e. there are approximately</span>
+<span class="sd">        :math:`n/f` agents replanning at any epoch, where :math:`n` is the</span>
+<span class="sd">        number of agents and :math:`f` is the pathfinding frequence.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">n</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">counter</span>
-        <span class="n">d</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">coop_period</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">frequence</span>
         <span class="n">players_per_epoch</span> <span class="o">=</span> <span class="n">n</span> <span class="o">//</span> <span class="n">d</span>
         <span class="n">cnt</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">players_per_epoch</span><span class="p">):</span>
-                <span class="bp">cls</span><span class="o">.</span><span class="n">players</span><span class="p">[</span><span class="n">cnt</span><span class="p">]</span><span class="o">.</span><span class="n">set_search_epoch</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+                <span class="bp">cls</span><span class="o">.</span><span class="n">players</span><span class="p">[</span><span class="n">cnt</span><span class="p">]</span><span class="o">.</span><span class="n">__set_search_epoch</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
                 <span class="n">cnt</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="n">rem</span> <span class="o">=</span> <span class="n">n</span> <span class="o">-</span> <span class="n">cnt</span>
         <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">rem</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="k">break</span>
-            <span class="bp">cls</span><span class="o">.</span><span class="n">players</span><span class="p">[</span><span class="n">cnt</span><span class="p">]</span><span class="o">.</span><span class="n">set_search_epoch</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+            <span class="bp">cls</span><span class="o">.</span><span class="n">players</span><span class="p">[</span><span class="n">cnt</span><span class="p">]</span><span class="o">.</span><span class="n">__set_search_epoch</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
             <span class="n">rem</span> <span class="o">-=</span> <span class="mi">1</span>
             <span class="n">cnt</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="k">for</span> <span class="n">player</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">players</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="n">player</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">player</span><span class="o">.</span><span class="n">search_epoch</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">reservation_table</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="AdvancedPlayer.set_cooperation_period"><a class="viewcode-back" href="../../advanced-players.html#coop.advanced_players.AdvancedPlayer.set_cooperation_period">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">set_cooperation_period</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">coop_period</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Sets the cooperative period for the agents of this class</span>
+<div class="viewcode-block" id="AdvancedPlayer.set_pathfinding_frequence"><a class="viewcode-back" href="../../advanced-players.html#coop.advanced_players.AdvancedPlayer.set_pathfinding_frequence">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">set_pathfinding_frequence</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">frequence</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Sets the pathfinding frequence for the agents.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        frequence : int</span>
+<span class="sd">            The time after which an agent must replan its path.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">cls</span><span class="o">.</span><span class="n">coop_period</span> <span class="o">=</span> <span class="n">coop_period</span></div>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">frequence</span> <span class="o">=</span> <span class="n">frequence</span></div>
 
 <div class="viewcode-block" id="AdvancedPlayer.clear_trace"><a class="viewcode-back" href="../../advanced-players.html#coop.advanced_players.AdvancedPlayer.clear_trace">[docs]</a>    <span class="k">def</span> <span class="nf">clear_trace</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Removes any trace of its use from the reservation table</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Removes any trace of this agent&#39;s path from the reservation table.&quot;&quot;&quot;</span>
         <span class="n">keys_to_delete</span> <span class="o">=</span> <span class="p">[(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">t</span><span class="p">),</span> <span class="nb">id</span> <span class="ow">in</span> <span class="n">AdvancedPlayer</span><span class="o">.</span><span class="n">reservation_table</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
                           <span class="k">if</span> <span class="nb">id</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">]</span>
         <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">keys_to_delete</span><span class="p">:</span>
             <span class="k">del</span> <span class="n">AdvancedPlayer</span><span class="o">.</span><span class="n">reservation_table</span><span class="p">[</span><span class="n">k</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="AdvancedPlayer.find_path_to_goal"><a class="viewcode-back" href="../../advanced-players.html#coop.advanced_players.AdvancedPlayer.find_path_to_goal">[docs]</a>    <span class="k">def</span> <span class="nf">find_path_to_goal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resume</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Finds a path to a goal for this agent considering its peers as potential</span>
-<span class="sd">        obstacles</span>
+<div class="viewcode-block" id="AdvancedPlayer.pathfind"><a class="viewcode-back" href="../../advanced-players.html#coop.advanced_players.AdvancedPlayer.pathfind">[docs]</a>    <span class="k">def</span> <span class="nf">pathfind</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resume</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Finds a path to one of this agent&#39;s goals.</span>
 
-<span class="sd">        -------------------</span>
-<span class="sd">        args:</span>
-<span class="sd">            [optional] resume (bool): True iff the agent must resume its pursuit</span>
-<span class="sd">                of the current goal</span>
-<span class="sd">        -------------------</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        resume : bool, optional</span>
+<span class="sd">            True iff the agent must resume its pursuit of the current goal.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">clear_trace</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="n">resume</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>  <span class="c1"># for continuing the pursuit of current goal</span>
             <span class="n">backwards_search</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">a_star</span><span class="o">.</span><span class="n">backwards_search</span>
-            <span class="n">last_epoch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">a_star</span><span class="o">.</span><span class="n">last_epoch</span> <span class="o">+</span> <span class="n">AdvancedPlayer</span><span class="o">.</span><span class="n">coop_period</span>
+            <span class="n">last_epoch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">a_star</span><span class="o">.</span><span class="n">last_epoch</span> <span class="o">+</span> <span class="n">AdvancedPlayer</span><span class="o">.</span><span class="n">frequence</span>
         <span class="k">else</span><span class="p">:</span>  <span class="c1"># for a new path</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">current_goal</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">goal_choice</span><span class="o">.</span><span class="n">get_next_goal</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">current_position</span><span class="p">)</span>
             <span class="n">last_epoch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">a_star</span><span class="o">.</span><span class="n">last_epoch</span>
 
             <span class="c1"># when replanning time</span>
-            <span class="k">if</span> <span class="n">last_epoch</span> <span class="o">==</span> <span class="n">AdvancedPlayer</span><span class="o">.</span><span class="n">epoch</span> <span class="o">+</span> <span class="n">AdvancedPlayer</span><span class="o">.</span><span class="n">coop_period</span><span class="p">:</span>
-                <span class="n">last_epoch</span> <span class="o">+=</span> <span class="n">AdvancedPlayer</span><span class="o">.</span><span class="n">coop_period</span>
+            <span class="k">if</span> <span class="n">last_epoch</span> <span class="o">==</span> <span class="n">AdvancedPlayer</span><span class="o">.</span><span class="n">timer</span> <span class="o">+</span> <span class="n">AdvancedPlayer</span><span class="o">.</span><span class="n">frequence</span><span class="p">:</span>
+                <span class="n">last_epoch</span> <span class="o">+=</span> <span class="n">AdvancedPlayer</span><span class="o">.</span><span class="n">frequence</span>
 
             <span class="n">backwards_search</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">a_star</span> <span class="o">=</span> <span class="n">TimeAStar</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_position</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_goal</span><span class="p">,</span>
-                                <span class="n">AdvancedPlayer</span><span class="o">.</span><span class="n">epoch</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">walls</span><span class="p">,</span> <span class="n">backwards_search</span><span class="p">,</span> <span class="n">last_epoch</span><span class="o">=</span><span class="n">last_epoch</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">steps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">a_star</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">resume</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></div>
+                                <span class="n">AdvancedPlayer</span><span class="o">.</span><span class="n">timer</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">walls</span><span class="p">,</span> <span class="n">backwards_search</span><span class="p">,</span> <span class="n">last_epoch</span><span class="o">=</span><span class="n">last_epoch</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">steps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">a_star</span><span class="o">.</span><span class="n">run</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="AdvancedPlayer.is_last"><a class="viewcode-back" href="../../advanced-players.html#coop.advanced_players.AdvancedPlayer.is_last">[docs]</a>    <span class="k">def</span> <span class="nf">is_last</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Tests whether this agent is the last one in the list of players for</span>
-<span class="sd">        the purpose of timer update</span>
+        <span class="sd">&quot;&quot;&quot;Tests whether this agent is the last one in the list of players.</span>
 
-<span class="sd">        -------------------</span>
-<span class="sd">        return:</span>
-<span class="sd">            (bool): whether this agent is the last in the list of players</span>
-<span class="sd">        -------------------</span>
+<span class="sd">        This method is used only for the purpose of timer update.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            True iff this agent is the last one in the list of players.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">AdvancedPlayer</span><span class="o">.</span><span class="n">players</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span></div>
 
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">next</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Calculates this agent&#39;s next position considering its current</span>
-<span class="sd">        and remaining goals</span>
+<div class="viewcode-block" id="AdvancedPlayer.next"><a class="viewcode-back" href="../../advanced-players.html#coop.advanced_players.AdvancedPlayer.next">[docs]</a>    <span class="k">def</span> <span class="nf">next</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Determines this agent&#39;s next position in the grid.</span>
 
-<span class="sd">        -------------------</span>
-<span class="sd">        return:</span>
-<span class="sd">            (tuple[int]): the next position of the agent</span>
-<span class="sd">        -------------------</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        (int, int)</span>
+<span class="sd">            The next position of the agent.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># the agent succeded and wishes to meet another goal</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_next_goal</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">find_path_to_goal</span><span class="p">(</span><span class="n">resume</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">AdvancedPlayer</span><span class="o">.</span><span class="n">epoch</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">search_epoch</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">search_epoch</span> <span class="o">+=</span> <span class="n">AdvancedPlayer</span><span class="o">.</span><span class="n">coop_period</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pathfind</span><span class="p">(</span><span class="n">resume</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">AdvancedPlayer</span><span class="o">.</span><span class="n">timer</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">search_epoch</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">search_epoch</span> <span class="o">+=</span> <span class="n">AdvancedPlayer</span><span class="o">.</span><span class="n">frequence</span>
 
         <span class="c1"># replanning time</span>
-        <span class="k">elif</span> <span class="n">AdvancedPlayer</span><span class="o">.</span><span class="n">epoch</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">search_epoch</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">find_path_to_goal</span><span class="p">(</span><span class="n">resume</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">search_epoch</span> <span class="o">+=</span> <span class="n">AdvancedPlayer</span><span class="o">.</span><span class="n">coop_period</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">search_epoch</span> <span class="o">==</span> <span class="n">AdvancedPlayer</span><span class="o">.</span><span class="n">timer</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pathfind</span><span class="p">(</span><span class="n">resume</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">search_epoch</span> <span class="o">+=</span> <span class="n">AdvancedPlayer</span><span class="o">.</span><span class="n">frequence</span>
 
         <span class="c1"># when along the path</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_next_step</span><span class="p">():</span>
@@ -435,9 +605,9 @@
 
         <span class="c1"># the last agent updates the timer</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_last</span><span class="p">():</span>
-            <span class="n">AdvancedPlayer</span><span class="o">.</span><span class="n">epoch</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">AdvancedPlayer</span><span class="o">.</span><span class="n">timer</span> <span class="o">+=</span> <span class="mi">1</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_position</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_position</span></div></div>
 </pre></div>
 
           </div>

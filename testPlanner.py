@@ -117,7 +117,7 @@ def main():
         current = []
 
         for j in range(nbPlayers):  # on fait bouger chaque joueur séquentiellement
-            next_row, next_col = coop_planner.next
+            next_row, next_col = coop_planner.next()
             current.append((next_row, next_col))
 
             # and ((next_row,next_col) not in posPlayers)

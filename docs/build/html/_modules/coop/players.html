@@ -68,7 +68,8 @@
   <h1>Source code for coop.players</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">.. module:: players</span>
-<span class="sd">   :synopsis: The oportunistic player file is located here</span>
+<span class="sd">   :synopsis: This file contains the cooperative player handling collisions as</span>
+<span class="sd">    they happen.</span>
 <span class="sd">.. moduleauthor:: Angelo Ortiz &lt;github.com/angelo-ortiz&gt;</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
@@ -81,7 +82,7 @@
 
 
 <div class="viewcode-block" id="CoopPlayer"><a class="viewcode-back" href="../../players.html#coop.players.CoopPlayer">[docs]</a><span class="k">class</span> <span class="nc">CoopPlayer</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;A cooperative player that handles collisions on a rolling basis</span>
+    <span class="sd">&quot;&quot;&quot;A cooperative player that handles collisions on a rolling basis.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -91,7 +92,7 @@
 <span class="sd">        This argument contains a list of all the goals of the agent.</span>
 <span class="sd">    walls : list of (int, int)</span>
 <span class="sd">        This argument contains the list of all the obstacles to be avoided.</span>
-<span class="sd">    goal_choice : GoalChoiceStrategy</span>
+<span class="sd">    goal_choice : GoalChoiceStrategy, optional</span>
 <span class="sd">        This argument defines the next goal choice mode.</span>
 
 <span class="sd">    Attributes</span>
@@ -117,14 +118,14 @@
 <span class="sd">    goal_choice : GoalChoiceStrategy</span>
 <span class="sd">        The storage location of the agent&#39;s goal choice strategy.</span>
 
-<span class="sd">    PLAYERS : list of CoopPlayer</span>
+<span class="sd">    players : list of CoopPlayer</span>
 <span class="sd">        The list of all cooperative agents in the grid.</span>
 <span class="sd">    CUT_OFF_LIMIT : int</span>
 <span class="sd">        The length of the path to be cut when handling collisions.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">PLAYERS</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">players</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">CUT_OFF_LIMIT</span> <span class="o">=</span> <span class="mi">0</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initial_position</span><span class="p">,</span> <span class="n">goal_positions</span><span class="p">,</span> <span class="n">walls</span><span class="p">,</span> <span class="n">goal_choice</span><span class="o">=</span><span class="n">NaiveStrategy</span><span class="p">):</span>
@@ -137,7 +138,20 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">a_star</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">steps</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">goal_choice</span> <span class="o">=</span> <span class="n">goal_choice</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">goal_positions</span><span class="p">)</span>
-        <span class="n">CoopPlayer</span><span class="o">.</span><span class="n">PLAYERS</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">CoopPlayer</span><span class="o">.</span><span class="n">players</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+<div class="viewcode-block" id="CoopPlayer.set_cut_off_limit"><a class="viewcode-back" href="../../players.html#coop.players.CoopPlayer.set_cut_off_limit">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">set_cut_off_limit</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">cut_point</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Sets the number of immediate steps to be recalculated when handling</span>
+<span class="sd">        a collision.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        cut_point : int</span>
+<span class="sd">            The length of path to be replanned when a collision happens.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">CUT_OFF_LIMIT</span> <span class="o">=</span> <span class="n">cut_point</span></div>
 
 <div class="viewcode-block" id="CoopPlayer.add_goal"><a class="viewcode-back" href="../../players.html#coop.players.CoopPlayer.add_goal">[docs]</a>    <span class="k">def</span> <span class="nf">add_goal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">goal_position</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Adds a new goal to this agent.</span>
@@ -161,8 +175,8 @@
 <span class="sd">            iteration, and the list of those yet to be placed.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">my_index</span> <span class="o">=</span> <span class="n">CoopPlayer</span><span class="o">.</span><span class="n">PLAYERS</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">CoopPlayer</span><span class="o">.</span><span class="n">PLAYERS</span><span class="p">[:</span><span class="n">my_index</span><span class="p">],</span> <span class="n">CoopPlayer</span><span class="o">.</span><span class="n">PLAYERS</span><span class="p">[</span><span class="n">my_index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:]</span>
+        <span class="n">my_index</span> <span class="o">=</span> <span class="n">CoopPlayer</span><span class="o">.</span><span class="n">players</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">CoopPlayer</span><span class="o">.</span><span class="n">players</span><span class="p">[:</span><span class="n">my_index</span><span class="p">],</span> <span class="n">CoopPlayer</span><span class="o">.</span><span class="n">players</span><span class="p">[</span><span class="n">my_index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:]</span>
 
 <div class="viewcode-block" id="CoopPlayer.has_next_step"><a class="viewcode-back" href="../../players.html#coop.players.CoopPlayer.has_next_step">[docs]</a>    <span class="k">def</span> <span class="nf">has_next_step</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Tests whether this agent has a planned step to take.</span>
@@ -261,11 +275,11 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">oth</span> <span class="ow">in</span> <span class="n">placed</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">next_position</span> <span class="o">==</span> <span class="n">oth</span><span class="o">.</span><span class="n">current_position</span> <span class="ow">or</span> \
-                    <span class="bp">self</span><span class="o">.</span><span class="n">go_through_one_another</span><span class="p">(</span><span class="n">oth</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">go_through_one_another</span><span class="p">(</span><span class="n">oth</span><span class="p">,</span> <span class="n">placed</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
                 <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">next_position</span>
         <span class="k">for</span> <span class="n">oth</span> <span class="ow">in</span> <span class="n">following</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">next_position</span> <span class="o">==</span> <span class="n">oth</span><span class="o">.</span><span class="n">next_position</span> <span class="ow">or</span> \
-                    <span class="bp">self</span><span class="o">.</span><span class="n">go_through_one_another</span><span class="p">(</span><span class="n">oth</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">go_through_one_another</span><span class="p">(</span><span class="n">oth</span><span class="p">,</span> <span class="n">placed</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
                 <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">next_position</span>
         <span class="k">return</span> <span class="kc">None</span></div>
 
@@ -398,14 +412,14 @@
 <div class="viewcode-block" id="CoopPlayer.next"><a class="viewcode-back" href="../../players.html#coop.players.CoopPlayer.next">[docs]</a>    <span class="k">def</span> <span class="nf">next</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Determines this agent&#39;s next position in the grid.</span>
 
-<span class="sd">        This method considers the agent&#39;s current and remaining goals, and any</span>
-<span class="sd">        potential collisions for this purpose.</span>
+<span class="sd">        This method considers the agent&#39;s current goal and any potential</span>
+<span class="sd">        collisions for this purpose.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        (int, int)</span>
 <span class="sd">            The next position of the agent.</span>
-<span class="sd">        -------------------</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># when along the path</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_next_step</span><span class="p">():</span>
@@ -425,15 +439,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">find_path_to_goal</span><span class="p">()</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">next</span><span class="p">()</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_position</span></div>
-
-<div class="viewcode-block" id="CoopPlayer.set_cut_off_limit"><a class="viewcode-back" href="../../players.html#coop.players.CoopPlayer.set_cut_off_limit">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">set_cut_off_limit</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">cut_point</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Sets the number of immediate steps to be recalculated when</span>
-<span class="sd">        handling a collision.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">cls</span><span class="o">.</span><span class="n">CUT_OFF_LIMIT</span> <span class="o">=</span> <span class="n">cut_point</span></div></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_position</span></div></div>
 </pre></div>
 
           </div>

@@ -47,6 +47,7 @@ extensions = [
     'sphinx.ext.githubpages',
     'rinoh.frontend.sphinx',
     'numpydoc',
+    'sphinx.ext.imgmath',
 ]
 
 # Add any paths that contain templates here, relative to this directory.

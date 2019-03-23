@@ -68,7 +68,7 @@
   <h1>Source code for coop.tools</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">.. module:: tools</span>
-<span class="sd">   :synopsis: All the basic functions for cooperative players are defined here</span>
+<span class="sd">   :synopsis: All the basic functions for cooperative players are defined here.</span>
 <span class="sd">.. moduleauthor:: Angelo Ortiz &lt;github.com/angelo-ortiz&gt;</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
@@ -106,7 +106,7 @@
 <span class="sd">        This argument contains the row number of this node.</span>
 <span class="sd">    y : int</span>
 <span class="sd">        This argument contains the column number of this node.</span>
-<span class="sd">    parent : Node, optional</span>
+<span class="sd">    parent : Node or None, optional</span>
 <span class="sd">        This keyword argument points to the node preceding this node in `a_star`.</span>
 
 <span class="sd">    Attributes</span>
@@ -118,7 +118,7 @@
 <span class="sd">        The storage location of the node&#39;s row number.</span>
 <span class="sd">    y : int</span>
 <span class="sd">        The storage location of the node&#39;s column number.</span>
-<span class="sd">    parent : Node</span>
+<span class="sd">    parent : Node or None</span>
 <span class="sd">        The storage location of the node&#39;s parent.</span>
 <span class="sd">    cost : int</span>
 <span class="sd">        The cost of the path from A*&#39;s root to this node.</span>
@@ -194,9 +194,9 @@
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        int</span>
-<span class="sd">            the row number of this node.</span>
+<span class="sd">            The row number of this node.</span>
 <span class="sd">        int</span>
-<span class="sd">            the column number of this node.</span>
+<span class="sd">            The column number of this node.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
@@ -299,16 +299,16 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">y</span></div>
 
     <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Textual representation of this node&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Textual representation of this node.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">f</span><span class="s1">&#39;(</span><span class="si">{self.x}</span><span class="s1">, </span><span class="si">{self.y}</span><span class="s1">)&#39;</span>
 
     <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Equality test based on the nodes&#39; coordinates&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Equality test based on the nodes&#39; coordinates.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="vm">__class__</span> <span class="ow">and</span> \
             <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">x</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">y</span>
 
     <span class="k">def</span> <span class="nf">__lt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Greatness test based on the nodes&#39; f-value&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Greatness test based on the nodes&#39; f-value.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">other</span><span class="o">.</span><span class="n">f</span><span class="p">()</span></div>
 
 
@@ -519,9 +519,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">initial_state</span> <span class="o">=</span> <span class="n">Node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">initial_state</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">goal_state</span> <span class="o">=</span> <span class="n">Node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">goal_state</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">walls</span> <span class="o">=</span> <span class="n">walls</span>
-        <span class="c1"># the fringe</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">open_set</span> <span class="o">=</span> <span class="n">Heap</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">initial_state</span><span class="p">])</span>
-        <span class="c1"># the set of extended nodes</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">closed_set</span> <span class="o">=</span> <span class="p">[]</span>
 
 <div class="viewcode-block" id="AStar.set_new_goal"><a class="viewcode-back" href="../../tools.html#coop.tools.AStar.set_new_goal">[docs]</a>    <span class="k">def</span> <span class="nf">set_new_goal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_goal</span><span class="p">):</span>
@@ -608,13 +606,18 @@
         <span class="k">return</span> <span class="p">[</span><span class="n">st</span> <span class="k">for</span> <span class="n">st</span> <span class="ow">in</span> <span class="n">states</span> <span class="k">if</span> <span class="n">st</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">closed_set</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="AStar.run"><a class="viewcode-back" href="../../tools.html#coop.tools.AStar.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Runs A* algorithm</span>
+        <span class="sd">&quot;&quot;&quot;Runs this A* instance.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        list of (int, int)</span>
 <span class="sd">            The reversed list of steps to take to get to the goal state from</span>
 <span class="sd">            the initial state.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        The returned step sequence was built as a stack so the agent must use</span>
+<span class="sd">        `pop()` in order to obtain the immediate next step to take.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">while</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_set_is_empty</span><span class="p">():</span>
@@ -625,9 +628,9 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">closed_set</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">current_state</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">current_state</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">goal_state</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">goal_state</span><span class="o">.</span><span class="n">set_parent</span><span class="p">(</span><span class="n">current_state</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span>
-                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_reversed_step_sequence</span><span class="p">()</span></div>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_reversed_step_sequence</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="AStar.get_reversed_step_sequence"><a class="viewcode-back" href="../../tools.html#coop.tools.AStar.get_reversed_step_sequence">[docs]</a>    <span class="k">def</span> <span class="nf">get_reversed_step_sequence</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__get_reversed_step_sequence</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Determines the steps leading to the goal from the initial state.</span>
 
 <span class="sd">        Returns</span>
@@ -636,18 +639,13 @@
 <span class="sd">            The step sequence to take to get to the goal state from the initial</span>
 <span class="sd">            state.</span>
 
-<span class="sd">        Notes</span>
-<span class="sd">        -----</span>
-<span class="sd">        The returned step sequence was built as a stack so the agent must use</span>
-<span class="sd">        `pop()` in order to obtain the immediate next step to take.</span>
-
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">current_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">goal_state</span>
         <span class="n">steps</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">while</span> <span class="n">current_state</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_state</span><span class="p">:</span>
             <span class="n">steps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">current_state</span><span class="o">.</span><span class="n">get_step</span><span class="p">())</span>
             <span class="n">current_state</span> <span class="o">=</span> <span class="n">current_state</span><span class="o">.</span><span class="n">parent</span>
-        <span class="k">return</span> <span class="n">steps</span></div></div>
+        <span class="k">return</span> <span class="n">steps</span></div>
 </pre></div>
 
           </div>

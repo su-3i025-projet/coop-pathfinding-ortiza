@@ -1,6 +1,6 @@
 """
 .. module:: tools
-   :synopsis: All the basic functions for cooperative players are defined here
+   :synopsis: All the basic functions for cooperative players are defined here.
 .. moduleauthor:: Angelo Ortiz <github.com/angelo-ortiz>
 """
 
@@ -38,7 +38,7 @@ class Node:
         This argument contains the row number of this node.
     y : int
         This argument contains the column number of this node.
-    parent : Node, optional
+    parent : Node or None, optional
         This keyword argument points to the node preceding this node in `a_star`.
 
     Attributes
@@ -50,7 +50,7 @@ class Node:
         The storage location of the node's row number.
     y : int
         The storage location of the node's column number.
-    parent : Node
+    parent : Node or None
         The storage location of the node's parent.
     cost : int
         The cost of the path from A*'s root to this node.
@@ -126,9 +126,9 @@ class Node:
         Returns
         -------
         int
-            the row number of this node.
+            The row number of this node.
         int
-            the column number of this node.
+            The column number of this node.
 
         """
         return (self.x, self.y)
@@ -231,16 +231,16 @@ class Node:
         return self.x - self.parent.x, self.y - self.parent.y
 
     def __repr__(self):
-        """Textual representation of this node"""
+        """Textual representation of this node."""
         return f'({self.x}, {self.y})'
 
     def __eq__(self, other):
-        """Equality test based on the nodes' coordinates"""
+        """Equality test based on the nodes' coordinates."""
         return self.__class__ == other.__class__ and \
             self.x == other.x and self.y == other.y
 
     def __lt__(self, other):
-        """Greatness test based on the nodes' f-value"""
+        """Greatness test based on the nodes' f-value."""
         return self.f() < other.f()
 
 
@@ -451,9 +451,7 @@ class AStar:
         self.initial_state = Node(self, *initial_state)
         self.goal_state = Node(self, *goal_state)
         self.walls = walls
-        # the fringe
         self.open_set = Heap([self.initial_state])
-        # the set of extended nodes
         self.closed_set = []
 
     def set_new_goal(self, new_goal):
@@ -540,13 +538,18 @@ class AStar:
         return [st for st in states if st not in self.closed_set]
 
     def run(self):
-        """Runs A* algorithm
+        """Runs this A* instance.
 
         Returns
         -------
         list of (int, int)
             The reversed list of steps to take to get to the goal state from
             the initial state.
+
+        Notes
+        -----
+        The returned step sequence was built as a stack so the agent must use
+        `pop()` in order to obtain the immediate next step to take.
 
         """
         while not self.open_set_is_empty():
@@ -557,9 +560,9 @@ class AStar:
             self.closed_set.append(current_state)
             if current_state == self.goal_state:
                 self.goal_state.set_parent(current_state.parent)
-                return self.get_reversed_step_sequence()
+                return self.__get_reversed_step_sequence()
 
-    def get_reversed_step_sequence(self):
+    def __get_reversed_step_sequence(self):
         """Determines the steps leading to the goal from the initial state.
 
         Returns
@@ -567,11 +570,6 @@ class AStar:
         list of (int, int)
             The step sequence to take to get to the goal state from the initial
             state.
-
-        Notes
-        -----
-        The returned step sequence was built as a stack so the agent must use
-        `pop()` in order to obtain the immediate next step to take.
 
         """
         current_state = self.goal_state

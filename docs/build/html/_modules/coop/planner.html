@@ -68,7 +68,7 @@
   <h1>Source code for coop.planner</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">.. module:: planner</span>
-<span class="sd">   :synopsis: All endpoints of the Teacher API are defined here</span>
+<span class="sd">   :synopsis: This file contains the planner of cooperative players&#39; turns.</span>
 <span class="sd">.. moduleauthor:: Angelo Ortiz &lt;github.com/angelo-ortiz&gt;</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
@@ -78,17 +78,45 @@
 
 
 <div class="viewcode-block" id="CoopPlanner"><a class="viewcode-back" href="../../planner.html#coop.planner.CoopPlanner">[docs]</a><span class="k">class</span> <span class="nc">CoopPlanner</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Class representing a cooperative entity that calculates the path</span>
-<span class="sd">    of all of its players and defines a sequence of groups of players</span>
-<span class="sd">    whose paths do not cross each other</span>
+    <span class="sd">&quot;&quot;&quot;A cooperative entity that defines the action turns of its players.</span>
+
+<span class="sd">    This planner plans the path of all of its players and groups them by</span>
+<span class="sd">    path compatibility, i.e. their paths do not cross each other. It then</span>
+<span class="sd">    defines the order of passing for the aforementioned groups of players.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    initial_positions : list of (int, int)</span>
+<span class="sd">        This argument contains the initial coordinates of the agents.</span>
+<span class="sd">    goal_positions : list of list of (int, int)</span>
+<span class="sd">        This argument contains a list of goals per agent.</span>
+<span class="sd">    walls : list of (int, int)</span>
+<span class="sd">        This argument contains the list of all the obstacles to be avoided.</span>
+<span class="sd">    seq_sorting_choice : SequenceSortingStrategy</span>
+<span class="sd">        This argument defines the grouping mode.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    players : list of CoopPlayer</span>
+<span class="sd">        The list of cooperative players on the grid.</span>
+<span class="sd">    walls : list of (int, int)</span>
+<span class="sd">        The storage location of the walls position.</span>
+<span class="sd">    seq_sorting_choice : SequenceSortingStrategy</span>
+<span class="sd">        The storage location of the grouping strategy.</span>
+<span class="sd">    sequence : list of int</span>
+<span class="sd">        The sequence in which the groups will pass.</span>
+<span class="sd">    current_player : int</span>
+<span class="sd">        The index of the current player in the players list.</span>
+<span class="sd">    collision_baseline_positions : list of (int, int)</span>
+<span class="sd">        The list of next positions for the player to be (re)added to a group.</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initial_position</span><span class="p">,</span> <span class="n">goal_positions</span><span class="p">,</span> <span class="n">walls</span><span class="p">,</span> <span class="n">seq_sorting_choice</span><span class="o">=</span><span class="n">GroupLengthStrategy</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">pos</span><span class="p">,</span> <span class="n">goal</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">initial_position</span><span class="p">,</span> <span class="n">goal_positions</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initial_positions</span><span class="p">,</span> <span class="n">goal_positions</span><span class="p">,</span> <span class="n">walls</span><span class="p">,</span> <span class="n">seq_sorting_choice</span><span class="o">=</span><span class="n">GroupLengthStrategy</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">pos</span><span class="p">,</span> <span class="n">goal</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">initial_positions</span><span class="p">,</span> <span class="n">goal_positions</span><span class="p">):</span>
             <span class="nb">print</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span> <span class="n">goal</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">players</span> <span class="o">=</span> <span class="p">[</span><span class="n">CoopPlayer</span><span class="p">(</span><span class="n">init_pos</span><span class="p">,</span> <span class="n">goal_pos</span><span class="p">,</span> <span class="n">walls</span><span class="p">)</span>
-                        <span class="k">for</span> <span class="n">init_pos</span><span class="p">,</span> <span class="n">goal_pos</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">initial_position</span><span class="p">,</span> <span class="n">goal_positions</span><span class="p">)]</span>
+                        <span class="k">for</span> <span class="n">init_pos</span><span class="p">,</span> <span class="n">goal_pos</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">initial_positions</span><span class="p">,</span> <span class="n">goal_positions</span><span class="p">)]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">walls</span> <span class="o">=</span> <span class="n">walls</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">seq_sorting_choice</span> <span class="o">=</span> <span class="n">seq_sorting_choice</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sequence</span> <span class="o">=</span> <span class="p">[]</span>
@@ -107,24 +135,26 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">current_group</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sequence</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
 <div class="viewcode-block" id="CoopPlanner.add_goal"><a class="viewcode-back" href="../../planner.html#coop.planner.CoopPlanner.add_goal">[docs]</a>    <span class="k">def</span> <span class="nf">add_goal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">player</span><span class="p">,</span> <span class="n">goal_pos</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Adds a new goal for the given player</span>
+        <span class="sd">&quot;&quot;&quot;Adds a new goal to the given player.</span>
 
-<span class="sd">        -------------------</span>
-<span class="sd">        args:</span>
-<span class="sd">            player (int): the index of the agent</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        player : int</span>
+<span class="sd">            The index of the agent.</span>
+<span class="sd">        goal_pos : (int, int)</span>
+<span class="sd">            The coordinates of a new goal for the given agent.</span>
 
-<span class="sd">            goal_pos (tuple[int]): the coordinates of a new goal for the agent</span>
-<span class="sd">        -------------------</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">players</span><span class="p">[</span><span class="n">player</span><span class="p">]</span><span class="o">.</span><span class="n">add_goal</span><span class="p">(</span><span class="n">goal_pos</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">find_initial_paths</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="CoopPlanner.find_initial_paths"><a class="viewcode-back" href="../../planner.html#coop.planner.CoopPlanner.find_initial_paths">[docs]</a>    <span class="k">def</span> <span class="nf">find_initial_paths</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">player</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">players</span><span class="p">:</span>
             <span class="n">bef</span><span class="p">,</span> <span class="n">aft</span> <span class="o">=</span> <span class="n">player</span><span class="o">.</span><span class="n">others</span>
             <span class="n">others</span> <span class="o">=</span> <span class="p">[</span><span class="n">oth</span><span class="o">.</span><span class="n">current_goal</span> <span class="k">for</span> <span class="n">oth</span> <span class="ow">in</span> <span class="n">bef</span><span class="p">]</span> <span class="o">+</span> \
                 <span class="p">[</span><span class="n">oth</span><span class="o">.</span><span class="n">goal_positions</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">oth</span> <span class="ow">in</span> <span class="n">aft</span><span class="p">]</span>
-            <span class="n">player</span><span class="o">.</span><span class="n">find_path_to_goal</span><span class="p">(</span><span class="n">others</span><span class="p">)</span>
+            <span class="n">player</span><span class="o">.</span><span class="n">find_path_to_goal</span><span class="p">(</span><span class="n">others</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">update_paths</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">player</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">players</span><span class="p">:</span>
@@ -209,7 +239,6 @@
         <span class="k">for</span> <span class="n">player</span> <span class="ow">in</span> <span class="n">players</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_to_sequence</span><span class="p">(</span><span class="n">player</span><span class="p">)</span>
 
-    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">next</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">current_player</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_player</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">players</span><span class="p">)</span>
 

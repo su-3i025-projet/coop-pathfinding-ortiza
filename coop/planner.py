@@ -1,6 +1,6 @@
 """
 .. module:: planner
-   :synopsis: All endpoints of the Teacher API are defined here
+   :synopsis: This file contains the planner of cooperative players' turns.
 .. moduleauthor:: Angelo Ortiz <github.com/angelo-ortiz>
 """
 
@@ -10,17 +10,45 @@ from .strategies import GroupLengthStrategy
 
 
 class CoopPlanner:
-    """
-    Class representing a cooperative entity that calculates the path
-    of all of its players and defines a sequence of groups of players
-    whose paths do not cross each other
+    """A cooperative entity that defines the action turns of its players.
+
+    This planner plans the path of all of its players and groups them by
+    path compatibility, i.e. their paths do not cross each other. It then
+    defines the order of passing for the aforementioned groups of players.
+
+    Parameters
+    ----------
+    initial_positions : list of (int, int)
+        This argument contains the initial coordinates of the agents.
+    goal_positions : list of list of (int, int)
+        This argument contains a list of goals per agent.
+    walls : list of (int, int)
+        This argument contains the list of all the obstacles to be avoided.
+    seq_sorting_choice : SequenceSortingStrategy
+        This argument defines the grouping mode.
+
+    Attributes
+    ----------
+    players : list of CoopPlayer
+        The list of cooperative players on the grid.
+    walls : list of (int, int)
+        The storage location of the walls position.
+    seq_sorting_choice : SequenceSortingStrategy
+        The storage location of the grouping strategy.
+    sequence : list of int
+        The sequence in which the groups will pass.
+    current_player : int
+        The index of the current player in the players list.
+    collision_baseline_positions : list of (int, int)
+        The list of next positions for the player to be (re)added to a group.
+
     """
 
-    def __init__(self, initial_position, goal_positions, walls, seq_sorting_choice=GroupLengthStrategy):
-        for pos, goal in zip(initial_position, goal_positions):
+    def __init__(self, initial_positions, goal_positions, walls, seq_sorting_choice=GroupLengthStrategy):
+        for pos, goal in zip(initial_positions, goal_positions):
             print(pos, goal)
         self.players = [CoopPlayer(init_pos, goal_pos, walls)
-                        for init_pos, goal_pos in zip(initial_position, goal_positions)]
+                        for init_pos, goal_pos in zip(initial_positions, goal_positions)]
         self.walls = walls
         self.seq_sorting_choice = seq_sorting_choice
         self.sequence = []
@@ -39,19 +67,21 @@ class CoopPlanner:
         self.current_group = self.sequence[0]
 
     def add_goal(self, player, goal_pos):
-        """
-        Adds a new goal for the given player
+        """Adds a new goal to the given player.
 
-        -------------------
-        args:
-            player (int): the index of the agent
+        Parameters
+        ----------
+        player : int
+            The index of the agent.
+        goal_pos : (int, int)
+            The coordinates of a new goal for the given agent.
 
-            goal_pos (tuple[int]): the coordinates of a new goal for the agent
-        -------------------
         """
         self.players[player].add_goal(goal_pos)
 
     def find_initial_paths(self):
+        """
+        """
         for player in self.players:
             bef, aft = player.others
             others = [oth.current_goal for oth in bef] + \
@@ -141,7 +171,6 @@ class CoopPlanner:
         for player in players:
             self.add_to_sequence(player)
 
-    @property
     def next(self):
         self.current_player = (self.current_player + 1) % len(self.players)
 

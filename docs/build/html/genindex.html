@@ -156,12 +156,10 @@
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="advanced-players.html#coop.advanced_players.AdvancedPlayer.find_path_to_goal">find_path_to_goal() (coop.advanced_players.AdvancedPlayer method)</a>
-
-      <ul>
-        <li><a href="players.html#coop.players.CoopPlayer.find_path_to_goal">(coop.players.CoopPlayer method)</a>
+      <li><a href="planner.html#coop.planner.CoopPlanner.find_initial_paths">find_initial_paths() (coop.planner.CoopPlanner method)</a>
 </li>
-      </ul></li>
+      <li><a href="players.html#coop.players.CoopPlayer.find_path_to_goal">find_path_to_goal() (coop.players.CoopPlayer method)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -176,12 +174,6 @@
 </li>
       <li><a href="players.html#coop.players.CoopPlayer.get_position_after">get_position_after() (coop.players.CoopPlayer method)</a>
 </li>
-      <li><a href="advanced-players.html#coop.advanced_players.TimeAStar.get_reversed_step_sequence">get_reversed_step_sequence() (coop.advanced_players.TimeAStar method)</a>
-
-      <ul>
-        <li><a href="tools.html#coop.tools.AStar.get_reversed_step_sequence">(coop.tools.AStar method)</a>
-</li>
-      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="advanced-players.html#coop.advanced_players.TimeNode.get_step">get_step() (coop.advanced_players.TimeNode method)</a>
@@ -244,10 +236,12 @@
 <h2 id="N">N</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="advanced-players.html#coop.advanced_players.AdvancedPlayer.next">next (coop.advanced_players.AdvancedPlayer attribute)</a>
+      <li><a href="advanced-players.html#coop.advanced_players.AdvancedPlayer.next">next() (coop.advanced_players.AdvancedPlayer method)</a>
+
+      <ul>
+        <li><a href="players.html#coop.players.CoopPlayer.next">(coop.players.CoopPlayer method)</a>
 </li>
-      <li><a href="players.html#coop.players.CoopPlayer.next">next() (coop.players.CoopPlayer method)</a>
-</li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="players.html#coop.players.CoopPlayer.next_position">next_position (coop.players.CoopPlayer attribute)</a>
@@ -272,6 +266,8 @@
 <h2 id="P">P</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="advanced-players.html#coop.advanced_players.AdvancedPlayer.pathfind">pathfind() (coop.advanced_players.AdvancedPlayer method)</a>
+</li>
       <li><a href="planner.html#module-planner">planner (module)</a>
 </li>
       <li><a href="players.html#module-players">players (module)</a>
@@ -279,6 +275,8 @@
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="tools.html#coop.tools.Heap.pop">pop() (coop.tools.Heap method)</a>
+</li>
+      <li><a href="advanced-players.html#coop.advanced_players.TimeNode.position">position (coop.advanced_players.TimeNode attribute)</a>
 </li>
       <li><a href="tools.html#coop.tools.Heap.push">push() (coop.tools.Heap method)</a>
 </li>
@@ -302,17 +300,15 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="tools.html#coop.tools.AStar.select_best">select_best() (coop.tools.AStar method)</a>
 </li>
-      <li><a href="advanced-players.html#coop.advanced_players.AdvancedPlayer.set_cooperation_period">set_cooperation_period() (coop.advanced_players.AdvancedPlayer class method)</a>
-</li>
       <li><a href="players.html#coop.players.CoopPlayer.set_cut_off_limit">set_cut_off_limit() (coop.players.CoopPlayer class method)</a>
 </li>
       <li><a href="tools.html#coop.tools.AStar.set_new_goal">set_new_goal() (coop.tools.AStar method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="tools.html#coop.tools.Node.set_parent">set_parent() (coop.tools.Node method)</a>
 </li>
-      <li><a href="advanced-players.html#coop.advanced_players.AdvancedPlayer.set_search_epoch">set_search_epoch() (coop.advanced_players.AdvancedPlayer method)</a>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="advanced-players.html#coop.advanced_players.AdvancedPlayer.set_pathfinding_frequence">set_pathfinding_frequence() (coop.advanced_players.AdvancedPlayer class method)</a>
 </li>
       <li><a href="advanced-players.html#coop.advanced_players.AdvancedPlayer.set_search_epochs">set_search_epochs() (coop.advanced_players.AdvancedPlayer class method)</a>
 </li>
@@ -328,11 +324,13 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="advanced-players.html#coop.advanced_players.TimeAStar">TimeAStar (class in coop.advanced_players)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="advanced-players.html#coop.advanced_players.TimeNode">TimeNode (class in coop.advanced_players)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="tools.html#module-tools">tools (module)</a>
+</li>
+      <li><a href="advanced-players.html#coop.advanced_players.TimeAStar.true_distance">true_distance() (coop.advanced_players.TimeAStar method)</a>
 </li>
   </ul></td>
 </tr></table>

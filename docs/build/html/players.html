@@ -72,7 +72,7 @@
 <span class="target" id="module-players"></span><dl class="class">
 <dt id="coop.players.CoopPlayer">
 <em class="property">class </em><code class="descclassname">coop.players.</code><code class="descname">CoopPlayer</code><span class="sig-paren">(</span><em>initial_position</em>, <em>goal_positions</em>, <em>walls</em>, <em>goal_choice=&lt;class 'coop.strategies.NaiveStrategy'&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/coop/players.html#CoopPlayer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coop.players.CoopPlayer" title="Permalink to this definition">¶</a></dt>
-<dd><p>A cooperative player that handles collisions on a rolling basis</p>
+<dd><p>A cooperative player that handles collisions on a rolling basis.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -87,7 +87,7 @@
 <dt><strong>walls</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of (int, int)</span></dt>
 <dd><p class="first last">This argument contains the list of all the obstacles to be avoided.</p>
 </dd>
-<dt><strong>goal_choice</strong> <span class="classifier-delimiter">:</span> <span class="classifier">GoalChoiceStrategy</span></dt>
+<dt><strong>goal_choice</strong> <span class="classifier-delimiter">:</span> <span class="classifier">GoalChoiceStrategy, optional</span></dt>
 <dd><p class="first last">This argument defines the next goal choice mode.</p>
 </dd>
 </dl>
@@ -127,7 +127,7 @@
 <dt><strong>goal_choice</strong> <span class="classifier-delimiter">:</span> <span class="classifier">GoalChoiceStrategy</span></dt>
 <dd><p class="first last">The storage location of the agent’s goal choice strategy.</p>
 </dd>
-<dt><strong>PLAYERS</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of CoopPlayer</span></dt>
+<dt><strong>players</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of CoopPlayer</span></dt>
 <dd><p class="first last">The list of all cooperative agents in the grid.</p>
 </dd>
 <dt><strong>CUT_OFF_LIMIT</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
@@ -413,8 +413,8 @@ obstacle.</p>
 <dt id="coop.players.CoopPlayer.next">
 <code class="descname">next</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/coop/players.html#CoopPlayer.next"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coop.players.CoopPlayer.next" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determines this agent’s next position in the grid.</p>
-<p>This method considers the agent’s current and remaining goals, and any
-potential collisions for this purpose.</p>
+<p>This method considers the agent’s current goal and any potential
+collisions for this purpose.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -423,8 +423,6 @@ potential collisions for this purpose.</p>
 <dt><strong>(int, int)</strong></dt>
 <dd><p class="first last">The next position of the agent.</p>
 </dd>
-<dt><strong>——————-</strong></dt>
-<dd></dd>
 </dl>
 </td>
 </tr>
@@ -477,8 +475,21 @@ iteration, and the list of those yet to be placed.</p>
 <dl class="classmethod">
 <dt id="coop.players.CoopPlayer.set_cut_off_limit">
 <em class="property">classmethod </em><code class="descname">set_cut_off_limit</code><span class="sig-paren">(</span><em>cut_point</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/coop/players.html#CoopPlayer.set_cut_off_limit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coop.players.CoopPlayer.set_cut_off_limit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Sets the number of immediate steps to be recalculated when
-handling a collision.</p>
+<dd><p>Sets the number of immediate steps to be recalculated when handling
+a collision.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>cut_point</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd><p class="first last">The length of path to be replanned when a collision happens.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </dd></dl>

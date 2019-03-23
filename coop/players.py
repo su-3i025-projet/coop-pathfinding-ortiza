@@ -14,7 +14,7 @@ from .tools import AStar, Node
 
 
 class CoopPlayer:
-    """A cooperative player that handles collisions on a rolling basis
+    """A cooperative player that handles collisions on a rolling basis.
 
     Parameters
     ----------
@@ -24,7 +24,7 @@ class CoopPlayer:
         This argument contains a list of all the goals of the agent.
     walls : list of (int, int)
         This argument contains the list of all the obstacles to be avoided.
-    goal_choice : GoalChoiceStrategy
+    goal_choice : GoalChoiceStrategy, optional
         This argument defines the next goal choice mode.
 
     Attributes
@@ -50,14 +50,14 @@ class CoopPlayer:
     goal_choice : GoalChoiceStrategy
         The storage location of the agent's goal choice strategy.
 
-    PLAYERS : list of CoopPlayer
+    players : list of CoopPlayer
         The list of all cooperative agents in the grid.
     CUT_OFF_LIMIT : int
         The length of the path to be cut when handling collisions.
 
     """
 
-    PLAYERS = []
+    players = []
     CUT_OFF_LIMIT = 0
 
     def __init__(self, initial_position, goal_positions, walls, goal_choice=NaiveStrategy):
@@ -70,7 +70,20 @@ class CoopPlayer:
         self.a_star = None
         self.steps = []
         self.goal_choice = goal_choice(self.goal_positions)
-        CoopPlayer.PLAYERS.append(self)
+        CoopPlayer.players.append(self)
+
+    @classmethod
+    def set_cut_off_limit(cls, cut_point):
+        """Sets the number of immediate steps to be recalculated when handling
+        a collision.
+
+        Parameters
+        ----------
+        cut_point : int
+            The length of path to be replanned when a collision happens.
+
+        """
+        cls.CUT_OFF_LIMIT = cut_point
 
     def add_goal(self, goal_position):
         """Adds a new goal to this agent.
@@ -94,8 +107,8 @@ class CoopPlayer:
             iteration, and the list of those yet to be placed.
 
         """
-        my_index = CoopPlayer.PLAYERS.index(self)
-        return CoopPlayer.PLAYERS[:my_index], CoopPlayer.PLAYERS[my_index + 1:]
+        my_index = CoopPlayer.players.index(self)
+        return CoopPlayer.players[:my_index], CoopPlayer.players[my_index + 1:]
 
     def has_next_step(self):
         """Tests whether this agent has a planned step to take.
@@ -331,8 +344,8 @@ class CoopPlayer:
     def next(self):
         """Determines this agent's next position in the grid.
 
-        This method considers the agent's current and remaining goals, and any
-        potential collisions for this purpose.
+        This method considers the agent's current goal and any potential
+        collisions for this purpose.
 
         Returns
         -------
@@ -359,16 +372,3 @@ class CoopPlayer:
             return self.next()
 
         return self.current_position
-
-    @classmethod
-    def set_cut_off_limit(cls, cut_point):
-        """Sets the number of immediate steps to be recalculated when handling
-        a collision.
-
-        Parameters
-        ----------
-        cut_point : int
-            The length of path to be replanned when a collision happens.
-
-        """
-        cls.CUT_OFF_LIMIT = cut_point

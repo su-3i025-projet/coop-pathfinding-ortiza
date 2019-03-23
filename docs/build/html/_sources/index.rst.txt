@@ -13,7 +13,7 @@ Documentation for the Code
 **************************
 .. toctree::
    :maxdepth: 1
-
+   
    tools
    players
    planner

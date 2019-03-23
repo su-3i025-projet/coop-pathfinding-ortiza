@@ -128,19 +128,16 @@
 <tr class="row-odd"><td><a class="reference internal" href="#coop.tools.AStar.get_not_extended" title="coop.tools.AStar.get_not_extended"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_not_extended</span></code></a>(states)</td>
 <td>Filters out already extended nodes from the given list of nodes.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#coop.tools.AStar.get_reversed_step_sequence" title="coop.tools.AStar.get_reversed_step_sequence"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_reversed_step_sequence</span></code></a>()</td>
-<td>Determines the steps leading to the goal from the initial state.</td>
-</tr>
-<tr class="row-odd"><td><a class="reference internal" href="#coop.tools.AStar.open_set_is_empty" title="coop.tools.AStar.open_set_is_empty"><code class="xref py py-obj docutils literal notranslate"><span class="pre">open_set_is_empty</span></code></a>()</td>
+<tr class="row-even"><td><a class="reference internal" href="#coop.tools.AStar.open_set_is_empty" title="coop.tools.AStar.open_set_is_empty"><code class="xref py py-obj docutils literal notranslate"><span class="pre">open_set_is_empty</span></code></a>()</td>
 <td>Tests whether the fringe is empty.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#coop.tools.AStar.run" title="coop.tools.AStar.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a>()</td>
-<td>Runs A* algorithm</td>
+<tr class="row-odd"><td><a class="reference internal" href="#coop.tools.AStar.run" title="coop.tools.AStar.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a>()</td>
+<td>Runs this A* instance.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#coop.tools.AStar.select_best" title="coop.tools.AStar.select_best"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_best</span></code></a>()</td>
+<tr class="row-even"><td><a class="reference internal" href="#coop.tools.AStar.select_best" title="coop.tools.AStar.select_best"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_best</span></code></a>()</td>
 <td>Selects the best node in the fringe on the basis of its f-value.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#coop.tools.AStar.set_new_goal" title="coop.tools.AStar.set_new_goal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_new_goal</span></code></a>(new_goal)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#coop.tools.AStar.set_new_goal" title="coop.tools.AStar.set_new_goal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_new_goal</span></code></a>(new_goal)</td>
 <td>Sets the new goal for the A* algorithm.</td>
 </tr>
 </tbody>
@@ -218,29 +215,6 @@ from the given list.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="coop.tools.AStar.get_reversed_step_sequence">
-<code class="descname">get_reversed_step_sequence</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/coop/tools.html#AStar.get_reversed_step_sequence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coop.tools.AStar.get_reversed_step_sequence" title="Permalink to this definition">¶</a></dt>
-<dd><p>Determines the steps leading to the goal from the initial state.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
-<dt><strong>list of (int, int)</strong></dt>
-<dd><p class="first last">The step sequence to take to get to the goal state from the initial
-state.</p>
-</dd>
-</dl>
-</td>
-</tr>
-</tbody>
-</table>
-<p class="rubric">Notes</p>
-<p>The returned step sequence was built as a stack so the agent must use
-<cite>pop()</cite> in order to obtain the immediate next step to take.</p>
-</dd></dl>
-
-<dl class="method">
 <dt id="coop.tools.AStar.open_set_is_empty">
 <code class="descname">open_set_is_empty</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/coop/tools.html#AStar.open_set_is_empty"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coop.tools.AStar.open_set_is_empty" title="Permalink to this definition">¶</a></dt>
 <dd><p>Tests whether the fringe is empty.</p>
@@ -262,7 +236,7 @@ state.</p>
 <dl class="method">
 <dt id="coop.tools.AStar.run">
 <code class="descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/coop/tools.html#AStar.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coop.tools.AStar.run" title="Permalink to this definition">¶</a></dt>
-<dd><p>Runs A* algorithm</p>
+<dd><p>Runs this A* instance.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -277,6 +251,9 @@ the initial state.</p>
 </tr>
 </tbody>
 </table>
+<p class="rubric">Notes</p>
+<p>The returned step sequence was built as a stack so the agent must use
+<cite>pop()</cite> in order to obtain the immediate next step to take.</p>
 </dd></dl>
 
 <dl class="method">
@@ -414,7 +391,7 @@ elements, which have to implement at least one greatness comparison function.</p
 <dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
 <dd><p class="first last">This argument contains the column number of this node.</p>
 </dd>
-<dt><strong>parent</strong> <span class="classifier-delimiter">:</span> <span class="classifier">Node, optional</span></dt>
+<dt><strong>parent</strong> <span class="classifier-delimiter">:</span> <span class="classifier">Node or None, optional</span></dt>
 <dd><p class="first last">This keyword argument points to the node preceding this node in <cite>a_star</cite>.</p>
 </dd>
 </dl>
@@ -433,7 +410,7 @@ elements, which have to implement at least one greatness comparison function.</p
 <dt><strong>y</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
 <dd><p class="first last">The storage location of the node’s column number.</p>
 </dd>
-<dt><strong>parent</strong> <span class="classifier-delimiter">:</span> <span class="classifier">Node</span></dt>
+<dt><strong>parent</strong> <span class="classifier-delimiter">:</span> <span class="classifier">Node or None</span></dt>
 <dd><p class="first last">The storage location of the node’s parent.</p>
 </dd>
 <dt><strong>cost</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
@@ -496,10 +473,10 @@ elements, which have to implement at least one greatness comparison function.</p
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
 <dt><strong>int</strong></dt>
-<dd><p class="first last">the row number of this node.</p>
+<dd><p class="first last">The row number of this node.</p>
 </dd>
 <dt><strong>int</strong></dt>
-<dd><p class="first last">the column number of this node.</p>
+<dd><p class="first last">The column number of this node.</p>
 </dd>
 </dl>
 </td>
