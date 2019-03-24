@@ -175,7 +175,8 @@ class CoopPlanner:
         self.current_player = (self.current_player + 1) % len(self.players)
 
         # calculate a new path for the agent when already met its previous one
-        if not self.players[self.current_player].has_next_step():
+        if self.players[self.current_player].is_at_goal() and \
+                self.players[self.current_player].has_next_goal():
             bef, aft = self.players[self.current_player].others
             placed = [oth.current_position for oth in bef + aft]
             placed += [oth.current_goal for oth in bef + aft]

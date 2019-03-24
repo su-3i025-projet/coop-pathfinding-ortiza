@@ -521,7 +521,7 @@ class AdvancedPlayer(CoopPlayer):
 
         """
         # the agent succeded and wishes to meet another goal
-        if self.has_next_goal():
+        if self.is_at_goal() and self.has_next_goal():
             self.pathfind(resume=False)
             if AdvancedPlayer.timer == self.search_epoch:
                 self.search_epoch += AdvancedPlayer.frequence

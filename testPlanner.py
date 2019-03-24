@@ -6,6 +6,7 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 import random
 import sys
+import time
 from itertools import chain
 
 import numpy as np
@@ -31,12 +32,12 @@ game = Game()
 def init(_boardname=None):
     global player, game
     # pathfindingWorld_MultiPlayer4
-    name = _boardname if _boardname is not None else 'pathfindingWorld_MultiPlayer1'
+    name = _boardname if _boardname is not None else 'pathfindingWorld_MultiPlayer4'
     game = Game('../Cartes/' + name + '.json', SpriteBuilder)
     game.O = Ontology(
         True, '../SpriteSheet-32x32/tiny_spritesheet_ontology.csv')
     game.populate_sprite_names(game.O)
-    game.fps = 70  # frames per second
+    game.fps = 50  # frames per second
     game.mainiteration()
     game.mask.allow_overlaping_players = True
     # player = game.player
@@ -75,11 +76,11 @@ def main():
     goalPos = []
     for o in game.layers['ramassable']:  # les rouges puis jaunes puis bleues
         # et on met la fiole qqpart au hasard
-        x = random.randint(6, 12)
-        y = random.randint(6, 12)
+        x = random.randint(7, 12)
+        y = random.randint(7, 12)
         while (x, y) in wallStates + goalPos:
-            x = random.randint(6, 12)
-            y = random.randint(6, 12)
+            x = random.randint(7, 12)
+            y = random.randint(7, 12)
         o.set_rowcol(x, y)
         goalPos.append((x, y))
         game.layers['ramassable'].add(o)
@@ -100,6 +101,8 @@ def main():
 
     goalPos = [goalStates[i:i + 1] for i in range(nbPlayers)]
 
+    t_0 = time.process_time()
+
     Node.set_world_dimensions(game.spriteBuilder.rowsize,
 
                               game.spriteBuilder.colsize)
@@ -108,16 +111,24 @@ def main():
 
     coop_planner = CoopPlanner(initStates, goalPos, wallStates)
 
-    # posPlayers=initStates
+    gpu_time = time.process_time() - t_0
 
-    previous = [(-1, -1), (-1, -1), (-1, -1)]
+    previous = [(-1, -1)] * nbPlayers
+    epoch = 0
+
+    done = 0
 
     for i in range(iterations):
-
+        epoch += 1
         current = []
 
         for j in range(nbPlayers):  # on fait bouger chaque joueur séquentiellement
+            t_0 = time.process_time()
             next_row, next_col = coop_planner.next()
+            t_f = time.process_time()
+
+            gpu_time += t_f - t_0
+
             current.append((next_row, next_col))
 
             # and ((next_row,next_col) not in posPlayers)
@@ -131,32 +142,40 @@ def main():
             if (next_row, next_col) in goalPos[j]:
                 o = players[j].ramasse(game.layers)
                 # game.mainiteration()
-                # print("Objet trouvé par le joueur ", j)
+                print("Objet trouvé par le joueur ", j)
                 # on enlève ce goalState de la liste
                 goalPos[j].remove((next_row, next_col))
                 score[j] += 1
+                done += 1
 
                 # et on remet un même objet à un autre endroit
-                x = random.randint(0, 19)
-                y = random.randint(0, 19)
-                while (x, y) in wallStates + current + [el for sub in goalPos for el in sub]:
-                    x = random.randint(1, 19)
-                    y = random.randint(1, 19)
-                o.set_rowcol(x, y)
-                print("Objet trouvé par le joueur ", j, ", new goal :", x, y)
-                goalPos[j].append((x, y))  # on ajoute ce nouveau goalState
-                game.layers['ramassable'].add(o)
-                coop_planner.add_goal(j, (x, y))
-                # print("==================>", coop_players[j].goal_positions)
+                # x = random.randint(6, 12)
+                # y = random.randint(6, 12)
+                # while (x, y) in wallStates + current + [el for sub in goalPos for el in sub]:
+                #     x = random.randint(6, 12)
+                #     y = random.randint(6, 12)
+                # o.set_rowcol(x, y)
+                # print("Objet trouvé par le joueur ", j, ", new goal :", x, y)
+                # goalPos[j].append((x, y))  # on ajoute ce nouveau goalState
+                # game.layers['ramassable'].add(o)
+                # coop_planner.add_goal(j, (x, y))
 
-        #current = [p.current_position for p in coop_planner.players]
+            if done == nbPlayers:
+                break
+
+        if done == nbPlayers:
+            break
+
         collision = False
-        if current[0] == current[1] or current[0] == current[2] or current[1] == current[2]:
-            collision = True
-        if (previous[0] == current[1] and current[0] == previous[1]) or \
-                (previous[0] == current[2] and current[0] == previous[2]) or \
-                (previous[1] == current[2] and current[1] == previous[2]):
-            collision = True
+        concurrent = [(p, q) for p in range(nbPlayers)
+                      for q in range(p + 1, nbPlayers)]
+        for p, q in concurrent:
+            if current[p] == current[q]:
+                collision = True
+                break
+            if previous[p] == current[q] and current[p] == previous[q]:
+                collision = True
+                break
         if collision:
             print("===== collision =====")
             while True:
@@ -165,8 +184,12 @@ def main():
         game.mainiteration()
         print("Ended iteration", i + 1)
         print("===================================")
-        # break
 
+    print("===================", "STATS", "===================")
+    print("Total GPU time:", gpu_time)
+    print("Number of epochs needed to complete the tasks:", epoch)
+    # print("Average number of A* iterations:",
+    #       TimeAStar.NB_ITERS / TimeAStar.NB_CALLS)
     print("scores:", score)
     pygame.quit()
 

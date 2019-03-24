@@ -6,6 +6,7 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 import random
 import sys
+import time
 from itertools import chain
 
 import numpy as np
@@ -30,12 +31,12 @@ game = Game()
 def init(_boardname=None):
     global player, game
     # pathfindingWorld_MultiPlayer4
-    name = _boardname if _boardname is not None else 'pathfindingWorld_MultiPlayer1'
+    name = _boardname if _boardname is not None else 'pathfindingWorld_MultiPlayer4'
     game = Game('../Cartes/' + name + '.json', SpriteBuilder)
     game.O = Ontology(
         True, '../SpriteSheet-32x32/tiny_spritesheet_ontology.csv')
     game.populate_sprite_names(game.O)
-    game.fps = 70  # frames per second
+    game.fps = 50  # frames per second
     game.mainiteration()
     game.mask.allow_overlaping_players = True
     # player = game.player
@@ -60,19 +61,9 @@ def main():
     nbPlayers = len(players)
     score = [0] * nbPlayers
 
-    initStates = [(3, 3), (6, 3), (12, 13)]
-    for i, p in enumerate(game.layers['joueur']):
-        p.set_rowcol(*initStates[i])
-
-    goalStates = [(6, 1), (3, 8), (19, 19)]
-    for i, o in enumerate(game.layers['ramassable']):
-        o.set_rowcol(*goalStates[i])
-
-    game.mainiteration()
-
     # on localise tous les états initiaux (loc du joueur)
-    # initStates = [o.get_rowcol() for o in game.layers['joueur']]
-    # print("Init states:", initStates)
+    initStates = [o.get_rowcol() for o in game.layers['joueur']]
+    print("Init states:", initStates)
 
     # on localise tous les murs
     wallStates = [w.get_rowcol() for w in game.layers['obstacle']]
@@ -81,17 +72,18 @@ def main():
     # -------------------------------
     # Placement aleatoire des fioles
     # -------------------------------
-
-    # for o in game.layers['ramassable']:  # les rouges puis jaunes puis bleues
-    #     # et on met la fiole qqpart au hasard
-    #     x = random.randint(7, 12)
-    #     y = random.randint(7, 12)
-    #     while (x, y) in wallStates:
-    #         x = random.randint(7, 12)
-    #         y = random.randint(7, 12)
-    #     o.set_rowcol(x, y)
-    #     game.layers['ramassable'].add(o)
-    #     game.mainiteration()
+    goalPos = []
+    for o in game.layers['ramassable']:  # les rouges puis jaunes puis bleues
+        # et on met la fiole qqpart au hasard
+        x = random.randint(7, 12)
+        y = random.randint(7, 12)
+        while (x, y) in wallStates + goalPos:
+            x = random.randint(7, 12)
+            y = random.randint(7, 12)
+        o.set_rowcol(x, y)
+        goalPos.append((x, y))
+        game.layers['ramassable'].add(o)
+        game.mainiteration()
 
     print(game.layers['ramassable'])
 
@@ -109,6 +101,9 @@ def main():
     goalPos = {i: goalStates[i:i + 1] for i in range(nbPlayers)}
 
     coop_players = []
+
+    t_0 = time.process_time()
+
     for i in range(nbPlayers):
         coop_players.append(CoopPlayer(
             initStates[i], goalPos[i], wallStates))
@@ -118,14 +113,22 @@ def main():
 
     CoopPlayer.set_cut_off_limit(5)
 
-    # posPlayers=initStates
+    gpu_time = time.process_time() - t_0
 
-    previous = [(-1, -1), (-1, -1), (-1, -1)]
+    previous = [(-1, -1)] * nbPlayers
+    epoch = 0
+
+    done = 0
 
     for i in range(iterations):
+        epoch += 1
 
         for j in range(nbPlayers):  # on fait bouger chaque joueur séquentiellement
+            t_0 = time.process_time()
             next_row, next_col = coop_players[j].next()
+            t_f = time.process_time()
+
+            gpu_time += t_f - t_0
 
             # and ((next_row,next_col) not in posPlayers)
             if ((next_row, next_col) not in wallStates) and next_row >= 0 and next_row <= 19 and next_col >= 0 and next_col <= 19:
@@ -138,32 +141,38 @@ def main():
             if (next_row, next_col) in goalPos[j]:
                 o = players[j].ramasse(game.layers)
                 # game.mainiteration()
-                print("\nObjet trouvé par le joueur ", j, end='')
+                print("\nObjet trouvé par le joueur ", j)  # , end='')
                 # on enlève ce goalState de la liste
                 goalPos[j].remove((next_row, next_col))
                 score[j] += 1
+                done += 1
 
                 # et on remet un même objet à un autre endroit
-                x = random.randint(6, 12)
-                y = random.randint(6, 12)
-                while (x, y) in wallStates:
-                    x = random.randint(6, 12)
-                    y = random.randint(6, 12)
-                o.set_rowcol(x, y)
-                goalPos[j].append((x, y))  # on ajoute ce nouveau goalState
-                game.layers['ramassable'].add(o)
-                coop_players[j].add_goal((x, y))
-                print('\tnew goal at', (x, y))
-                # print("==================>", coop_players[j].goal_positions)
+                # x = random.randint(6, 12)
+                # y = random.randint(6, 12)
+                # while (x, y) in wallStates:
+                #     x = random.randint(6, 12)
+                #     y = random.randint(6, 12)
+                # o.set_rowcol(x, y)
+                # goalPos[j].append((x, y))  # on ajoute ce nouveau goalState
+                # game.layers['ramassable'].add(o)
+                # coop_players[j].add_goal((x, y))
+                # print('\tnew goal at', (x, y))
+
+            if done == nbPlayers:
+                break
 
         current = [p.current_position for p in coop_players]
         collision = False
-        if current[0] == current[1] or current[0] == current[2] or current[1] == current[2]:
-            collision = True
-        if (previous[0] == current[1] and current[0] == previous[1]) or \
-                (previous[0] == current[2] and current[0] == previous[2]) or \
-                (previous[1] == current[2] and current[1] == previous[2]):
-            collision = True
+        concurrent = [(p, q) for p in range(nbPlayers)
+                      for q in range(p + 1, nbPlayers)]
+        for p, q in concurrent:
+            if current[p] == current[q]:
+                collision = True
+                break
+            if previous[p] == current[q] and current[p] == previous[q]:
+                collision = True
+                break
         if collision:
             print("===== collision =====")
             while True:
@@ -172,8 +181,15 @@ def main():
         game.mainiteration()
         print("Ended iteration", i + 1)
         print("===================================")
-        # break
 
+        if done == nbPlayers:
+            break
+
+    print("===================", "STATS", "===================")
+    print("Total GPU time:", gpu_time)
+    print("Number of epochs needed to complete the tasks:", epoch)
+    # print("Average number of A* iterations:",
+    #       TimeAStar.NB_ITERS / TimeAStar.NB_CALLS)
     print("scores:", score)
     pygame.quit()
 
