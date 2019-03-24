@@ -311,7 +311,7 @@ class CoopPlayer:
 
     @property
     def next_position(self):
-        """Determines this agent's position after taking its next.
+        """Determines this agent's position after taking its next step.
 
         Returns
         -------
@@ -321,7 +321,7 @@ class CoopPlayer:
         Notes
         -----
         This method does not pop out the next step. If you wish to do it,
-        however, see :meth:`~coop.players.CoopPlayer.get_next_position`.
+        however, use :meth:`~coop.players.CoopPlayer.get_next_position`.
 
         """
         return self.get_position_after(self.steps[-1:])

@@ -85,31 +85,67 @@
 \addcontentsline{toc}{part}{Introduction}
 
 De nos jours, c'est un fait que les robots se sont r\'epandus dans les industries et ils ont ainsi remplac\'e, parfois compl\`etement, l'humain dans certaines t\^aches. 
-Par exemple, ils sont de plus en plus utilis\'es dans les actes chirurgicaux, comme la laparoscopie, du fait de leur pr\'ecision. Pour d'autres t\^aches, comme le d\'eplacement de marchandises ou des objets lourds dans les usines, il est aussi plus int\'eressant de les attribuer aux robots.
+Par exemple, ils sont de plus en plus utilis\'es dans les actes chirurgicaux, comme la laparoscopie, du fait de leur pr\'ecision.
+Pour d'autres t\^aches, comme le d\'eplacement de marchandises ou des objets lourds dans les usines, il est aussi plus int\'eressant de les attribuer aux robots.
 
-Mettons-nous dans cette derni\`ere situation. Nous avons une entreprise ABC qui compte plusieurs robots charg\'es de d\'eplacer des marchandises \`a l'int\'erieur d'une usine. 
-Il est \'evident que l'objectif est d'effectuer des d\'eplacements de mani\`ere efficace, i.e.\ des trajets plus courts. 
+Mettons-nous dans cette derni\`ere situation.
+Nous avons une entreprise ABC qui compte plusieurs robots charg\'es de d\'eplacer des marchandises \`a l'int\'erieur d'une usine. 
+Il est \'evident que l'objectif est d'effectuer des d\'eplacements de mani\`ere efficiente, i.e.\ des trajets plus courts. 
 Supposons de plus que les objets \`a ramasser sont r\'epartis entre l'ensemble de robots de sorte qu'il n'y ait qu'un seul robot ciblant un objet.
 
-La premi\`ere r\'eponse na\"ive au probl\`eme des d\'eplacements est de calculer, pour chaque entit\'e, le plus court chemin \`a son but et de les faire emprunter ces chemins. En effet, plusieurs algorithmes de tr\`es bonnes complexit\'es temporelles et spatiales  sont connus pour la recherche des plus courts chemins. Cependant, nous nous apercevons que cette approche est \'erron\'ee car elle a n\'eglig\'e les potentielles collisions qui peuvent survenir en cours de route.
+La premi\`ere r\'eponse na\"ive au probl\`eme des d\'eplacements est de calculer, pour chaque entit\'e, le plus court chemin \`a son but compte tenu des obstacles et de les faire emprunter ces chemins.
+En effet, plusieurs algorithmes de tr\`es bonne complexit\'e temporelle  sont connus \`a cet effet.
+Cependant, nous nous apercevons que cette approche n'est pas efficace car elle n\'eglige les potentielles collisions qui peuvent survenir en cours de route.
 
-Cela nous amene \`a concevoir une autre strat\'egie tenant compte des possibles collisions pour r\'esoudre ce probl\`eme. Il s'agit ainsi du probl\`eme de la recherche coop\'erative (en anglais \textit{Cooperative Pathfinding}).
+Cela nous amene \`a concevoir une autre strat\'egie tenant compte des possibles collisions pour r\'esoudre ce probl\`eme.
+Il s'agit ainsi du probl\`eme de la recherche coop\'erative (en anglais \textit{Cooperative Pathfinding}).
 
-Dans le cadre de l'UE 3I025 - Introduction \`a l'intelligence artificielle et la recherche op\'erationnelle, le sujet du premier projet propos\'e prend la forme du probl\`eme \textit{Cooperative Pathfinding} et consiste \`a le r\'esoudre au travers des diff\'erentes strat\'egies appel\'ees opportuniste, coop\'erative de base et coop\'erative avanc\'ee.
+Dans le cadre de l'UE 3I025 - Introduction \`a l'intelligence artificielle et la recherche op\'erationnelle, le sujet du premier projet propos\'e prend la forme du probl\`eme du \textit{Cooperative Pathfinding} et il consiste \`a r\'esoudre ce probl\`eme au travers des diff\'erentes strat\'egies appel\'ees opportuniste, coop\'erative de base et coop\'erative avanc\'ee.
 
 Dans la suite de ce document, je vais expliquer en d\'etail les sp\'ecifications du sujet, mes choix d'impl\'ementation et commenter mes r\'esultats obtenus.
 
 \newpage
-\part{Pr\'esetation}
+\part{Pr\'esentation}
+Dans le cadre de ce projet, le probl\`eme du \textit{Cooperative Pathfinding} prend la forme d'une grille rectangulaire \`a deux dimensions.
+Elle comporte trois types d'objets : les joueurs, les fioles et les murs.
+Un joueur peut se d\'eplacer sur la carte, prendre une fiole s'il y en a une sur sa case, mais ne peut pas traverser les murs ni les autres joueurs, ce que l'on appelera une \textit{collision}.
 
+Trois types de collisions ont \'et\'e d\'efinis :
+\begin{enumerate}[(I)]
+ \item la \textit{concurrence}, o\`u deux agents veulent tous les deux se diriger vers la m\^eme position \`a l'instant suivant ;
+ \item le \textit{croisement}, o\`u deux agents se traversent l'un l'autre en un instant de temps ;
+ \item la \textit{poursuite}, o\`u un agent se dirige vers un emplacement d\'ej\`a occup\'e par un autre agent qui avance dans son chemin en ne traversant le premier agent. 
+\end{enumerate}
+Les deux premi\`eres collisions sont dites \textit{frontales}, puisqu'elles n'arrivent que lorsque les deux agents se trouvent face \`a face.
 
-L'environnement de travail de ce projet a \'et\'e \texttt{PySpriteWorld} qui
-Ce projet a consist\'e \`a concevoir diff\'erentes strat\'egies pour 
+Par ailleurs, le probl\`eme a \'et\'e consid\'er\'e comme \'etant \`a information compl\`ete. 
+Autrement dit, les agents connaissent l'int\'egralit\'e de la carte, ce qui correspond \`a l'emplacement des obstacles, et la position de leurs pairs et leurs tr\'esors associ\'es.
+Nonobstant, un joueur ne peut r\'ecup\'erer que la fiole qui lui a \'et\'e associ\'e au d\'epart.
+
+Le but est alors de trouver les plus courts chemins des agents \`a leur fiole respective tout en \'evitant les collisions entre les agents.
+\`A cet effet, trois strat\'egies ont \'et\'e propos\'ees : la strat\'egie opportuniste, la coop\'eration de base et la coop\'eration avanc\'ee.
+
+Il est important de remarquer que l'ordre de passage des agents est d\'efini et fix\'e lors de l'instanciation du probl\`eme : il correspond \`a l'ordre de cr\'eation des agents.
 
 \part{Strat\'egies}
+La base de toutes mes strat\'egies de r\'esolution du probl\`eme du \textit{Cooperative Pathfinding} est la recherche du plus court chemin dans une carte avec obstacles. 
+Pour ce faire, j'ai utilis\'e l'algorithme A*.
+Puis, j'ai impl\'ement\'e trois fa\c{c}ons de g\'erer les potentielles collisions sur la carte : elles correspondent aux strat\'egies d\'etaill\'ees ci-dessous.
 
 \section{Opportunisme}
-\textit{local repair}
+Pour cette strat\'egie, uniquement les collisions frontales ont \'et\'e consid\'er\'ees.
+
+La premi\`ere strat\'egie, appel\'ee \textbf{opportuniste} ou encore \textit{local repair}, consiste \`a d\'emarrer le chemin de tous les agents en m\^eme temps et de g\'erer les collisions lorsqu'elles sont imminentes.
+Pour ce faire, j'ai utilis\'e la m\'ethode connue comme \textit{path splicing}.
+
+Lorsqu'un agent d\'etecte que la suite de son chemin l'amene vers une collision \`a l'instant suivant, il d\'ecide de recalculer une partie de son chemin. Pour ce faire, il utilise de nouveau l'algorithme A* jusqu'au bout de la portion de chemin \`a remplacer en tenant compte des positions bloqu\'ees par la collision. Puis, il joint les deux morceaux de chemin et suit ce nouveau chemin. Ce comportement implique que la gestion des collisions est laiss\'ee \`a la charge du premier agent (dans l'ordre de passage) concern\'e.
+
+J'ai trouv\'e deux points importants \`a remarquer dans cette m\'ethode. D'une part, la longueur de la portion de chemin \`a recalculer joue un r\^ole crucial. En effet, si l'agent est amen\'e \`a calculer des longs morceaux de chemin et que les collisions sont fr\'equentes, il passera la majorit\'e de son temps \`a faire des calculs inutiles, puisqu'il ne suivra qu'une infime partie des chemins calcul\'es. C'est pourquoi, tout au long de mes tests, j'ai utilis\'e une \textit{longueur de coupure} valant 5.
+
+D'une autre part, il se peut que le chemin restant pour atteindre la fiole respective ne soit pas plus long que la longueur de coupure fix\'ee. Dans ce cas, l'agent supprime son chemin restant et fait un pas al\'eatoire valide dans l'une des positions adjacentes, y compris sa position courante. Il s'av\`ere que cette \textit{randomisation} all\`ege le temps de calcul et simplifie la suite, \'etant donn\'e qu'elle repousse la recherche du chemin restant \`a l'instant suivant o\`u les agents concern\'es se trouvent dans d'autres positions. De plus, le pas al\'eatoire est tr\`es utile lorsque la position de collision se trouve dans une zone concentr\'ee d'agents, et surtout lorsqu'il est nul, i.e.\ l'agent reste immobile, dans quel cas le co\^ut associ\'e est 0.
+
+\todo{add to conclusion}
+Cette strat\'egie m'a permis de r\'esoudre la plus part des collisions, mais le nombre de pas en moyenne pour rammasser toutes les fioles est assez elev\'e.
 
 \section{Coop\'eration na\"ive}
 \textit{planification}
