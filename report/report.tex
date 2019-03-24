@@ -110,8 +110,8 @@ La base de toutes mes strat\'egies de r\'esolution du probl\`eme du \textit{Coop
 Pour ce faire, j'ai utilis\'e l'algorithme A*.
 Puis, j'ai impl\'ement\'e trois fa\c{c}ons de g\'erer les potentielles collisions sur la carte : elles correspondent aux strat\'egies d\'etaill\'ees dans les sections qui suivent.
 
-Pour la premi\`ere approche, j'ai pris en compte uniquement les collisions frontales pour faciliter le recalcul de chemin. 
-Quant aux deux autres, les trois types de collisions ont \'et\'e consid\'er\'es du fait de leur conception plus pouss\'ee.
+Pour la premi\`ere et la troisi\`eme approche, j'ai pris en compte uniquement les collisions frontales pour faciliter le recalcul de chemin. 
+Quant \`a la deuxi\`eme, les trois types de collisions ont \'et\'e consid\'er\'es du fait de sa conception stricte.
 
 \subsection{Opportunisme}
 La premi\`ere strat\'egie, dite \textit{opportuniste}, consiste \`a d\'emarrer le chemin de tous les agents en m\^eme temps et de g\'erer les collisions lorsqu'elles sont imminentes.
@@ -150,9 +150,6 @@ Comme la recherche de A* invers\'e est stock\'ee en m\'emoire, il est raisonnabl
 De plus, tous les agents anticipent les collisions, et donc certaines mesures lointaines peuvent ne pas \^etre n\'ecessaires lorsque arriv\'es \`a ce point, ce qui les rend inutiles.
 De ces faits, la recherche d'un agent est effectu\'ee par \textit{fen\^etre fixe} : elle n'est pas ex\'ecut\'ee jusqu'\`a l'atteignement du but, mais pour un nombre de pas fix\'es appel\'e \textit{fen\^etre}, et ce, m\^eme si l'agent arrive \`a la position de sa fiole avec moins de pas.
 
-J'ai constat\'e que la valeur de cette fen\^etre a un gros impact sur la performance de cette strat\'egie.
-En effet, pour des valeurs de l'ordre de 6, le nombre de pas moyens \todo{test}.
-
 Pour que ces recherches soient efficientes, mais que la pr\'esence de l'agent dans la table de r\'eservation reste consid\'erable, j'ai fix\'e la \textit{fr\'equence de recherche} \`a la moiti\'e de ladite fen\^etre.
 Cependant, cette m\'ethode reste encore sous-optimale du fait que les derniers agents \`a passer ne disposent que d'un nombre limit\'e de choix lors de leurs recherches.
 Pour y rem\'edier, les recherches sont intercal\'ees. 
@@ -161,10 +158,8 @@ Les agents sont class\'es dans divers groupes comportant \`a peu pr\`es le m\^em
 Cette m\'ethode circulaire r\'eduit le d\'esavantage d'un agent \`a son groupe, puisque cet ensemble sera \`a un moment le premier \`a r\'eserver des positions.
 En outre, cette approche am\'eliore la coop\'eration des agents parce que l'agent qui a d\'ej\`a r\'eussi son but se verra oblig\'e de se d\'ecaler dans son avenir proche lorsque l'un des autres aura r\'eserv\'e au pr\'ealable la position sur laquelle il se trouve actuellement.
 
-
-
-tt 
-Les agents 
+J'ai constat\'e que la valeur de la fr\'equence des recherches a un gros impact sur la performance de cette strat\'egie.
+En effet, pour des valeurs sup\'erieures \`a 4, notamment \`a partir de 8, le temps CPU et le nombre de pas n\'ecessaires, tous les agents confondus, deviennent plus grands et le rendu graphique est moins fluide, ce qui correspond \`a l'augmentation du nombre d'it\'erations de A* spatio-temporel.
 
 \section{Conclusion}
 Premi\`ere strat\'egie:

@@ -111,7 +111,7 @@ def main():
 
     coop_planner = CoopPlanner(initStates, goalPos, wallStates)
 
-    gpu_time = time.process_time() - t_0
+    cpu_time = time.process_time() - t_0
 
     previous = [(-1, -1)] * nbPlayers
     epoch = 0
@@ -127,7 +127,7 @@ def main():
             next_row, next_col = coop_planner.next()
             t_f = time.process_time()
 
-            gpu_time += t_f - t_0
+            cpu_time += t_f - t_0
 
             current.append((next_row, next_col))
 
@@ -186,7 +186,7 @@ def main():
         print("===================================")
 
     print("===================", "STATS", "===================")
-    print("Total GPU time:", gpu_time)
+    print("Total CPU time:", cpu_time)
     print("Number of epochs needed to complete the tasks:", epoch)
     # print("Average number of A* iterations:",
     #       TimeAStar.NB_ITERS / TimeAStar.NB_CALLS)

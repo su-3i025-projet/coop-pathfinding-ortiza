@@ -10,7 +10,7 @@ from functools import reduce
 
 from .players import CoopPlayer
 from .strategies import NaiveStrategy
-from .tools import AStar, Heap, Node
+from .tools import AStar, Node
 
 
 class TimeNode(Node):
@@ -137,9 +137,11 @@ class TimeNode(Node):
             if (x, y) in self.a_star.walls or not TimeNode.is_valid(x, y):
                 continue
 
-            # the cell is currently available
+            # the cell is currently available or there is not a collision if taken
             try:
-                if AdvancedPlayer.reservation_table[(x, y, t)] != player_id:
+                other_id = AdvancedPlayer.reservation_table[(x, y, t)]
+                if other_id != player_id and \
+                        other_id == AdvancedPlayer.reservation_table[(self.x, self.y, t + 1)]:
                     continue
             except:
                 pass
@@ -241,7 +243,7 @@ class TimeAStar(AStar):
         self.walls = walls
         self.last_epoch = last_epoch if last_epoch is not None \
             else initial_epoch + AdvancedPlayer.frequence
-        self.open_set = Heap([self.initial_state])
+        self.open_set = [self.initial_state]
         self.closed_set = []
         self.backwards_search = backwards_search if backwards_search is not None \
             else AStar(goal_state, initial_state, walls)
@@ -435,8 +437,8 @@ class AdvancedPlayer(CoopPlayer):
         d = cls.frequence
         players_per_epoch = n // d
         cnt = 0
-        for t in range(d):
-            for _ in range(players_per_epoch):
+        for _ in range(players_per_epoch):
+            for t in range(d):
                 cls.players[cnt].__set_search_epoch(t)
                 cnt += 1
         rem = n - cnt

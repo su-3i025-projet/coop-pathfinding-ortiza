@@ -244,182 +244,6 @@ class Node:
         return self.f() < other.f()
 
 
-class Heap:
-    """A priority queue assuring unicity.
-
-    Parameters
-    ----------
-    elements : list of comparable object, optional
-        This argument is used to initialise the heap.
-
-    Attributes
-    ----------
-    size
-
-    Notes
-    -----
-    This priority queue implementation uses a list as the container of the
-    elements, which have to implement at least one greatness comparison function.
-
-    """
-
-    def __init__(self, elements=[]):
-        self.__set = []
-        self.__size = 0
-        for el in elements:
-            self.push(el)
-
-    @property
-    def size(self):
-        """The size of the heap"""
-        return self.__size
-
-    def __content(self, index):
-        """The content at the given index in the list.
-
-        Parameters
-        ----------
-        index : int
-            The index of the wanted element.
-
-        Returns
-        -------
-        comparable object
-            The element at `index` in the list.
-
-        """
-        return self.__set[index]
-
-    def __left_child(self, node):
-        """The index of the left child of the given node.
-
-        Parameters
-        ----------
-        node : int
-            The index of the parent node.
-
-        Returns
-        -------
-        int
-            The index of the left child node.
-
-        """
-        return 2 * node + 1
-
-    def __right_child(self, node):
-        """The index of the right child of the given node.
-
-        Parameters
-        ----------
-        node : int
-            The index of the parent node.
-
-        Returns
-        -------
-        int
-            The index of the right child node.
-
-        """
-        return 2 * node + 2
-
-    def __is_leaf(self, node):
-        """Tests whether the given node is a leaf.
-
-        Parameters
-        ----------
-        node : int
-            The node to verify.
-
-        Returns
-        -------
-        bool
-            True iff the node does not have any children.
-
-        """
-        return self.__left_child(node) > self.__last()
-
-    def __max_child(self, node):
-        """The index of the given node's child with the highest priority.
-
-        Parameters
-        ----------
-        node : int
-            The index of the parent node.
-
-        Returns
-        -------
-        int
-            The index of child node with the highest priority.
-
-        """
-        max_child = self.__left_child(node)
-        if self.__right_child(node) <= self.__last() and \
-                self.__content(self.__right_child(node)) < self.__content(max_child):
-            max_child = self.__right_child(node)
-        return max_child
-
-    def __parent(self, n):
-        return (n - 1) // 2
-
-    def __root(self):
-        return 0
-
-    def __last(self):
-        return self.size - 1
-
-    def __is_root(self, n):
-        return n == self.__root()
-
-    def __swap(self, n, m):
-        self.__set[n], self.__set[m] = self.__set[m], self.__set[n]
-
-    def __update_bottom_up(self):
-        node = self.__last()
-        while not self.__is_root(node):
-            parent = self.__parent(node)
-            if self.__content(node) < self.__content(parent):
-                self.__swap(node, parent)
-                node = parent
-            else:
-                break
-
-    def __update_top_down(self):
-        node = self.__root()
-        while not self.__is_leaf(node):
-            max_child = self.__max_child(node)
-            if self.__content(node) < self.__content(max_child):
-                break
-            else:
-                self.__swap(node, max_child)
-                node = max_child
-
-    def is_empty(self):
-        """Tests emptyness
-        """
-        return self.size == 0
-
-    def push(self, el):
-        """
-        unicity
-        """
-        try:
-            index = self.__set.index(el)
-            if el < self.__content(index):
-                self.__set[index] = el
-        except:
-            self.__size += 1
-            self.__set.append(el)
-            self.__update_bottom_up()
-
-    def pop(self):
-        """Removes the element with the highest priority.
-        """
-        self.__swap(self.__root(), self.__last())
-        self.__size -= 1
-        self.__update_top_down()
-        return self.__set.pop()
-
-
 class AStar:
     """An execution of the A* algorithm.
 
@@ -451,7 +275,7 @@ class AStar:
         self.initial_state = Node(self, *initial_state)
         self.goal_state = Node(self, *goal_state)
         self.walls = walls
-        self.open_set = Heap([self.initial_state])
+        self.open_set = [self.initial_state]
         self.closed_set = []
 
     def set_new_goal(self, new_goal):
@@ -474,7 +298,7 @@ class AStar:
             True iff the fringe is empty.
 
         """
-        return self.open_set.is_empty()  # self.open_set == []
+        return self.open_set == []
 
     def select_best(self):
         """Selects the best node in the fringe on the basis of its f-value.
@@ -485,8 +309,7 @@ class AStar:
             The node of the fringe with the lowest f-value.
 
         """
-        # return heapq.heappop(self.open_set)
-        return self.open_set.pop()
+        return heapq.heappop(self.open_set)
 
     def get_node_at(self, coordinates):
         """Retrieves the node with the given coordinates in the closed set.
@@ -517,8 +340,7 @@ class AStar:
 
         """
         for st in states:
-            # heapq.heappush(self.open_set, st)
-            self.open_set.push(st)
+            heapq.heappush(self.open_set, st)
 
     def get_not_extended(self, states):
         """Filters out already extended nodes from the given list of nodes.

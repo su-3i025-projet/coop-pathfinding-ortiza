@@ -113,7 +113,7 @@ def main():
 
     CoopPlayer.set_cut_off_limit(5)
 
-    gpu_time = time.process_time() - t_0
+    cpu_time = time.process_time() - t_0
 
     previous = [(-1, -1)] * nbPlayers
     epoch = 0
@@ -128,7 +128,7 @@ def main():
             next_row, next_col = coop_players[j].next()
             t_f = time.process_time()
 
-            gpu_time += t_f - t_0
+            cpu_time += t_f - t_0
 
             # and ((next_row,next_col) not in posPlayers)
             if ((next_row, next_col) not in wallStates) and next_row >= 0 and next_row <= 19 and next_col >= 0 and next_col <= 19:
@@ -186,7 +186,7 @@ def main():
             break
 
     print("===================", "STATS", "===================")
-    print("Total GPU time:", gpu_time)
+    print("Total CPU time:", cpu_time)
     print("Number of epochs needed to complete the tasks:", epoch)
     # print("Average number of A* iterations:",
     #       TimeAStar.NB_ITERS / TimeAStar.NB_CALLS)

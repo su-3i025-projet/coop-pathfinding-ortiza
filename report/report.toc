@@ -1,8 +1,0 @@
-\babel@toc {french}{}
-\contentsline {part}{Introduction}{1}{part*.4}
-\contentsline {part}{I\hspace {1em}Pr\'esentation}{2}{part.1}
-\contentsline {part}{II\hspace {1em}Strat\'egies}{2}{part.2}
-\contentsline {section}{Opportunisme}{2}{section*.5}
-\contentsline {section}{Coop\'eration na\"ive}{2}{section*.6}
-\contentsline {section}{Coop\'eration avanc\'ee}{2}{section*.7}
-\contentsline {part}{Conclusion}{3}{part*.8}
