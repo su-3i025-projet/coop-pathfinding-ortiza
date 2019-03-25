@@ -136,11 +136,13 @@ class TimeNode(Node):
         valid_neighbours = []
         t = self.t
         for x, y in neighbours:
-            # the cell is not a wall nor an invalid position (outside the grid)
+            # assert that the cell is not a wall nor an invalid position
+            # (outside the grid)
             if (x, y) in self.a_star.walls or not TimeNode.is_valid(x, y):
                 continue
 
-            # the cell is currently available or there is not a collision if taken
+            # assert that the cell is currently available, otherwise
+            # there must be no collision if the step is taken
             try:
                 other_id = AdvancedPlayer.reservation_table[(x, y, t)]
                 if other_id != player_id and \
@@ -250,12 +252,7 @@ class TimeAStar(AStar):
         self.closed_set = []
         self.backwards_search = backwards_search if backwards_search is not None \
             else AStar(goal_state, initial_state, walls)
-        self.__initial_reservation(initial_epoch)
-
-    def __initial_reservation(self, initial_epoch):
-        AdvancedPlayer.reservation_table[self.initial_state.coordinates] = self.player_id
-        next_coordinates = (*self.initial_state.position, initial_epoch + 1)
-        AdvancedPlayer.reservation_table[next_coordinates] = self.player_id
+        AdvancedPlayer.reservation_table[self.initial_state.coordinates] = player_id
 
     def true_distance(self, position):
         """Calculates the true distance from the given position to the goal.
@@ -321,11 +318,7 @@ class TimeAStar(AStar):
             t -= 1
             steps.append(current_state.get_step())
             AdvancedPlayer.reservation_table[current_state.coordinates] = self.player_id
-            AdvancedPlayer.reservation_table[(
-                *current_state.position, t)] = self.player_id
             current_state = current_state.parent
-            AdvancedPlayer.reservation_table[(
-                *current_state.position, t + 1)] = self.player_id
         return steps
 
 

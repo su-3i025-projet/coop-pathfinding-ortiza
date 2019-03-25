@@ -111,7 +111,7 @@ def main():
     Node.set_world_dimensions(game.spriteBuilder.rowsize,
                               game.spriteBuilder.colsize)
 
-    AdvancedPlayer.set_pathfinding_frequence(4)
+    AdvancedPlayer.set_pathfinding_frequence(6)
     AdvancedPlayer.set_search_epochs()
 
     cpu_time = time.process_time() - t_0
