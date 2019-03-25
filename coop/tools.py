@@ -87,7 +87,7 @@ class Node:
         cls.NB_ROWS = nb_rows
         cls.NB_COLUMNS = nb_columns
 
-    def __init_cost(self):  # TODO: doc
+    def __init_cost(self):
         if self.has_parent():
             # staying put has cost 0
             if self.get_step() == (0, 0):

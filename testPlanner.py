@@ -76,11 +76,11 @@ def main():
     goalPos = []
     for o in game.layers['ramassable']:  # les rouges puis jaunes puis bleues
         # et on met la fiole qqpart au hasard
-        x = random.randint(7, 12)
-        y = random.randint(7, 12)
+        x = random.randint(0, 19)
+        y = random.randint(0, 19)
         while (x, y) in wallStates + goalPos:
-            x = random.randint(7, 12)
-            y = random.randint(7, 12)
+            x = random.randint(0, 19)
+            y = random.randint(0, 19)
         o.set_rowcol(x, y)
         goalPos.append((x, y))
         game.layers['ramassable'].add(o)
@@ -149,22 +149,23 @@ def main():
                 done += 1
 
                 # et on remet un même objet à un autre endroit
-                # x = random.randint(6, 12)
-                # y = random.randint(6, 12)
-                # while (x, y) in wallStates + current + [el for sub in goalPos for el in sub]:
-                #     x = random.randint(6, 12)
-                #     y = random.randint(6, 12)
-                # o.set_rowcol(x, y)
-                # print("Objet trouvé par le joueur ", j, ", new goal :", x, y)
-                # goalPos[j].append((x, y))  # on ajoute ce nouveau goalState
-                # game.layers['ramassable'].add(o)
-                # coop_planner.add_goal(j, (x, y))
+                x = random.randint(0, 19)
+                y = random.randint(0, 19)
+                while (x, y) in wallStates + current + [el for sub in goalPos for el in sub]:
+                    x = random.randint(0, 19)
+                    y = random.randint(0, 19)
+                o.set_rowcol(x, y)
+                print("Objet trouvé par le joueur ", j, ", new goal :", x, y)
+                goalPos[j].append((x, y))  # on ajoute ce nouveau goalState
+                game.layers['ramassable'].add(o)
+                coop_planner.add_goal(j, (x, y))
 
-            if done == nbPlayers:
-                break
+            # if done == nbPlayers:
+            #     break
 
-        if done == nbPlayers:
-            break
+        # if done == nbPlayers:
+        #     game.mainiteration()
+        #     break
 
         collision = False
         concurrent = [(p, q) for p in range(nbPlayers)
