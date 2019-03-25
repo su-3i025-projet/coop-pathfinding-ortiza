@@ -357,7 +357,6 @@ class CoopPlayer:
         if self.has_next_step():
             obstacle = self.collision(*self.others)
             if obstacle is not None:
-                print("Collision:", self.current_position, obstacle)
                 self.handle_collision(obstacle)
             return self.get_next_position()
 

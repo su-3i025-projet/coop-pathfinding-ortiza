@@ -1,20 +1,16 @@
-# -*- coding: utf-8 -*-
-
-# Nicolas, 2015-11-18
-
 from __future__ import absolute_import, print_function, unicode_literals
 
 import random
 import sys
 import time
-from itertools import chain
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pygame
 
-import utils.glo as glo
 from coop.planner import CoopPlanner
 from coop.players import CoopPlayer
+from coop.strategies import AverageGroupDurationStrategy, GroupLengthStrategy
 from coop.tools import Node
 from utils.gameclass import Game, check_init_game_done
 from utils.ontology import Ontology
@@ -31,28 +27,73 @@ game = Game()
 
 def init(_boardname=None):
     global player, game
-    # pathfindingWorld_MultiPlayer4
     name = _boardname if _boardname is not None else 'pathfindingWorld_MultiPlayer4'
     game = Game('../Cartes/' + name + '.json', SpriteBuilder)
     game.O = Ontology(
         True, '../SpriteSheet-32x32/tiny_spritesheet_ontology.csv')
     game.populate_sprite_names(game.O)
-    game.fps = 50  # frames per second
+    game.fps = 200  # frames per second
     game.mainiteration()
     game.mask.allow_overlaping_players = True
     # player = game.player
 
 
 def main():
+    iterations = 1
+    min_vials = 10
+    max_vials = 51
+    step_vials = 10
 
-    # for arg in sys.argv:
-    iterations = 50  # default
-    if len(sys.argv) == 2:
-        iterations = int(sys.argv[1])
-    print("Iterations: ")
-    print(iterations)
+    vials = np.arange(min_vials, max_vials, step_vials)
+    average_time = np.zeros_like(vials, dtype=np.float)
+    length_time = np.zeros_like(vials, dtype=np.float)
+    average_epochs = np.zeros_like(vials, dtype=np.float)
+    length_epochs = np.zeros_like(vials, dtype=np.float)
 
-    init()
+    cpu_time = [average_time, length_time]
+    epochs = [average_epochs, length_epochs]
+
+    strategies = [AverageGroupDurationStrategy, GroupLengthStrategy]
+    legend = ['Average group duration-based', 'Group length-based']
+
+    for ist, strat in enumerate(strategies):
+        for iv, vs in enumerate(vials):
+            for _ in range(iterations):
+                init()
+                exec_time, ep = test(strat, vs)
+                cpu_time[ist][iv] += exec_time
+                epochs[ist][iv] += ep
+            print("Vials:", vs, "done")
+        cpu_time[ist] /= iterations
+        epochs[ist] /= iterations
+        print(legend[ist], "done")
+    print(cpu_time)
+    print(epochs)
+    plot(vials, cpu_time, 'CPU time (s)', legend, '../img/planner_cpu_time')
+    plot(vials, epochs, 'Average number of epochs',
+         legend, '../img/planner_epoch')
+    pygame.quit()
+
+
+def plot(xs, ys, y_label, legend, name):
+    for y in ys:
+        plt.plot(xs, y)
+    plt.xlabel("Number of vials")
+    plt.ylabel(y_label)
+    plt.legend(legend)
+    plt.savefig(name + '.png')
+    plt.clf()
+
+
+def is_over(scores, vials):
+    for sc in scores:
+        if sc < vials:
+            return False
+    return True
+
+
+def test(strategy, vials):
+    # init()
 
     # -------------------------------
     # Initialisation
@@ -64,15 +105,11 @@ def main():
 
     # on localise tous les états initiaux (loc du joueur)
     initStates = [o.get_rowcol() for o in game.layers['joueur']]
-    print("Init states:", initStates)
 
     # on localise tous les murs
     wallStates = [w.get_rowcol() for w in game.layers['obstacle']]
-    # print ("Wall states:", wallStates)
 
-    # -------------------------------
     # Placement aleatoire des fioles
-    # -------------------------------
     goalPos = []
     for o in game.layers['ramassable']:  # les rouges puis jaunes puis bleues
         # et on met la fiole qqpart au hasard
@@ -86,19 +123,10 @@ def main():
         game.layers['ramassable'].add(o)
         game.mainiteration()
 
-    print(game.layers['ramassable'])
-
     # on localise tous les objets ramassables
     goalStates = [o.get_rowcol() for o in game.layers['ramassable']]
-    print("Goal states:", goalStates)
 
-    # on donne a chaque joueur une fiole a ramasser
-    # en essayant de faire correspondre les couleurs pour que ce soit plus simple à suivre
-
-    # -------------------------------
     # Boucle principale de déplacements
-    # -------------------------------
-
     goalPos = [goalStates[i:i + 1] for i in range(nbPlayers)]
 
     t_0 = time.process_time()
@@ -113,12 +141,12 @@ def main():
 
     cpu_time = time.process_time() - t_0
 
-    previous = [(-1, -1)] * nbPlayers
     epoch = 0
+    average_epochs = 0
 
-    done = 0
+    done = [False] * nbPlayers
 
-    for i in range(iterations):
+    while not is_over(score, vials):
         epoch += 1
         current = []
 
@@ -134,65 +162,34 @@ def main():
             # and ((next_row,next_col) not in posPlayers)
             if ((next_row, next_col) not in wallStates) and next_row >= 0 and next_row <= 19 and next_col >= 0 and next_col <= 19:
                 players[j].set_rowcol(next_row, next_col)
-                print("player", j, "in (", next_row, next_col, ")")
-                # game.mainiteration()
 
             # si on a  trouvé un objet on le ramasse
-            print("\tgoal", goalPos[j])
             if (next_row, next_col) in goalPos[j]:
                 o = players[j].ramasse(game.layers)
-                # game.mainiteration()
-                print("Objet trouvé par le joueur ", j)
                 # on enlève ce goalState de la liste
                 goalPos[j].remove((next_row, next_col))
                 score[j] += 1
-                done += 1
 
-                # et on remet un même objet à un autre endroit
-                x = random.randint(0, 19)
-                y = random.randint(0, 19)
-                while (x, y) in wallStates + current + [el for sub in goalPos for el in sub]:
+                if score[j] < vials:
+                    # et on remet un même objet à un autre endroit
                     x = random.randint(0, 19)
                     y = random.randint(0, 19)
-                o.set_rowcol(x, y)
-                print("Objet trouvé par le joueur ", j, ", new goal :", x, y)
-                goalPos[j].append((x, y))  # on ajoute ce nouveau goalState
-                game.layers['ramassable'].add(o)
-                coop_planner.add_goal(j, (x, y))
+                    while (x, y) in wallStates + current + [el for sub in goalPos for el in sub]:
+                        x = random.randint(0, 19)
+                        y = random.randint(0, 19)
+                    o.set_rowcol(x, y)
+                    goalPos[j].append((x, y))  # on ajoute ce nouveau goalState
+                    game.layers['ramassable'].add(o)
+                    coop_planner.add_goal(j, (x, y))
+                elif not done[j]:
+                    done[j] = True
+                    average_epochs += epoch
 
-        #     if done == nbPlayers:
-        #         break
-        #
-        # if done == nbPlayers:
-        #     game.mainiteration()
-        #     break
-
-        collision = False
-        concurrent = [(p, q) for p in range(nbPlayers)
-                      for q in range(p + 1, nbPlayers)]
-        for p, q in concurrent:
-            if current[p] == current[q]:
-                collision = True
-                break
-            if previous[p] == current[q] and current[p] == previous[q]:
-                collision = True
-                break
-        if collision:
-            print("===== collision =====")
-            while True:
-                pass
-        previous = current
+        # print(score)
         game.mainiteration()
-        print("Ended iteration", i + 1)
-        print("===================================")
 
-    print("===================", "STATS", "===================")
-    print("Total CPU time:", cpu_time)
-    print("Number of epochs needed to complete the tasks:", epoch)
-    # print("Average number of A* iterations:",
-    #       TimeAStar.NB_ITERS / TimeAStar.NB_CALLS)
-    print("scores:", score)
-    pygame.quit()
+    return cpu_time, (average_epochs / nbPlayers)
+    # pygame.quit()
 
 
 if __name__ == '__main__':

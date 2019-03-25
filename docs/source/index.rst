@@ -3,13 +3,7 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Overview of the project
-***********************
-
-This project consists in ...
-
-
-Documentation for the Code
+Documentation for the code
 **************************
 .. toctree::
    :maxdepth: 1

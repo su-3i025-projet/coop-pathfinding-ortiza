@@ -159,8 +159,8 @@ def main():
                 coop_players[j].add_goal((x, y))
                 print('\tnew goal at', (x, y))
 
-            if done == nbPlayers:
-                break
+            # if done == nbPlayers:
+            #     break
 
         current = [p.current_position for p in coop_players]
         collision = False
@@ -182,8 +182,8 @@ def main():
         print("Ended iteration", i + 1)
         print("===================================")
 
-        if done == nbPlayers:
-            break
+        # if done == nbPlayers:
+        #     break
 
     print("===================", "STATS", "===================")
     print("Total CPU time:", cpu_time)

@@ -379,7 +379,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">next_position</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Determines this agent&#39;s position after taking its next.</span>
+        <span class="sd">&quot;&quot;&quot;Determines this agent&#39;s position after taking its next step.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -389,7 +389,7 @@
 <span class="sd">        Notes</span>
 <span class="sd">        -----</span>
 <span class="sd">        This method does not pop out the next step. If you wish to do it,</span>
-<span class="sd">        however, see :meth:`~coop.players.CoopPlayer.get_next_position`.</span>
+<span class="sd">        however, use :meth:`~coop.players.CoopPlayer.get_next_position`.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_position_after</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">:])</span>
@@ -425,7 +425,6 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_next_step</span><span class="p">():</span>
             <span class="n">obstacle</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">collision</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">others</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">obstacle</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Collision:&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_position</span><span class="p">,</span> <span class="n">obstacle</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">handle_collision</span><span class="p">(</span><span class="n">obstacle</span><span class="p">)</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_next_position</span><span class="p">()</span>
 

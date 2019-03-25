@@ -28,6 +28,8 @@
 \usepackage{csquotes}
 \usepackage[table]{xcolor}
 \usepackage{xspace}
+\usepackage{multirow}
+\usepackage{siunitx}
 \usepackage{hyperref}
 \usepackage{xparse}
 \usepackage{mathtools, stmaryrd}
@@ -49,7 +51,9 @@
 /Title (Cooperative Pathfinding)
 /Author (Angelo Ortiz)
 }
-\setcounter{secnumdepth}{0}  
+\setcounter{secnumdepth}{0}
+
+\graphicspath{ {../img/} }
 \begin{document}
 
 
@@ -113,6 +117,13 @@ Puis, j'ai impl\'ement\'e trois fa\c{c}ons de g\'erer les potentielles collision
 Pour la premi\`ere et la troisi\`eme approche, les agents g\`erent uniquement les collisions frontales pour faciliter le recalcul de chemin. 
 Quant \`a la deuxi\`eme, les trois types de collisions ont \'et\'e consid\'er\'es du fait de sa conception stricte.
 
+Une caract\'eristique importante des impl\'ementations que j'ai r\'ealis\'ees est qu'elles supportent la recherche successive de fioles pour les agents.
+Il s'agit en fait du but cherch\'e tout au long du mini-projet.
+
+Pour la premi\`ere et la troisi\`eme strat\'egie, j'ai m\^eme rajout\'e la fonctionnalit\'e d'accepter une liste de fioles \`a traiter.
+Deux strat\'egies ont \'et\'e d\'evelopp\'ees pour g\'erer ce cas de figure : la premi\`ere est na\"ive et consid\`ere les fioles dans leur ordre dans la liste ; la deuxi\`eme, en revanche, correspond \`a un comportement \textit{de proche en proche}.
+Dans le cadre du projet, seulement la premi\`ere d'entre elles \`a \'et\'e utilis\'ee.
+
 \subsection{Opportunisme}
 La premi\`ere strat\'egie, dite \textit{opportuniste}, consiste \`a d\'emarrer le chemin de tous les agents en m\^eme temps et de g\'erer les collisions lorsqu'elles sont imminentes.
 Pour ce faire, j'ai utilis\'e la m\'ethode connue comme \textit{path splicing}.
@@ -133,7 +144,33 @@ Il s'av\`ere que cette \textit{randomisation} all\`ege le temps de calcul et sim
 De plus, le pas al\'eatoire est tr\`es utile lorsque la position de collision se trouve dans une zone concentr\'ee d'agents, et surtout lorsqu'il est nul, i.e.\ l'agent reste immobile, dans quel cas le co\^ut associ\'e est 0.
 
 \subsection{Coop\'eration na\"ive}
-\textit{planification}
+La deuxi\`eme m\'ethode, dite de \textit{planification}, correspond \`a la strat\'egie qui lance en parall\`ele les agents dont les chemins ne partagent aucune case. 
+
+J'ai d\'efini une entit\'e appel\'e \textit{planifieur}, qui commande et fixe l'ordre de passage des agents.
+Tout d'abord, tout agent calcule son chemin optimal comme s'il \'etait le seul agent sur la carte.
+Puis, le planifieur d\'etermine les groupes d'agents dont les chemins ne se croisent pas. De cette mani\`ere, tous les membres d'un groupe peuvent d\'emarrer leur chemins sans crainte de collision.
+
+Il est important de noter que s'il y a un agent qui se trouve sur le chemin optimal d'un autre agent et que c'est ce dernier qui passe en premier, alors le deuxi\`eme agent entrera en collision avec le premier.
+Pour \'eviter ce cas de figure, les agents d\'eterminent leurs chemins optimaux en consid\'erant les positions initiales de leurs pairs comme des obstacles.
+
+Le m\^eme probl\`eme arrive avec les positions finales des agents qui ont d\'ej\`a r\'eussi \`a r\'ecup\'erer leur fiole : le reste n'avait pas pr\'evu le nouveau emplacement du premier groupe et il y a ainsi un risque de collision.
+J'ai remarqu\'e que rajouter la position finale des agents dans la recherche initiale du chemin optimal complique la situation, notamment lorsque la fiole d'un agent se trouve sur une case \'etant la seule \textit{porte} pour une zone de cases contenant la fiole d'un autre agent.
+J'ai donc d\'ecid\'e de faire un compromis entre l'efficacit\'e et le temps d'ex\'ecution : une fois le premier groupe pass\'e, les agents restants recalculent leurs chemins avec les positions courantes de leurs pairs, et les groupes peuvent donc varier.
+
+Par ailleurs, je n'ai pas encore pr\'ecis\'e le crit\`ere pour l'ordre de passage des groupes. \`A cet effet, deux strat\'egies ont \'et\'e impl\'ement\'ees : les groupes les plus rapides d'abord, et les groupes les plus nombreux d'abord.
+
+\begin{figure}[!h]
+  \centering
+  \captionsetup{justification=centering}
+  \includegraphics[width=0.5\textwidth]{planner_cpu_time}
+  \includegraphics[width=0.5\textwidth]{planner_epoch}
+  \caption{Comparaison des deux strat\'egies d'ordonnancement des groupes pour la m\'ethode de \textit{planification}}
+  \label{fig:1j}
+\end{figure}
+
+Comme vous pourrez appr\'ecier dans la figure \ref{fig:1j}, lorsque le nombre de fioles \`a ramasser devient plus important, il est pr\'ef\'erable de faire passer en premier les groupes dont le nombre de pas moyens est plus petit.
+
+Finalement, la derni\`ere sp\'ecificit\'e de cette impl\'ementation est que pour r\'eduire la possibilit\'e de famine, les agents du dernier groupe commencent leur recherche d'un nouveau groupe \`a partir de la fin de la s\'equence d\'efinie pour les autres.
 
 \subsection{Coop\'eration avanc\'ee}
 Finalement, la troisi\`eme approche, dite \textit{avanc\'ee}, est une impl\'ementation de l'algorithme \textit{Windowed Hierarchical Cooperative A*} propos\'e par David Silver. %\citet{}
@@ -164,10 +201,34 @@ En effet, les agents \`a l'int\'erieur d'un groupe effectuent leurs recherches d
 
 J'ai trouv\'e que pour des valeurs de fr\'equences inf\'erieures au nombre d'agents, il y a un risque consid\'erable de non terminaison pour les derniers agents appartenant \`a un groupe nombreux. Au contraire, pour des valeurs beaucoup plus grandes que le nombre de joueurs, les agents effectuent des longues recherches, et le temps CPU et le nombre de pas n\'ecessaires, tous les agents confondus, deviennent importants.
 
-\section{Conclusion}
-Premi\`ere strat\'egie:
+\section{Exp\'erimentation}
+Je m'attendais \`a que la m\'ethode la plus performante en nombre moyen de fioles ramass\'ees soit la troisi\`eme, suivie de la premi\`ere et, enfin, la deuxi\`eme.
+En effet, la table de r\'eservation est assez costaude et permettrait de surclasser le \textit{path splicing}.
+De plus, il est \'evident que la deuxi\`eme, de par le lancement en differ\'e, est la moins performante.
 
-Cette strat\'egie m'a permis de r\'esoudre la plus part des collisions, mais le nombre de pas en moyenne pour rammasser toutes les fioles est assez elev\'e.
+Cependant, dans la table \ref{tab:stats}, vous pouvez remarquer que la m\'ethode optimale est la premi\`ere.
+Ceci peut \^etre expliqu\'e par le fait que les cartes utilis\'ees sont encore de taille raisonnable pour l'utilisation du \textit{path splicing}.
+Les effets de la m\'ethode avanc\'ee, qui a \'et\'e con\c{c}ue pour des probl\`emes plus complexes, notamment lorsque le nombre de joueurs est consid\'erable, restent ainsi mod\'er\'es.
+
+\begin{table}
+    \centering
+    \begin{tabular}{|c|c|c|}
+	\hline Strat\'egie & Temps CPU (en \si{s}) & Nombre de fioles \\ 
+    \hline Opportuniste & 0.425 & 29.3 \\ 
+	\hline Planification & 0.595 & 3.33 \\ 
+	\hline Avanc\'ee & 4.29 & 21.3 \\ 
+	\hline
+	\end{tabular}
+	\caption{Statistiques sur les performances des trois strat\'egies pour un nombre de pas fix\'e \`a 200 et la carte \`a 6 joueurs}
+  \label{tab:stats}
+\end{table}
+
+\section{Conclusion}
+Dans le cadre de ce mini-projet, j'ai impl\'ement\'e un algorithme de recherche de chemin optimal dans un carte avec obstacles, et je l'ai utilis\'e pour r\'epondre au probl\`eme du \textit{Cooperative Pathfinding}.
+Pour ce faire, je l'ai enrichi \`a travers diff\'erentes m\'ethodes.
+Ces m\'ethodes avaient chacune leurs particularit\'es et m'ont donn\'e des r\'esultats assez vari\'es.
+
+Ce mini-projet m'a aid\'e \`a renforcer mes connaissances en recherche de chemin optimaux et, surtout, m'a fait r\'ealiser que l'on rencontre toujours des situations sortent du cadre et qu'il faut \^etre pr\'epar\'es et capables de les traiter de mani\`ere flexible.
 
 \end{document}
 

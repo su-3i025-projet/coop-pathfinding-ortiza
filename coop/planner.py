@@ -46,8 +46,8 @@ class CoopPlanner:
     """
 
     def __init__(self, initial_positions, goal_positions, walls, seq_sorting_choice=GroupLengthStrategy):
-        for pos, goal in zip(initial_positions, goal_positions):
-            print(pos, goal)
+        # for pos, goal in zip(initial_positions, goal_positions):
+        #     print(pos, goal)
         self.players = [CoopPlayer(init_pos, goal_pos, walls)
                         for init_pos, goal_pos in zip(initial_positions, goal_positions)]
         self.walls = walls
@@ -88,6 +88,8 @@ class CoopPlanner:
 
     def update_paths(self):
         for player in self.players:
+            if player.is_at_goal():
+                continue
             bef, aft = player.others
             others = [oth.current_position for oth in bef + aft]
             player.find_path_to_goal(others, resume=True)
@@ -101,7 +103,10 @@ class CoopPlanner:
 
         if saved_steps2 == []:
             return True
-        player2.steps = player2.steps[:]
+        try:
+            player2.steps = player2.steps[:]
+        except Exception:
+            return False
 
         # find all the cells of an already-in-the-sequence agent's path
         other_positions = [saved_current_pos2]
@@ -112,7 +117,11 @@ class CoopPlanner:
         if self.collision_baseline_positions == []:
             # save current state
             saved_current_pos1, saved_steps1 = player1.current_position, player1.steps
-            player1.steps = player1.steps[:]
+            try:
+                player1.steps = player1.steps[:]
+            except Exception:
+                player2.steps = saved_steps2
+                return False
 
             restore = True
 
@@ -150,7 +159,7 @@ class CoopPlanner:
                 was_dealt_with = True
                 break
 
-        # reset path cells storage for <player>
+        # reset path cells storage for `player`
         self.collision_baseline_positions = []
 
         if not was_dealt_with:
@@ -179,15 +188,26 @@ class CoopPlanner:
             self.update_sequence(
                 [i for i, p in enumerate(self.players) if p.has_next_step()])
             self.seq_sorting_choice.sort()
-            self.current_group = self.sequence[0]
 
-        print("Current group:", self.current_group)
+            try:
+                self.current_group = self.sequence[0]
+            except:  # when only one group remained
+                pass
+
+        # print("Current group:", self.current_group)
 
         # the current agent will move if being part of the current active group
         if self.current_player in self.current_group:
-            next_position = current_player.get_next_position()
-            if current_player.is_at_goal():
+            try:
+                next_position = current_player.get_next_position()
+                if current_player.is_at_goal():
+                    self.current_group.remove(self.current_player)
+                return next_position
+            except:
                 self.current_group.remove(self.current_player)
-            return next_position
+                bef, aft = current_player.others
+                placed = [oth.current_position for oth in bef + aft]
+                current_player.find_path_to_goal(placed=placed, resume=True)
+                self.add_to_sequence(self.current_player)
 
         return current_player.current_position

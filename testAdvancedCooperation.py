@@ -149,19 +149,19 @@ def main():
                 done += 1
 
                 # et on remet un même objet à un autre endroit
-                # x = random.randint(3, 15)
-                # y = random.randint(3, 15)
-                # while (x, y) in wallStates:
-                #     x = random.randint(3, 15)
-                #     y = random.randint(3, 15)
-                # o.set_rowcol(x, y)
-                # goalPos[j].append((x, y))  # on ajoute ce nouveau goalState
-                # game.layers['ramassable'].add(o)
-                # coop_players[j].add_goal((x, y))
-                # print('\tnew goal at', (x, y))
+                x = random.randint(3, 15)
+                y = random.randint(3, 15)
+                while (x, y) in wallStates:
+                    x = random.randint(3, 15)
+                    y = random.randint(3, 15)
+                o.set_rowcol(x, y)
+                goalPos[j].append((x, y))  # on ajoute ce nouveau goalState
+                game.layers['ramassable'].add(o)
+                coop_players[j].add_goal((x, y))
+                print('\tnew goal at', (x, y))
 
-            if done == nbPlayers:
-                break
+            # if done == nbPlayers:
+            #     break
 
         current = [p.current_position for p in coop_players]
         collision = False
@@ -183,8 +183,8 @@ def main():
         game.mainiteration()
         print("Ended iteration", i + 1)
         print("===================================")
-        if done == nbPlayers:
-            break
+        # if done == nbPlayers:
+        #     break
 
     print("===================", "STATS", "===================")
     print("Total CPU time:", cpu_time)
