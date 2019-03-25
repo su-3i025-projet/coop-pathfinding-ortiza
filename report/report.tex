@@ -65,12 +65,12 @@ Sorbonne Universit\'e}
 \section{Introduction}
 De nos jours, c'est un fait que les robots se sont r\'epandus dans les industries et ils ont ainsi remplac\'e, parfois compl\`etement, l'humain dans certaines t\^aches. 
 Par exemple, ils sont de plus en plus utilis\'es dans les actes chirurgicaux, comme la laparoscopie, du fait de leur pr\'ecision.
-Pour d'autres t\^aches, comme le d\'eplacement de marchandises ou des objets lourds dans les usines, il est aussi plus int\'eressant de les attribuer aux robots.
+Pour d'autres t\^aches, comme le d\'eplacement de marchandises ou des objets lourds dans les usines, il est aussi plus int\'eressant de les affecter aux robots.
 
 Mettons-nous dans cette derni\`ere situation.
 Nous avons une entreprise qui compte plusieurs robots charg\'es de d\'eplacer des marchandises \`a l'int\'erieur d'une usine. 
 Il est \'evident que l'objectif est d'effectuer des d\'eplacements de mani\`ere efficiente, i.e.\ des trajets plus courts. 
-Supposons de plus que les objets \`a ramasser sont r\'epartis entre l'ensemble de robots de sorte qu'il n'y ait qu'un seul robot ciblant un objet.
+Supposons de plus que les objets \`a ramasser soient r\'epartis entre l'ensemble de robots de sorte qu'il n'y ait qu'un seul robot ciblant un objet.
 
 La premi\`ere r\'eponse na\"ive au probl\`eme des d\'eplacements est de calculer, pour chaque entit\'e, le plus court chemin \`a son but compte tenu des obstacles et de les faire emprunter ces chemins.
 En effet, plusieurs algorithmes de tr\`es bonne complexit\'e temporelle  sont connus \`a cet effet.
@@ -79,7 +79,7 @@ Cependant, nous nous apercevons que cette approche n'est pas efficace car elle n
 Cela nous am\`ene \`a concevoir une autre strat\'egie tenant compte des possibles collisions pour r\'esoudre ce probl\`eme.
 Il s'agit ainsi du probl\`eme de la recherche coop\'erative (en anglais \textit{Cooperative Pathfinding}).
 
-Dans le cadre de l'UE 3I025 - Introduction \`a l'intelligence artificielle et la recherche op\'erationnelle, le sujet du premier mini-projet propos\'e prend la forme du probl\`eme du \textit{Cooperative Pathfinding} et il consiste \`a r\'esoudre ce probl\`eme au travers des diff\'erentes strat\'egies appel\'ees opportuniste, coop\'erative de base et coop\'erative avanc\'ee.
+Dans le cadre de l'UE 3I025 - Introduction \`a l'intelligence artificielle et la recherche op\'erationnelle, le sujet du premier mini-projet propos\'e prend la forme du probl\`eme du \textit{Cooperative Pathfinding} et il consiste \`a r\'esoudre ce probl\`eme au travers des diff\'erentes strat\'egies appel\'ees \textit{opportuniste}, \textit{coop\'erative de base} et \textit{coop\'erative avanc\'ee}.
 
 Dans la suite de ce document, je vais expliquer en d\'etail les sp\'ecifications du sujet, mes choix d'impl\'ementation et commenter mes r\'esultats obtenus.
 
@@ -110,7 +110,7 @@ La base de toutes mes strat\'egies de r\'esolution du probl\`eme du \textit{Coop
 Pour ce faire, j'ai utilis\'e l'algorithme A*.
 Puis, j'ai impl\'ement\'e trois fa\c{c}ons de g\'erer les potentielles collisions sur la carte : elles correspondent aux strat\'egies d\'etaill\'ees dans les sections qui suivent.
 
-Pour la premi\`ere et la troisi\`eme approche, j'ai pris en compte uniquement les collisions frontales pour faciliter le recalcul de chemin. 
+Pour la premi\`ere et la troisi\`eme approche, les agents g\`erent uniquement les collisions frontales pour faciliter le recalcul de chemin. 
 Quant \`a la deuxi\`eme, les trois types de collisions ont \'et\'e consid\'er\'es du fait de sa conception stricte.
 
 \subsection{Opportunisme}
@@ -119,16 +119,17 @@ Pour ce faire, j'ai utilis\'e la m\'ethode connue comme \textit{path splicing}.
 
 Lorsqu'un agent d\'etecte que la suite de son chemin l'am\`ene vers une collision \`a l'instant suivant, il d\'ecide de recalculer une partie de son chemin.
 Pour ce faire, il utilise de nouveau l'algorithme A* jusqu'au bout de la portion de chemin \`a remplacer en tenant compte des positions bloqu\'ees par la collision.
-Puis, il joint les deux morceaux de chemin et suit ce nouveau chemin. Ce comportement implique que la gestion des collisions est laiss\'ee \`a la charge du premier agent (dans l'ordre de passage) concern\'e.
+Puis, il joint les deux morceaux de chemin et suit le chemin cr\'e\'e.
+Ce comportement implique que la gestion des collisions est laiss\'ee \`a la charge du premier agent (dans l'ordre de passage) concern\'e.
 
 J'ai trouv\'e deux points importants \`a remarquer dans cette m\'ethode.
 D'une part, la longueur de la portion de chemin \`a recalculer joue un r\^ole crucial.
 En effet, si l'agent est amen\'e \`a calculer des longs morceaux de chemin et que les collisions sont fr\'equentes, il passera la majorit\'e de son temps \`a faire des calculs inutiles, puisqu'il ne suivra qu'une infime partie des chemins calcul\'es.
-C'est pourquoi, tout au long de mes tests, j'ai fix\'e la \textit{longueur de coupure} de l'ordre de 5.
+C'est pourquoi, tout au long de mes tests, j'ai fix\'e la \textit{longueur de coupure} \`a 5.
 
-D'une autre part, il se peut que le chemin restant pour atteindre la fiole respective ne soit pas plus long que la longueur de coupure fix\'ee.
+D'autre part, il se peut que le chemin restant pour atteindre la fiole respective ne soit pas plus long que la longueur de coupure fix\'ee.
 Dans ce cas, l'agent supprime son chemin restant et fait un pas al\'eatoire valide dans l'une des positions adjacentes, y compris sa position courante.
-Il s'av\`ere que cette \textit{randomisation} all\`ege le temps de calcul et simplifie la suite, \'etant donn\'e qu'elle repousse la recherche du chemin restant \`a l'instant suivant o\`u les agents concern\'es se trouvent dans d'autres positions.
+Il s'av\`ere que cette \textit{randomisation} all\`ege le temps de calcul et simplifie la conduite par la suite, \'etant donn\'e qu'elle repousse la recherche du chemin restant \`a l'instant suivant o\`u les agents concern\'es se trouvent dans d'autres positions.
 De plus, le pas al\'eatoire est tr\`es utile lorsque la position de collision se trouve dans une zone concentr\'ee d'agents, et surtout lorsqu'il est nul, i.e.\ l'agent reste immobile, dans quel cas le co\^ut associ\'e est 0.
 
 \subsection{Coop\'eration na\"ive}
@@ -144,7 +145,7 @@ Ceci a r\'eduit le temps mis par les it\'erations de A* tridimensionnel car il s
 
 En ce qui concerne la gestion des collisions, une table de r\'eservation des positions  dans le temps est mise en place.
 Lorsqu'un joueur lance sa recherche de A* spatio-temporel, il consid\`ere les positions r\'eserv\'ees par ses pairs dans la table et r\'eserve lui-m\^eme les cases correspondant \`a son chemin optimal.
-De la m\^eme mani\`ere que pour la strat\'egie opportuniste, un agent n'encourt aucun co\^ut s'il reste immobile.
+Au contraire de la strat\'egie opportuniste, un agent n'encourt aucun co\^ut s'il reste immobile et il a d\'ej\`a atteint son but.
 
 Comme la recherche de A* invers\'e est stock\'ee en m\'emoire, il est raisonnable de l'effectuer par morceaux.
 De plus, tous les agents anticipent les collisions, et donc certaines mesures lointaines peuvent ne pas \^etre n\'ecessaires lorsque arriv\'es \`a ce point, ce qui les rend inutiles.
@@ -154,12 +155,14 @@ Pour que ces recherches soient efficientes, mais que la pr\'esence de l'agent da
 Cependant, cette m\'ethode reste encore sous-optimale du fait que les derniers agents \`a passer ne disposent que d'un nombre limit\'e de choix lors de leurs recherches.
 Pour y rem\'edier, les recherches sont intercal\'ees. 
 
-Les agents sont class\'es dans divers groupes comportant \`a peu pr\`es le m\^eme nombre de joueurs de telle sorte qu'\`a chaque instant, un seul groupe fait sa recherche. 
+Les agents sont class\'es dans divers groupes comportant \`a peu pr\`es le m\^eme nombre de joueurs de telle sorte qu'\`a chaque instant, un seul groupe fasse sa recherche. 
 Cette m\'ethode circulaire r\'eduit le d\'esavantage d'un agent \`a son groupe, puisque cet ensemble sera \`a un moment le premier \`a r\'eserver des positions.
 En outre, cette approche am\'eliore la coop\'eration des agents parce que l'agent qui a d\'ej\`a r\'eussi son but se verra oblig\'e de se d\'ecaler dans son avenir proche lorsque l'un des autres aura r\'eserv\'e au pr\'ealable la position sur laquelle il se trouve actuellement.
 
 J'ai constat\'e que la valeur de la fr\'equence des recherches a un gros impact sur la performance de cette strat\'egie.
-En effet, pour des valeurs sup\'erieures \`a 6 le temps CPU et le nombre de pas n\'ecessaires, tous les agents confondus, deviennent beaucoup plus grands et le rendu graphique est moins fluide, ce qui correspond \`a l'augmentation du nombre d'it\'erations de A* spatio-temporel.
+En effet, les agents \`a l'int\'erieur d'un groupe effectuent leurs recherches dans le m\^eme ordre, ce qui fait que lorsque les premiers ont d\'ej\`a r\'eussi leurs objectifs et bloquent la route optimale des derniers, ceux-ci peinent \`a trouver la bonne voie. Leur comportement se r\'eduit alors \`a avancer et reculer d'un pas de mani\`ere altern\'ee, et ils n'arrivent donc pas \`a franchir cette barri\`ere.
+
+J'ai trouv\'e que pour des valeurs de fr\'equences inf\'erieures au nombre d'agents, il y a un risque consid\'erable de non terminaison pour les derniers agents appartenant \`a un groupe nombreux. Au contraire, pour des valeurs beaucoup plus grandes que le nombre de joueurs, les agents effectuent des longues recherches, et le temps CPU et le nombre de pas n\'ecessaires, tous les agents confondus, deviennent importants.
 
 \section{Conclusion}
 Premi\`ere strat\'egie:

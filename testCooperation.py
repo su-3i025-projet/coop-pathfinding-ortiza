@@ -148,16 +148,16 @@ def main():
                 done += 1
 
                 # et on remet un même objet à un autre endroit
-                # x = random.randint(6, 12)
-                # y = random.randint(6, 12)
-                # while (x, y) in wallStates:
-                #     x = random.randint(6, 12)
-                #     y = random.randint(6, 12)
-                # o.set_rowcol(x, y)
-                # goalPos[j].append((x, y))  # on ajoute ce nouveau goalState
-                # game.layers['ramassable'].add(o)
-                # coop_players[j].add_goal((x, y))
-                # print('\tnew goal at', (x, y))
+                x = random.randint(6, 12)
+                y = random.randint(6, 12)
+                while (x, y) in wallStates:
+                    x = random.randint(6, 12)
+                    y = random.randint(6, 12)
+                o.set_rowcol(x, y)
+                goalPos[j].append((x, y))  # on ajoute ce nouveau goalState
+                game.layers['ramassable'].add(o)
+                coop_players[j].add_goal((x, y))
+                print('\tnew goal at', (x, y))
 
             if done == nbPlayers:
                 break
