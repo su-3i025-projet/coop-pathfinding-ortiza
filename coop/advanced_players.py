@@ -128,7 +128,10 @@ class TimeNode(Node):
             The list of all this node's valid neighbours.
 
         """
-        shifts = [(1, 0), (-1, 0), (0, 1), (0, -1), (0, 0)]
+        shifts = [(1, 0), (-1, 0), (0, 1), (0, -1)]
+        # when at goal position, no cost
+        if self.position == self.a_star.goal_state.position:
+            shifts.append((0, 0))
         neighbours = [(self.x + dx, self.y + dy) for dx, dy in shifts]
         valid_neighbours = []
         t = self.t
