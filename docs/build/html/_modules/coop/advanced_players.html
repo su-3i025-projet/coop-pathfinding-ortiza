@@ -204,12 +204,12 @@
         <span class="n">valid_neighbours</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="n">t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">t</span>
         <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">neighbours</span><span class="p">:</span>
-            <span class="c1"># assert that the cell is not a wall nor an invalid position</span>
+            <span class="c1"># ensure that the cell is not a wall nor an invalid position</span>
             <span class="c1"># (outside the grid)</span>
             <span class="k">if</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">a_star</span><span class="o">.</span><span class="n">walls</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">TimeNode</span><span class="o">.</span><span class="n">is_valid</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
                 <span class="k">continue</span>
 
-            <span class="c1"># assert that the cell is currently available, otherwise</span>
+            <span class="c1"># ensure that the cell is currently available, otherwise</span>
             <span class="c1"># there must be no collision if the step is taken</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">other_id</span> <span class="o">=</span> <span class="n">AdvancedPlayer</span><span class="o">.</span><span class="n">reservation_table</span><span class="p">[(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">t</span><span class="p">)]</span>
@@ -287,10 +287,10 @@
 <span class="sd">        The storage location of the walls position.</span>
 <span class="sd">    last_epoch : int</span>
 <span class="sd">        The endpoint of the associated agent&#39;s pathfinding window.</span>
-<span class="sd">    open_set : Heap</span>
+<span class="sd">    open_set : heap of TimeNode</span>
 <span class="sd">        The fringe of the algorithm.</span>
-<span class="sd">    closed_set : list of Node</span>
-<span class="sd">        The list of nodes already extended during the execution.</span>
+<span class="sd">    closed_set : dict of (int, int, int): TimeNode</span>
+<span class="sd">        The set of nodes already extended during the execution.</span>
 <span class="sd">    backwards_search : AStar</span>
 <span class="sd">        The A* instance used to obtain the true distances to the goal.</span>
 
@@ -317,7 +317,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">last_epoch</span> <span class="o">=</span> <span class="n">last_epoch</span> <span class="k">if</span> <span class="n">last_epoch</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> \
             <span class="k">else</span> <span class="n">initial_epoch</span> <span class="o">+</span> <span class="n">AdvancedPlayer</span><span class="o">.</span><span class="n">frequence</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">open_set</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">initial_state</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">closed_set</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">closed_set</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">backwards_search</span> <span class="o">=</span> <span class="n">backwards_search</span> <span class="k">if</span> <span class="n">backwards_search</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> \
             <span class="k">else</span> <span class="n">AStar</span><span class="p">(</span><span class="n">goal_state</span><span class="p">,</span> <span class="n">initial_state</span><span class="p">,</span> <span class="n">walls</span><span class="p">)</span>
         <span class="n">AdvancedPlayer</span><span class="o">.</span><span class="n">reservation_table</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">initial_state</span><span class="o">.</span><span class="n">coordinates</span><span class="p">]</span> <span class="o">=</span> <span class="n">player_id</span>
@@ -355,12 +355,16 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">TimeAStar</span><span class="o">.</span><span class="n">NB_CALLS</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="k">while</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_set_is_empty</span><span class="p">():</span>
-            <span class="n">TimeAStar</span><span class="o">.</span><span class="n">NB_ITERS</span> <span class="o">+=</span> <span class="mi">1</span>
             <span class="n">current_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">select_best</span><span class="p">()</span>
+
+            <span class="c1"># ensure unicity in closed set</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_to_closed_set</span><span class="p">(</span><span class="n">current_state</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="n">TimeAStar</span><span class="o">.</span><span class="n">NB_ITERS</span> <span class="o">+=</span> <span class="mi">1</span>
             <span class="n">neighbours</span> <span class="o">=</span> <span class="n">current_state</span><span class="o">.</span><span class="n">get_valid_neighbours</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">player_id</span><span class="p">)</span>
             <span class="n">not_extd_neighbours</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_not_extended</span><span class="p">(</span><span class="n">neighbours</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_to_open_set</span><span class="p">(</span><span class="n">not_extd_neighbours</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">closed_set</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">current_state</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">current_state</span><span class="o">.</span><span class="n">t</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_epoch</span><span class="p">:</span>
                 <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_reversed_step_sequence</span><span class="p">(</span><span class="n">current_state</span><span class="p">)</span></div>
 
@@ -511,10 +515,7 @@
                 <span class="k">break</span>
             <span class="bp">cls</span><span class="o">.</span><span class="n">players</span><span class="p">[</span><span class="n">cnt</span><span class="p">]</span><span class="o">.</span><span class="n">__set_search_epoch</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
             <span class="n">rem</span> <span class="o">-=</span> <span class="mi">1</span>
-            <span class="n">cnt</span> <span class="o">+=</span> <span class="mi">1</span>
-        <span class="k">for</span> <span class="n">player</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">players</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="n">player</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">player</span><span class="o">.</span><span class="n">search_epoch</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">reservation_table</span><span class="p">)</span></div>
+            <span class="n">cnt</span> <span class="o">+=</span> <span class="mi">1</span></div>
 
 <div class="viewcode-block" id="AdvancedPlayer.set_pathfinding_frequence"><a class="viewcode-back" href="../../advanced-players.html#coop.advanced_players.AdvancedPlayer.set_pathfinding_frequence">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">set_pathfinding_frequence</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">frequence</span><span class="p">):</span>

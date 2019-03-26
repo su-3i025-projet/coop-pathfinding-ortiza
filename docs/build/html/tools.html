@@ -16,7 +16,7 @@
     <script type="text/javascript" src="_static/language_data.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="prev" title="Overview of the project" href="index.html" />
+    <link rel="prev" title="Documentation for the code" href="index.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -101,11 +101,11 @@
 <dt><strong>walls</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of (int, int)</span></dt>
 <dd><p class="first last">The storage location of the walls position.</p>
 </dd>
-<dt><strong>open_set</strong> <span class="classifier-delimiter">:</span> <span class="classifier">Heap</span></dt>
+<dt><strong>open_set</strong> <span class="classifier-delimiter">:</span> <span class="classifier">heap of Node</span></dt>
 <dd><p class="first last">The fringe of the algorithm.</p>
 </dd>
-<dt><strong>closed_set</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of Node</span></dt>
-<dd><p class="first last">The list of nodes already extended during the execution.</p>
+<dt><strong>closed_set</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict of (int, int): Node</span></dt>
+<dd><p class="first last">The set of nodes already extended during the execution.</p>
 </dd>
 </dl>
 </td>
@@ -119,29 +119,58 @@
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><a class="reference internal" href="#coop.tools.AStar.add_to_open_set" title="coop.tools.AStar.add_to_open_set"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_to_open_set</span></code></a>(states)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#coop.tools.AStar.add_to_closed_set" title="coop.tools.AStar.add_to_closed_set"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_to_closed_set</span></code></a>(state)</td>
+<td>Appends the given node to the closed set.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="#coop.tools.AStar.add_to_open_set" title="coop.tools.AStar.add_to_open_set"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_to_open_set</span></code></a>(states)</td>
 <td>Appends the given nodes to the fringe.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#coop.tools.AStar.get_node_at" title="coop.tools.AStar.get_node_at"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_node_at</span></code></a>(coordinates)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#coop.tools.AStar.get_node_at" title="coop.tools.AStar.get_node_at"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_node_at</span></code></a>(coordinates)</td>
 <td>Retrieves the node with the given coordinates in the closed set.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#coop.tools.AStar.get_not_extended" title="coop.tools.AStar.get_not_extended"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_not_extended</span></code></a>(states)</td>
+<tr class="row-even"><td><a class="reference internal" href="#coop.tools.AStar.get_not_extended" title="coop.tools.AStar.get_not_extended"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_not_extended</span></code></a>(states)</td>
 <td>Filters out already extended nodes from the given list of nodes.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#coop.tools.AStar.open_set_is_empty" title="coop.tools.AStar.open_set_is_empty"><code class="xref py py-obj docutils literal notranslate"><span class="pre">open_set_is_empty</span></code></a>()</td>
+<tr class="row-odd"><td><a class="reference internal" href="#coop.tools.AStar.open_set_is_empty" title="coop.tools.AStar.open_set_is_empty"><code class="xref py py-obj docutils literal notranslate"><span class="pre">open_set_is_empty</span></code></a>()</td>
 <td>Tests whether the fringe is empty.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#coop.tools.AStar.run" title="coop.tools.AStar.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a>()</td>
+<tr class="row-even"><td><a class="reference internal" href="#coop.tools.AStar.run" title="coop.tools.AStar.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a>()</td>
 <td>Runs this A* instance.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#coop.tools.AStar.select_best" title="coop.tools.AStar.select_best"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_best</span></code></a>()</td>
+<tr class="row-odd"><td><a class="reference internal" href="#coop.tools.AStar.select_best" title="coop.tools.AStar.select_best"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_best</span></code></a>()</td>
 <td>Selects the best node in the fringe on the basis of its f-value.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#coop.tools.AStar.set_new_goal" title="coop.tools.AStar.set_new_goal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_new_goal</span></code></a>(new_goal)</td>
+<tr class="row-even"><td><a class="reference internal" href="#coop.tools.AStar.set_new_goal" title="coop.tools.AStar.set_new_goal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_new_goal</span></code></a>(new_goal)</td>
 <td>Sets the new goal for the A* algorithm.</td>
 </tr>
 </tbody>
 </table>
+<dl class="method">
+<dt id="coop.tools.AStar.add_to_closed_set">
+<code class="descname">add_to_closed_set</code><span class="sig-paren">(</span><em>state</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/coop/tools.html#AStar.add_to_closed_set"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coop.tools.AStar.add_to_closed_set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Appends the given node to the closed set.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><dl class="first docutils">
+<dt><strong>state</strong> <span class="classifier-delimiter">:</span> <span class="classifier">Node</span></dt>
+<dd><p class="first last">A state-wrapping node to be added to the closed set.</p>
+</dd>
+</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><dl class="first last docutils">
+<dt><strong>bool</strong></dt>
+<dd><p class="first last">True iff the node was not already in the set and was successfully added.</p>
+</dd>
+</dl>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 <dl class="method">
 <dt id="coop.tools.AStar.add_to_open_set">
 <code class="descname">add_to_open_set</code><span class="sig-paren">(</span><em>states</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/coop/tools.html#AStar.add_to_open_set"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#coop.tools.AStar.add_to_open_set" title="Permalink to this definition">¶</a></dt>

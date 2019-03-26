@@ -376,11 +376,11 @@ pathfinding. In particular, it fixes the depth for pathfinding.</p>
 <dt><strong>last_epoch</strong> <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
 <dd><p class="first last">The endpoint of the associated agent’s pathfinding window.</p>
 </dd>
-<dt><strong>open_set</strong> <span class="classifier-delimiter">:</span> <span class="classifier">Heap</span></dt>
+<dt><strong>open_set</strong> <span class="classifier-delimiter">:</span> <span class="classifier">heap of TimeNode</span></dt>
 <dd><p class="first last">The fringe of the algorithm.</p>
 </dd>
-<dt><strong>closed_set</strong> <span class="classifier-delimiter">:</span> <span class="classifier">list of Node</span></dt>
-<dd><p class="first last">The list of nodes already extended during the execution.</p>
+<dt><strong>closed_set</strong> <span class="classifier-delimiter">:</span> <span class="classifier">dict of (int, int, int): TimeNode</span></dt>
+<dd><p class="first last">The set of nodes already extended during the execution.</p>
 </dd>
 <dt><strong>backwards_search</strong> <span class="classifier-delimiter">:</span> <span class="classifier">AStar</span></dt>
 <dd><p class="first last">The A* instance used to obtain the true distances to the goal.</p>
@@ -403,28 +403,31 @@ pathfinding. In particular, it fixes the depth for pathfinding.</p>
 <col width="90%" />
 </colgroup>
 <tbody valign="top">
-<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_to_open_set</span></code>(states)</td>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_to_closed_set</span></code>(state)</td>
+<td>Appends the given node to the closed set.</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_to_open_set</span></code>(states)</td>
 <td>Appends the given nodes to the fringe.</td>
 </tr>
-<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_node_at</span></code>(coordinates)</td>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_node_at</span></code>(coordinates)</td>
 <td>Retrieves the node with the given coordinates in the closed set.</td>
 </tr>
-<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_not_extended</span></code>(states)</td>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_not_extended</span></code>(states)</td>
 <td>Filters out already extended nodes from the given list of nodes.</td>
 </tr>
-<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">open_set_is_empty</span></code>()</td>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">open_set_is_empty</span></code>()</td>
 <td>Tests whether the fringe is empty.</td>
 </tr>
-<tr class="row-odd"><td><a class="reference internal" href="#coop.advanced_players.TimeAStar.run" title="coop.advanced_players.TimeAStar.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a>()</td>
+<tr class="row-even"><td><a class="reference internal" href="#coop.advanced_players.TimeAStar.run" title="coop.advanced_players.TimeAStar.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a>()</td>
 <td>Runs this space-time A* instance.</td>
 </tr>
-<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_best</span></code>()</td>
+<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_best</span></code>()</td>
 <td>Selects the best node in the fringe on the basis of its f-value.</td>
 </tr>
-<tr class="row-odd"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_new_goal</span></code>(new_goal)</td>
+<tr class="row-even"><td><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_new_goal</span></code>(new_goal)</td>
 <td>Sets the new goal for the A* algorithm.</td>
 </tr>
-<tr class="row-even"><td><a class="reference internal" href="#coop.advanced_players.TimeAStar.true_distance" title="coop.advanced_players.TimeAStar.true_distance"><code class="xref py py-obj docutils literal notranslate"><span class="pre">true_distance</span></code></a>(position)</td>
+<tr class="row-odd"><td><a class="reference internal" href="#coop.advanced_players.TimeAStar.true_distance" title="coop.advanced_players.TimeAStar.true_distance"><code class="xref py py-obj docutils literal notranslate"><span class="pre">true_distance</span></code></a>(position)</td>
 <td>Calculates the true distance from the given position to the goal.</td>
 </tr>
 </tbody>

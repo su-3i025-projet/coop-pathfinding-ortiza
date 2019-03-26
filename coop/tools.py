@@ -264,10 +264,10 @@ class AStar:
         The goal node.
     walls : list of (int, int)
         The storage location of the walls position.
-    open_set : Heap
+    open_set : heap of Node
         The fringe of the algorithm.
-    closed_set : list of Node
-        The list of nodes already extended during the execution.
+    closed_set : dict of (int, int): Node
+        The set of nodes already extended during the execution.
 
     """
 
@@ -276,7 +276,7 @@ class AStar:
         self.goal_state = Node(self, *goal_state)
         self.walls = walls
         self.open_set = [self.initial_state]
-        self.closed_set = []
+        self.closed_set = {}
 
     def set_new_goal(self, new_goal):
         """Sets the new goal for the A* algorithm.
@@ -325,8 +325,8 @@ class AStar:
             The node in the closed set whose coordinates are given.
 
         """
-        for node in self.closed_set:
-            if coordinates == node.coordinates:
+        for node_coord, node in self.closed_set.items():
+            if coordinates == node_coord:
                 return node
         return None
 
@@ -341,6 +341,29 @@ class AStar:
         """
         for st in states:
             heapq.heappush(self.open_set, st)
+
+    def add_to_closed_set(self, state):
+        """Appends the given node to the closed set.
+
+        Parameters
+        ----------
+        state : Node
+            A state-wrapping node to be added to the closed set.
+
+        Returns
+        -------
+        bool
+            True iff the node was not already in the set and was successfully added.
+
+        """
+        try:
+            # do nothing if already in the set
+            node = self.closed_set[state.coordinates]
+            return False
+        except:
+            # otherwise, add it
+            self.closed_set[state.coordinates] = state
+            return True
 
     def get_not_extended(self, states):
         """Filters out already extended nodes from the given list of nodes.
@@ -357,7 +380,13 @@ class AStar:
             from the given list.
 
         """
-        return [st for st in states if st not in self.closed_set]
+        extended = []
+        for st in states:
+            try:
+                _ = self.closed_set[states.coordinates]
+            except:
+                extended.append(st)
+        return extended
 
     def run(self):
         """Runs this A* instance.
@@ -374,12 +403,17 @@ class AStar:
         `pop()` in order to obtain the immediate next step to take.
 
         """
+        steps = 0
         while not self.open_set_is_empty():
             current_state = self.select_best()
+
+            # ensure unicity in closed set
+            if self.add_to_closed_set(current_state) is False:
+                continue
+
             neighbours = current_state.get_valid_neighbours()
             not_extd_neighbours = self.get_not_extended(neighbours)
             self.add_to_open_set(not_extd_neighbours)
-            self.closed_set.append(current_state)
             if current_state == self.goal_state:
                 self.goal_state.set_parent(current_state.parent)
                 return self.__get_reversed_step_sequence()

@@ -332,10 +332,10 @@
 <span class="sd">        The goal node.</span>
 <span class="sd">    walls : list of (int, int)</span>
 <span class="sd">        The storage location of the walls position.</span>
-<span class="sd">    open_set : Heap</span>
+<span class="sd">    open_set : heap of Node</span>
 <span class="sd">        The fringe of the algorithm.</span>
-<span class="sd">    closed_set : list of Node</span>
-<span class="sd">        The list of nodes already extended during the execution.</span>
+<span class="sd">    closed_set : dict of (int, int): Node</span>
+<span class="sd">        The set of nodes already extended during the execution.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -344,7 +344,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">goal_state</span> <span class="o">=</span> <span class="n">Node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">goal_state</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">walls</span> <span class="o">=</span> <span class="n">walls</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">open_set</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">initial_state</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">closed_set</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">closed_set</span> <span class="o">=</span> <span class="p">{}</span>
 
 <div class="viewcode-block" id="AStar.set_new_goal"><a class="viewcode-back" href="../../tools.html#coop.tools.AStar.set_new_goal">[docs]</a>    <span class="k">def</span> <span class="nf">set_new_goal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_goal</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Sets the new goal for the A* algorithm.</span>
@@ -393,8 +393,8 @@
 <span class="sd">            The node in the closed set whose coordinates are given.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">closed_set</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">coordinates</span> <span class="o">==</span> <span class="n">node</span><span class="o">.</span><span class="n">coordinates</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">node_coord</span><span class="p">,</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">closed_set</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">coordinates</span> <span class="o">==</span> <span class="n">node_coord</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">node</span>
         <span class="k">return</span> <span class="kc">None</span></div>
 
@@ -409,6 +409,29 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">st</span> <span class="ow">in</span> <span class="n">states</span><span class="p">:</span>
             <span class="n">heapq</span><span class="o">.</span><span class="n">heappush</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">open_set</span><span class="p">,</span> <span class="n">st</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AStar.add_to_closed_set"><a class="viewcode-back" href="../../tools.html#coop.tools.AStar.add_to_closed_set">[docs]</a>    <span class="k">def</span> <span class="nf">add_to_closed_set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Appends the given node to the closed set.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        state : Node</span>
+<span class="sd">            A state-wrapping node to be added to the closed set.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            True iff the node was not already in the set and was successfully added.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># do nothing if already in the set</span>
+            <span class="n">node</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">closed_set</span><span class="p">[</span><span class="n">state</span><span class="o">.</span><span class="n">coordinates</span><span class="p">]</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="c1"># otherwise, add it</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">closed_set</span><span class="p">[</span><span class="n">state</span><span class="o">.</span><span class="n">coordinates</span><span class="p">]</span> <span class="o">=</span> <span class="n">state</span>
+            <span class="k">return</span> <span class="kc">True</span></div>
 
 <div class="viewcode-block" id="AStar.get_not_extended"><a class="viewcode-back" href="../../tools.html#coop.tools.AStar.get_not_extended">[docs]</a>    <span class="k">def</span> <span class="nf">get_not_extended</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">states</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Filters out already extended nodes from the given list of nodes.</span>
@@ -425,7 +448,13 @@
 <span class="sd">            from the given list.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="p">[</span><span class="n">st</span> <span class="k">for</span> <span class="n">st</span> <span class="ow">in</span> <span class="n">states</span> <span class="k">if</span> <span class="n">st</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">closed_set</span><span class="p">]</span></div>
+        <span class="n">extended</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">st</span> <span class="ow">in</span> <span class="n">states</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">closed_set</span><span class="p">[</span><span class="n">states</span><span class="o">.</span><span class="n">coordinates</span><span class="p">]</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="n">extended</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">st</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">extended</span></div>
 
 <div class="viewcode-block" id="AStar.run"><a class="viewcode-back" href="../../tools.html#coop.tools.AStar.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Runs this A* instance.</span>
@@ -442,12 +471,17 @@
 <span class="sd">        `pop()` in order to obtain the immediate next step to take.</span>
 
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">steps</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">while</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_set_is_empty</span><span class="p">():</span>
             <span class="n">current_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">select_best</span><span class="p">()</span>
+
+            <span class="c1"># ensure unicity in closed set</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_to_closed_set</span><span class="p">(</span><span class="n">current_state</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+                <span class="k">continue</span>
+
             <span class="n">neighbours</span> <span class="o">=</span> <span class="n">current_state</span><span class="o">.</span><span class="n">get_valid_neighbours</span><span class="p">()</span>
             <span class="n">not_extd_neighbours</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_not_extended</span><span class="p">(</span><span class="n">neighbours</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_to_open_set</span><span class="p">(</span><span class="n">not_extd_neighbours</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">closed_set</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">current_state</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">current_state</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">goal_state</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">goal_state</span><span class="o">.</span><span class="n">set_parent</span><span class="p">(</span><span class="n">current_state</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span>
                 <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_reversed_step_sequence</span><span class="p">()</span></div>

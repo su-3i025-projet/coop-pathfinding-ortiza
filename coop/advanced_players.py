@@ -136,12 +136,12 @@ class TimeNode(Node):
         valid_neighbours = []
         t = self.t
         for x, y in neighbours:
-            # assert that the cell is not a wall nor an invalid position
+            # ensure that the cell is not a wall nor an invalid position
             # (outside the grid)
             if (x, y) in self.a_star.walls or not TimeNode.is_valid(x, y):
                 continue
 
-            # assert that the cell is currently available, otherwise
+            # ensure that the cell is currently available, otherwise
             # there must be no collision if the step is taken
             try:
                 other_id = AdvancedPlayer.reservation_table[(x, y, t)]
@@ -219,10 +219,10 @@ class TimeAStar(AStar):
         The storage location of the walls position.
     last_epoch : int
         The endpoint of the associated agent's pathfinding window.
-    open_set : Heap
+    open_set : heap of TimeNode
         The fringe of the algorithm.
-    closed_set : list of Node
-        The list of nodes already extended during the execution.
+    closed_set : dict of (int, int, int): TimeNode
+        The set of nodes already extended during the execution.
     backwards_search : AStar
         The A* instance used to obtain the true distances to the goal.
 
@@ -249,7 +249,7 @@ class TimeAStar(AStar):
         self.last_epoch = last_epoch if last_epoch is not None \
             else initial_epoch + AdvancedPlayer.frequence
         self.open_set = [self.initial_state]
-        self.closed_set = []
+        self.closed_set = {}
         self.backwards_search = backwards_search if backwards_search is not None \
             else AStar(goal_state, initial_state, walls)
         AdvancedPlayer.reservation_table[self.initial_state.coordinates] = player_id
@@ -287,12 +287,16 @@ class TimeAStar(AStar):
         """
         TimeAStar.NB_CALLS += 1
         while not self.open_set_is_empty():
-            TimeAStar.NB_ITERS += 1
             current_state = self.select_best()
+
+            # ensure unicity in closed set
+            if self.add_to_closed_set(current_state) is False:
+                continue
+
+            TimeAStar.NB_ITERS += 1
             neighbours = current_state.get_valid_neighbours(self.player_id)
             not_extd_neighbours = self.get_not_extended(neighbours)
             self.add_to_open_set(not_extd_neighbours)
-            self.closed_set.append(current_state)
             if current_state.t == self.last_epoch:
                 return self.__get_reversed_step_sequence(current_state)
 
@@ -444,9 +448,6 @@ class AdvancedPlayer(CoopPlayer):
             cls.players[cnt].__set_search_epoch(t)
             rem -= 1
             cnt += 1
-        # for player in cls.players:
-        #     print(player.id, player.search_epoch)
-        # print(cls.reservation_table)
 
     @classmethod
     def set_pathfinding_frequence(cls, frequence):
