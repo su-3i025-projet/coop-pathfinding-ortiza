@@ -444,9 +444,9 @@ class AdvancedPlayer(CoopPlayer):
             cls.players[cnt].__set_search_epoch(t)
             rem -= 1
             cnt += 1
-        for player in cls.players:
-            print(player.id, player.search_epoch)
-        print(cls.reservation_table)
+        # for player in cls.players:
+        #     print(player.id, player.search_epoch)
+        # print(cls.reservation_table)
 
     @classmethod
     def set_pathfinding_frequence(cls, frequence):

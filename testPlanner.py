@@ -29,15 +29,15 @@ from utils.spritebuilder import SpriteBuilder
 game = Game()
 
 
-def init(_boardname=None):
+def init(n_players):
     global player, game
     # pathfindingWorld_MultiPlayer4
-    name = _boardname if _boardname is not None else 'pathfindingWorld_MultiPlayer4'
+    name = 'pathfinding' + f'{n_players}' + 'players'
     game = Game('../Cartes/' + name + '.json', SpriteBuilder)
     game.O = Ontology(
         True, '../SpriteSheet-32x32/tiny_spritesheet_ontology.csv')
     game.populate_sprite_names(game.O)
-    game.fps = 50  # frames per second
+    game.fps = 20  # frames per second
     game.mainiteration()
     game.mask.allow_overlaping_players = True
     # player = game.player
@@ -47,12 +47,14 @@ def main():
 
     # for arg in sys.argv:
     iterations = 50  # default
-    if len(sys.argv) == 2:
+    n_players = 4
+    if len(sys.argv) == 3:
         iterations = int(sys.argv[1])
+        n_players = int(sys.argv[2])
     print("Iterations: ")
     print(iterations)
 
-    init()
+    init(n_players)
 
     # -------------------------------
     # Initialisation
@@ -149,23 +151,23 @@ def main():
                 done += 1
 
                 # et on remet un même objet à un autre endroit
-                x = random.randint(0, 19)
-                y = random.randint(0, 19)
-                while (x, y) in wallStates + current + [el for sub in goalPos for el in sub]:
-                    x = random.randint(0, 19)
-                    y = random.randint(0, 19)
-                o.set_rowcol(x, y)
-                print("Objet trouvé par le joueur ", j, ", new goal :", x, y)
-                goalPos[j].append((x, y))  # on ajoute ce nouveau goalState
-                game.layers['ramassable'].add(o)
-                coop_planner.add_goal(j, (x, y))
+                # x = random.randint(0, 19)
+                # y = random.randint(0, 19)
+                # while (x, y) in wallStates + current + [el for sub in goalPos for el in sub]:
+                #     x = random.randint(0, 19)
+                #     y = random.randint(0, 19)
+                # o.set_rowcol(x, y)
+                # print("Objet trouvé par le joueur ", j, ", new goal :", x, y)
+                # goalPos[j].append((x, y))  # on ajoute ce nouveau goalState
+                # game.layers['ramassable'].add(o)
+                # coop_planner.add_goal(j, (x, y))
 
-        #     if done == nbPlayers:
-        #         break
-        #
-        # if done == nbPlayers:
-        #     game.mainiteration()
-        #     break
+            if done == nbPlayers:
+                break
+
+        if done == nbPlayers:
+            game.mainiteration()
+            break
 
         collision = False
         concurrent = [(p, q) for p in range(nbPlayers)

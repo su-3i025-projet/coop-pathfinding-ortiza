@@ -28,15 +28,15 @@ from utils.spritebuilder import SpriteBuilder
 game = Game()
 
 
-def init(_boardname=None):
+def init(n_players):
     global player, game
     # pathfindingWorld_MultiPlayer4
-    name = _boardname if _boardname is not None else 'pathfindingWorld_MultiPlayer4'
+    name = 'pathfinding' + f'{n_players}' + 'players'
     game = Game('../Cartes/' + name + '.json', SpriteBuilder)
     game.O = Ontology(
         True, '../SpriteSheet-32x32/tiny_spritesheet_ontology.csv')
     game.populate_sprite_names(game.O)
-    game.fps = 70  # frames per second
+    game.fps = 20  # frames per second
     game.mainiteration()
     game.mask.allow_overlaping_players = True
     # player = game.player
@@ -46,12 +46,14 @@ def main():
 
     # for arg in sys.argv:
     iterations = 50  # default
-    if len(sys.argv) == 2:
+    n_players = 4
+    if len(sys.argv) == 3:
         iterations = int(sys.argv[1])
+        n_players = int(sys.argv[2])
     print("Iterations: ")
     print(iterations)
 
-    init()
+    init(n_players)
 
     # -------------------------------
     # Initialisation
@@ -72,18 +74,18 @@ def main():
     # -------------------------------
     # Placement aleatoire des fioles
     # -------------------------------
-    goalPos = []
-    for o in game.layers['ramassable']:  # les rouges puis jaunes puis bleues
-        # et on met la fiole qqpart au hasard
-        x = random.randint(7, 12)
-        y = random.randint(7, 12)
-        while (x, y) in wallStates + goalPos:
-            x = random.randint(7, 12)
-            y = random.randint(7, 12)
-        o.set_rowcol(x, y)
-        goalPos.append((x, y))
-        game.layers['ramassable'].add(o)
-        game.mainiteration()
+    # goalPos = []
+    # for o in game.layers['ramassable']:  # les rouges puis jaunes puis bleues
+    #     # et on met la fiole qqpart au hasard
+    #     x = random.randint(0, 19)
+    #     y = random.randint(0, 19)
+    #     while (x, y) in wallStates + goalPos:
+    #         x = random.randint(0, 19)
+    #         y = random.randint(0, 19)
+    #     o.set_rowcol(x, y)
+    #     goalPos.append((x, y))
+    #     game.layers['ramassable'].add(o)
+    #     game.mainiteration()
 
     print(game.layers['ramassable'])
 
@@ -149,19 +151,19 @@ def main():
                 done += 1
 
                 # et on remet un même objet à un autre endroit
-                x = random.randint(3, 15)
-                y = random.randint(3, 15)
-                while (x, y) in wallStates:
-                    x = random.randint(3, 15)
-                    y = random.randint(3, 15)
-                o.set_rowcol(x, y)
-                goalPos[j].append((x, y))  # on ajoute ce nouveau goalState
-                game.layers['ramassable'].add(o)
-                coop_players[j].add_goal((x, y))
-                print('\tnew goal at', (x, y))
+                # x = random.randint(0, 19)
+                # y = random.randint(0, 19)
+                # while (x, y) in wallStates:
+                #     x = random.randint(0, 19)
+                #     y = random.randint(0, 19)
+                # o.set_rowcol(x, y)
+                # goalPos[j].append((x, y))  # on ajoute ce nouveau goalState
+                # game.layers['ramassable'].add(o)
+                # coop_players[j].add_goal((x, y))
+                # print('\tnew goal at', (x, y))
 
-            # if done == nbPlayers:
-            #     break
+            if done == nbPlayers:
+                break
 
         current = [p.current_position for p in coop_players]
         collision = False
@@ -183,8 +185,8 @@ def main():
         game.mainiteration()
         print("Ended iteration", i + 1)
         print("===================================")
-        # if done == nbPlayers:
-        #     break
+        if done == nbPlayers:
+            break
 
     print("===================", "STATS", "===================")
     print("Total CPU time:", cpu_time)
